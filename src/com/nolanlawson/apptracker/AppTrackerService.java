@@ -3,11 +3,13 @@ package com.nolanlawson.apptracker;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-
-import com.nolanlawson.apptracker.util.UtilLogger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.app.IntentService;
 import android.content.Intent;
+
+import com.nolanlawson.apptracker.util.UtilLogger;
 
 /**
  * Reads logs.  Named "AppTrackerService" in order to obfuscate, so the user won't get freaked out if they see
@@ -19,6 +21,8 @@ public class AppTrackerService extends IntentService {
 
 	    private static UtilLogger log = new UtilLogger(AppTrackerService.class);
 
+	    private static Pattern launcherPattern = Pattern.compile("\\bcmp=(.+?)/\\.(.+?) ");
+	    
 	    public AppTrackerService() {
 	        super("AppTrackerService");
 	    }
@@ -45,6 +49,14 @@ public class AppTrackerService extends IntentService {
 					
 					if (line.contains("Starting activity")) {
 						log.d("log is %s", line);
+						
+						Matcher matcher = launcherPattern.matcher(line);
+						
+						if (matcher.find()) {
+							log.d("package name is: " + matcher.group(1));
+							log.d("process name is: " + matcher.group(2));
+						}
+						
 					}
 				}
 				
