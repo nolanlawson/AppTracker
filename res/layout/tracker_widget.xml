@@ -4,13 +4,50 @@
 	android:layout_height="fill_parent" android:gravity="center_vertical"
 	focusable="true">
 
+	<LinearLayout android:orientation="horizontal"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:gravity="bottom|center_horizontal" android:paddingTop="5dp">
+		<LinearLayout android:layout_width="0px"
+			android:layout_height="wrap_content" android:layout_weight="0.5"
+			android:gravity="center_horizontal|center_vertical"
+			android:clickable="true" android:focusable="true"
+			android:drawSelectorOnTop="false" android:background="@drawable/app_selector"
+			android:id="@+id/back_button">
+
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:paddingLeft="10dp"
+				android:paddingRight="10dp" android:textSize="22sp"
+				android:textStyle="bold" android:background="@drawable/bubble_small"
+				android:gravity="center_horizontal|center_vertical"
+				android:textColor="@android:color/white" android:text="@string/backArrow"
+				android:singleLine="true" android:paddingBottom="5dp" />
+
+		</LinearLayout>
+
+		<LinearLayout android:layout_width="0px"
+			android:layout_height="wrap_content" android:layout_weight="0.5"
+			android:gravity="center_horizontal|center_vertical"
+			android:clickable="true" android:focusable="true"
+			android:drawSelectorOnTop="false" android:background="@drawable/app_selector"
+			android:id="@+id/forward_button">
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:paddingLeft="10dp"
+				android:paddingRight="10dp" android:textSize="22sp"
+				android:textStyle="bold" android:gravity="center_horizontal|center_vertical"
+				android:background="@drawable/bubble_small" android:textColor="@android:color/white"
+				android:text="@string/forwardArrow" android:singleLine="true"
+				android:paddingBottom="5dp" />
+		</LinearLayout>
+
+
+	</LinearLayout>
+
 	<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 		android:layout_width="fill_parent" android:layout_height="0px"
 		android:layout_weight="0.25" android:id="@+id/app_item_1"
 		android:clickable="true" android:focusable="true"
-		android:drawSelectorOnTop="false"
-        android:background="@drawable/app_selector"
-        android:visibility="invisible">
+		android:drawSelectorOnTop="false" android:background="@drawable/app_selector"
+		android:visibility="invisible">
 
 		<TextView android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:id="@+id/app_description_1"
@@ -39,9 +76,8 @@
 		android:layout_width="fill_parent" android:layout_height="0px"
 		android:layout_weight="0.25" android:id="@+id/app_item_2"
 		android:clickable="true" android:focusable="true"
-		android:drawSelectorOnTop="false"
-        android:background="@drawable/app_selector"
-        android:visibility="invisible">
+		android:drawSelectorOnTop="false" android:background="@drawable/app_selector"
+		android:visibility="invisible">
 
 		<TextView android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:id="@+id/app_description_2"
@@ -69,9 +105,8 @@
 		android:layout_width="fill_parent" android:layout_height="0px"
 		android:layout_weight="0.25" android:id="@+id/app_item_3"
 		android:clickable="true" android:focusable="true"
-		android:drawSelectorOnTop="false"
-        android:background="@drawable/app_selector"
-        android:visibility="invisible">
+		android:drawSelectorOnTop="false" android:background="@drawable/app_selector"
+		android:visibility="invisible">
 
 		<TextView android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:id="@+id/app_description_3"
@@ -99,9 +134,8 @@
 		android:layout_width="fill_parent" android:layout_height="0px"
 		android:layout_weight="0.25" android:id="@+id/app_item_4"
 		android:clickable="true" android:focusable="true"
-		android:drawSelectorOnTop="false"
-        android:background="@drawable/app_selector"
-        android:visibility="invisible">
+		android:drawSelectorOnTop="false" android:background="@drawable/app_selector"
+		android:visibility="invisible">
 
 		<TextView android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:id="@+id/app_description_4"
@@ -110,7 +144,7 @@
 			android:layout_alignParentBottom="true" android:background="@drawable/bubble_small"
 			android:textColor="@android:color/white" android:gravity="center_vertical"
 			android:text="4 mins ago" android:singleLine="true"
-			
+
 			android:paddingBottom="5dp" />
 
 		<TextView android:layout_width="wrap_content"

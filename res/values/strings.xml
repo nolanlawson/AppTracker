@@ -2,4 +2,6 @@
 <resources>
     <string name="hello">Hello World, AppTrackerActivity!</string>
     <string name="app_name">App Tracker</string>
+    <string name="backArrow">&lt;</string>
+    <string name="forwardArrow">&gt;</string>
 </resources>
