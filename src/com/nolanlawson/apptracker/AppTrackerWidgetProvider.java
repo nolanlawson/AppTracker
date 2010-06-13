@@ -4,7 +4,9 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 
+import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
 import com.nolanlawson.apptracker.util.ServiceUtil;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
@@ -12,23 +14,23 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 
 	private static UtilLogger log = new UtilLogger(AppTrackerWidgetProvider.class);
 	
+	
+	
 	@Override
 	public void onDeleted(Context context, int[] appWidgetIds) {
-		super.onDeleted(context, appWidgetIds);
 		
+		super.onDeleted(context, appWidgetIds);
 		log.d("onDeleted()");
 	}
 
 	@Override
 	public void onDisabled(Context context) {
-		// TODO Auto-generated method stub
 		super.onDisabled(context);
 		log.d("onDisabled()");
 	}
 
 	@Override
 	public void onEnabled(Context context) {
-		// TODO Auto-generated method stub
 		super.onEnabled(context);
 		log.d("onEnabled()");
 		
@@ -38,7 +40,6 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		// TODO Auto-generated method stub
 		super.onReceive(context, intent);
 		log.d("onReceive()");
 		startBackgroundServiceIfNotAlreadyRunning(context);
@@ -48,10 +49,11 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 	@Override
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager,
 			int[] appWidgetIds) {
-		// TODO Auto-generated method stub
 		super.onUpdate(context, appWidgetManager, appWidgetIds);
 		log.d("onUpdate()");
 		startBackgroundServiceIfNotAlreadyRunning(context);
+		
+		updateWidget(context);
 		
 
 	}
@@ -63,7 +65,21 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 			context.startService(intent);
 		}
 	}
-
 	
+	private static void updateWidget(final Context context) {
+		AsyncTask<Void,Void,Void> updateTask = new AsyncTask<Void, Void, Void>(){
+
+			@Override
+			protected Void doInBackground(Void... params) {
+				
+				AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);
+				WidgetUpdater.updateWidget(context, dbHelper);
+				dbHelper.close();
+				
+				return null;
+			}};
+			
+		updateTask.execute();
+	}
 	
 }

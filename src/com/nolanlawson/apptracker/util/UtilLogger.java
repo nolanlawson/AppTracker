@@ -19,7 +19,7 @@ public class UtilLogger {
 	}
 	
 	public UtilLogger(Class<?> clazz) {
-		this.tag = clazz.getCanonicalName();
+		this.tag = clazz.getSimpleName();
 	}
 	
 	public void i(String format, Object... more) {

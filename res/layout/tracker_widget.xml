@@ -1,12 +1,129 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    >
-<TextView  
-    android:layout_width="fill_parent" 
-    android:layout_height="wrap_content" 
-    android:text="@string/hello"
-    />
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent" android:gravity="center_vertical"
+	focusable="true">
+
+	<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="fill_parent" android:layout_height="0px"
+		android:layout_weight="0.25" android:id="@+id/app_item_1"
+		android:clickable="true" android:focusable="true"
+		android:drawSelectorOnTop="false"
+        android:background="@drawable/app_selector"
+        android:visibility="invisible">
+
+		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:id="@+id/app_description_1"
+			android:paddingLeft="3dp" android:textSize="12sp"
+			android:layout_centerHorizontal="true"
+			android:layout_alignParentBottom="true" android:background="@drawable/bubble_small"
+			android:textColor="@android:color/white" android:gravity="center_vertical"
+			android:text="4 mins ago" android:singleLine="true"
+			android:paddingBottom="5dp" />
+
+		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:id="@+id/app_title_1"
+			android:textSize="13sp" android:layout_above="@+id/app_description_1"
+			android:paddingLeft="3dp" android:text="App Title" android:gravity="center_vertical"
+			android:layout_centerHorizontal="true" android:background="@drawable/bubble"
+			android:textColor="@android:color/white" android:singleLine="true" />
+
+		<ImageView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:src="@drawable/icon"
+			android:id="@+id/app_icon_1" android:layout_centerHorizontal="true"
+			android:layout_above="@+id/app_title_1" />
+
+	</RelativeLayout>
+
+	<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="fill_parent" android:layout_height="0px"
+		android:layout_weight="0.25" android:id="@+id/app_item_2"
+		android:clickable="true" android:focusable="true"
+		android:drawSelectorOnTop="false"
+        android:background="@drawable/app_selector"
+        android:visibility="invisible">
+
+		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:id="@+id/app_description_2"
+			android:paddingLeft="3dp" android:textSize="12sp"
+			android:layout_centerHorizontal="true"
+			android:layout_alignParentBottom="true" android:background="@drawable/bubble_small"
+			android:textColor="@android:color/white" android:gravity="center_vertical"
+			android:text="4 mins ago" android:singleLine="true"
+			android:paddingBottom="5dp" />
+
+		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:id="@+id/app_title_2"
+			android:textSize="13sp" android:layout_above="@+id/app_description_2"
+			android:paddingLeft="3dp" android:text="App Title" android:gravity="center_vertical"
+			android:layout_centerHorizontal="true" android:background="@drawable/bubble"
+			android:textColor="@android:color/white" android:singleLine="true" />
+
+		<ImageView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:src="@drawable/icon"
+			android:id="@+id/app_icon_2" android:layout_centerHorizontal="true"
+			android:layout_above="@+id/app_title_2" />
+
+	</RelativeLayout>
+	<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="fill_parent" android:layout_height="0px"
+		android:layout_weight="0.25" android:id="@+id/app_item_3"
+		android:clickable="true" android:focusable="true"
+		android:drawSelectorOnTop="false"
+        android:background="@drawable/app_selector"
+        android:visibility="invisible">
+
+		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:id="@+id/app_description_3"
+			android:paddingLeft="3dp" android:textSize="12sp"
+			android:layout_centerHorizontal="true"
+			android:layout_alignParentBottom="true" android:background="@drawable/bubble_small"
+			android:textColor="@android:color/white" android:gravity="center_vertical"
+			android:text="4 mins ago" android:singleLine="true"
+			android:paddingBottom="5dp" />
+
+		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:id="@+id/app_title_3"
+			android:textSize="13sp" android:layout_above="@+id/app_description_3"
+			android:paddingLeft="3dp" android:text="App Title" android:gravity="center_vertical"
+			android:layout_centerHorizontal="true" android:background="@drawable/bubble"
+			android:textColor="@android:color/white" android:singleLine="true" />
+
+		<ImageView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:src="@drawable/icon"
+			android:id="@+id/app_icon_3" android:layout_centerHorizontal="true"
+			android:layout_above="@+id/app_title_3" />
+
+	</RelativeLayout>
+	<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="fill_parent" android:layout_height="0px"
+		android:layout_weight="0.25" android:id="@+id/app_item_4"
+		android:clickable="true" android:focusable="true"
+		android:drawSelectorOnTop="false"
+        android:background="@drawable/app_selector"
+        android:visibility="invisible">
+
+		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:id="@+id/app_description_4"
+			android:paddingLeft="3dp" android:textSize="12sp"
+			android:layout_centerHorizontal="true"
+			android:layout_alignParentBottom="true" android:background="@drawable/bubble_small"
+			android:textColor="@android:color/white" android:gravity="center_vertical"
+			android:text="4 mins ago" android:singleLine="true"
+			
+			android:paddingBottom="5dp" />
+
+		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:id="@+id/app_title_4"
+			android:textSize="13sp" android:layout_above="@+id/app_description_4"
+			android:paddingLeft="3dp" android:text="App Title" android:gravity="center_vertical"
+			android:layout_centerHorizontal="true" android:background="@drawable/bubble"
+			android:textColor="@android:color/white" android:singleLine="true" />
+
+		<ImageView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:src="@drawable/icon"
+			android:id="@+id/app_icon_4" android:layout_centerHorizontal="true"
+			android:layout_above="@+id/app_title_4" />
+
+	</RelativeLayout>
 </LinearLayout>
