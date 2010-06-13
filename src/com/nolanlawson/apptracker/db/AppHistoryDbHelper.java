@@ -19,7 +19,11 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	private static UtilLogger log = new UtilLogger(AppHistoryDbHelper.class);
 	
 	//TODO: make this configurable
-	private static final String[] appsToIgnore = {"com.android.launcher2","com.nolanlawson.apptracker"};
+	private static final String[] appsToIgnore = {"com.android.launcher2", // launcher
+	                                              "com.nolanlawson.apptracker", // apptracker itself
+	                                              "com.android.contacts", // contacts OR phone
+	                                              "com.android.browser", // browser
+	                                              "com.android.mms"}; // messaging
 	
 	// schema constants
 	
@@ -74,8 +78,10 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		
 		if (findByPackageAndProcess(packageName, process) == null) {
 			// create new
+			log.d("inserting new app history: %s, %s", packageName, process);
 			insertNewAppHistoryEntry(packageName, process);
 		}
+		log.d("updating/incrementing app history: %s, %s", packageName, process);
 		
 		long currentTime = System.currentTimeMillis();
 		
@@ -84,7 +90,6 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 			+ COLUMN_LAST_ACCESS + " = " + currentTime
 			+ " where " + COLUMN_PACKAGE + "=? "
 			+ " and " + COLUMN_PROCESS + "=?";
-		
 		String[] bindArgs = {packageName,process};
 		
 		getWritableDatabase().execSQL(sql, bindArgs);

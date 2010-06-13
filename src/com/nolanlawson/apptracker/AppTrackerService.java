@@ -43,7 +43,7 @@ public class AppTrackerService extends IntentService {
 	private static UtilLogger log = new UtilLogger(AppTrackerService.class);
 
 	private static Pattern launcherPattern = Pattern
-			.compile("\\bcmp=(.+?)/\\.(.+?) ");
+			.compile("\\bcmp=(.+?)/\\.?(.+?)\\s");
 
 
 
