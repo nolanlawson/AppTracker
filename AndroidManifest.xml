@@ -14,13 +14,21 @@
 		<intent-filter>
 			<action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
 		</intent-filter>
+		
+		<intent-filter>
+			<action android:name="com.nolanlawson.apptracker.action.PAGE_UPDATE_FORWARD" />
+		</intent-filter>
+		
+		<intent-filter>
+			<action android:name="com.nolanlawson.apptracker.action.PAGE_UPDATE_BACK" />
+		</intent-filter>
+				
 		<meta-data android:name="android.appwidget.provider"
 			android:resource="@xml/tracker_widget_info" />
 	</receiver>
 	
-	<service android:name=".AppTrackerService">
 	
-	</service>
+	<service android:name=".AppTrackerService"/>
 
 	</application>
 

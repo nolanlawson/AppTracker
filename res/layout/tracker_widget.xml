@@ -19,7 +19,7 @@
 				android:paddingRight="10dp" android:textSize="22sp"
 				android:textStyle="bold" android:background="@drawable/bubble_small"
 				android:gravity="center_horizontal|center_vertical"
-				android:textColor="@android:color/white" android:text="@string/backArrow"
+				android:textColor="@android:color/white" android:text="@string/back_arrow"
 				android:singleLine="true" android:paddingBottom="5dp" />
 
 		</LinearLayout>
@@ -35,7 +35,7 @@
 				android:paddingRight="10dp" android:textSize="22sp"
 				android:textStyle="bold" android:gravity="center_horizontal|center_vertical"
 				android:background="@drawable/bubble_small" android:textColor="@android:color/white"
-				android:text="@string/forwardArrow" android:singleLine="true"
+				android:text="@string/forward_arrow" android:singleLine="true"
 				android:paddingBottom="5dp" />
 		</LinearLayout>
 

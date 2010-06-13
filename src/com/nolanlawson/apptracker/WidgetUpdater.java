@@ -12,12 +12,15 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.RemoteViews;
 
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
 import com.nolanlawson.apptracker.db.AppHistoryEntry;
 import com.nolanlawson.apptracker.util.DatetimeUtil;
+import com.nolanlawson.apptracker.util.PreferenceFetcher;
 import com.nolanlawson.apptracker.util.ResourceIdFetcher;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
@@ -26,6 +29,8 @@ public class WidgetUpdater {
 	private static UtilLogger log = new UtilLogger(WidgetUpdater.class);
 	
 	public static final int APPS_PER_PAGE = 4;
+	
+	public static final String NEW_PAGE_NUMBER = "newPageNumber";
 	
 	public static void updateWidget(Context context, AppHistoryDbHelper dbHelper) {
 
@@ -39,8 +44,10 @@ public class WidgetUpdater {
 		
 		RemoteViews updateViews = new RemoteViews(context.getPackageName(), R.layout.tracker_widget);
 		
+		int pageNumber = PreferenceFetcher.getCurrentPageNumber(context);
+		
 		List<AppHistoryEntry> appHistories = 
-			dbHelper.getMostRecentAppHistoryEntries(APPS_PER_PAGE, 0);
+			dbHelper.getMostRecentAppHistoryEntries(APPS_PER_PAGE, pageNumber * APPS_PER_PAGE);
 		
 		log.d("Received the following appHistories: %s", appHistories);
 		
@@ -79,7 +86,45 @@ public class WidgetUpdater {
 			}
 		}
 		
+		
+		
+		// if no more app results, disable forward button
+		// TODO: optimize this
+		boolean noMoreAppResults = dbHelper.getMostRecentAppHistoryEntries(APPS_PER_PAGE, (pageNumber + 1) * APPS_PER_PAGE).isEmpty();
+
+		updateViews.setViewVisibility(R.id.forward_button, noMoreAppResults ? View.INVISIBLE : View.VISIBLE);
+
+		log.d("forward button page number: %d", pageNumber + 1);
+		updateViews.setOnClickPendingIntent(R.id.forward_button, 
+				getPendingIntentForForwardOrBackButton(context, true, pageNumber + 1));
+		
+		
+		// if no previous app results, disable back button
+		updateViews.setViewVisibility(R.id.back_button, pageNumber == 0 ? View.INVISIBLE : View.VISIBLE);
+		
+		log.d("back button page number: %d", pageNumber - 1);
+		updateViews.setOnClickPendingIntent(R.id.back_button, 
+				getPendingIntentForForwardOrBackButton(context, false, pageNumber - 1));
+			
+		
+		
 		return updateViews;
+		
+	}
+
+	private static PendingIntent getPendingIntentForForwardOrBackButton(Context context, boolean forward, int newPageNumber) {
+		
+		
+		Intent intent = new Intent();
+		intent.setAction(forward ? AppTrackerWidgetProvider.ACTION_UPDATE_PAGE_FORWARD
+				: AppTrackerWidgetProvider.ACTION_UPDATE_PAGE_BACK);
+
+		intent.putExtra(NEW_PAGE_NUMBER, newPageNumber);
+		
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
+                0 /* no requestCode */, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		
+		return pendingIntent;
 		
 	}
 

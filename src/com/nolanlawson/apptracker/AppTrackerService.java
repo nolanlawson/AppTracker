@@ -37,7 +37,7 @@ import com.nolanlawson.apptracker.util.UtilLogger;
  */
 public class AppTrackerService extends IntentService {
 
-	private AppHistoryDbHelper appHistoryDbHelper;
+	private AppHistoryDbHelper dbHelper;
 
 	
 	private static UtilLogger log = new UtilLogger(AppTrackerService.class);
@@ -56,7 +56,9 @@ public class AppTrackerService extends IntentService {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		appHistoryDbHelper = new AppHistoryDbHelper(getApplicationContext());
+		synchronized (AppHistoryDbHelper.class) {
+			dbHelper = new AppHistoryDbHelper(getApplicationContext());
+		}
 	}
 	
 	
@@ -66,7 +68,7 @@ public class AppTrackerService extends IntentService {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		appHistoryDbHelper.close();
+		dbHelper.close();
 	}
 
 
@@ -102,8 +104,8 @@ public class AppTrackerService extends IntentService {
 						String process = matcher.group(2);
 						log.d("package name is: " + packageName);
 						log.d("process name is: " + process);
-						appHistoryDbHelper.incrementAndUpdate(packageName, process);
-						WidgetUpdater.updateWidget(this, appHistoryDbHelper);
+						dbHelper.incrementAndUpdate(packageName, process);
+						WidgetUpdater.updateWidget(this, dbHelper);
 					}
 
 				}
