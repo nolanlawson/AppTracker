@@ -25,14 +25,21 @@ public class DatetimeUtil {
 				return mins + " mins ago";
 			}
 		} else if (timeDiff < TimeUnit.SECONDS.toMillis(60 * 60 * 24)) { // less than a day ago
-			long hours = Math.round(TimeUnit.SECONDS.convert(timeDiff, TimeUnit.MILLISECONDS) / 3600.0);
+			long hours = Math.round(TimeUnit.SECONDS.convert(timeDiff, TimeUnit.MILLISECONDS) / 60.0 * 60);
 			if (hours == 1) {
 				return "1 hour ago";
 			} else {
 				return hours + " hours ago";
 			}
-		} else { // more than one day
-			return ">1 day ago";
+		} else if (timeDiff < TimeUnit.SECONDS.toMillis(60 * 60 * 24 * 31)) { // less than 31 days ago
+			long days = Math.round(TimeUnit.SECONDS.convert(timeDiff, TimeUnit.MILLISECONDS) / (60.0 * 60 * 24));
+			if (days == 1) {
+				return "1 day ago";
+			} else {
+				return days +" days ago";
+			}
+		} else {
+			return ">1 month ago";
 		}
 	}
 	

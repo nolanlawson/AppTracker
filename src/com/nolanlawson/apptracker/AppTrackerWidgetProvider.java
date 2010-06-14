@@ -56,12 +56,17 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 				|| ACTION_UPDATE_PAGE_BACK.equals(intent.getAction())) {
 			
 			int newPageNumber = intent.getIntExtra(WidgetUpdater.NEW_PAGE_NUMBER, 0);
+			int appWidgetId = intent.getIntExtra(WidgetUpdater.APP_WIDGET_ID, -1);
 			
-			PreferenceFetcher.setCurrentPageNumber(context, newPageNumber);
+			if (appWidgetId != -1) {
 			
-			log.d("moving to new page; pageNumber is now %d", newPageNumber);
+				PreferenceFetcher.setCurrentPageNumber(context, newPageNumber, appWidgetId);
+				
+				log.d("moving to new page; pageNumber is now %d", newPageNumber);
+				
+				updateWidget(context, appWidgetId);
 			
-			updateWidget(context);
+			}
 			
 		}
 		
@@ -89,16 +94,35 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 		}
 	}
 
+	private static void updateWidget(final Context context, final int appWidgetId) {
+		AsyncTask<Void, Void, Void> updateTask = new AsyncTask<Void, Void, Void>() {
+
+			@Override
+			protected Void doInBackground(Void... params) {
+
+				AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);
+				
+				WidgetUpdater.updateWidget(context, dbHelper, appWidgetId);
+				dbHelper.close();
+
+				return null;
+			}
+		};
+
+		updateTask.execute();
+	}
+	
+	/*
+	 * update all app widget ids in the background
+	 */
 	private static void updateWidget(final Context context) {
 		AsyncTask<Void, Void, Void> updateTask = new AsyncTask<Void, Void, Void>() {
 
 			@Override
 			protected Void doInBackground(Void... params) {
 
-				AppHistoryDbHelper dbHelper;
-				synchronized (AppHistoryDbHelper.class) {
-					dbHelper = new AppHistoryDbHelper(context);
-				}
+				AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);
+				
 				WidgetUpdater.updateWidget(context, dbHelper);
 				dbHelper.close();
 

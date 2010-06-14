@@ -31,20 +31,43 @@ public class WidgetUpdater {
 	public static final int APPS_PER_PAGE = 4;
 	
 	public static final String NEW_PAGE_NUMBER = "newPageNumber";
+	public static final String APP_WIDGET_ID = "appWidgetId";
 	
+	/**
+	 * update only the app widgets associated with the given id
+	 * @param context
+	 * @param dbHelper
+	 * @param appWidgetId
+	 */
+	public static void updateWidget(Context context, AppHistoryDbHelper dbHelper, int appWidgetId) {
+		
+		AppWidgetManager manager = AppWidgetManager.getInstance(context);
+		RemoteViews updateViews = buildUpdate(context, dbHelper, appWidgetId);
+		manager.updateAppWidget(appWidgetId, updateViews);
+	}
+	
+	/**
+	 * Update all app tracker app widgets
+	 * @param context
+	 * @param dbHelper
+	 */
 	public static void updateWidget(Context context, AppHistoryDbHelper dbHelper) {
 
 		ComponentName widget = new ComponentName(context, AppTrackerWidgetProvider.class);
 		AppWidgetManager manager = AppWidgetManager.getInstance(context);
-		RemoteViews updateViews = buildUpdate(context, dbHelper);
-		manager.updateAppWidget(widget, updateViews);
+		int[] appWidgetIds = manager.getAppWidgetIds(widget);
+		for (int appWidgetId : appWidgetIds) {
+			RemoteViews updateViews = buildUpdate(context, dbHelper, appWidgetId);
+			manager.updateAppWidget(appWidgetId, updateViews);
+		}
 	}
 	
-	private static RemoteViews buildUpdate(Context context, AppHistoryDbHelper dbHelper) {
+	
+	private static RemoteViews buildUpdate(Context context, AppHistoryDbHelper dbHelper, int appWidgetId) {
 		
 		RemoteViews updateViews = new RemoteViews(context.getPackageName(), R.layout.tracker_widget);
 		
-		int pageNumber = PreferenceFetcher.getCurrentPageNumber(context);
+		int pageNumber = PreferenceFetcher.getCurrentPageNumber(context, appWidgetId);
 		
 		List<AppHistoryEntry> appHistories = 
 			dbHelper.getMostRecentAppHistoryEntries(APPS_PER_PAGE, pageNumber * APPS_PER_PAGE);
@@ -96,7 +119,7 @@ public class WidgetUpdater {
 
 		log.d("forward button page number: %d", pageNumber + 1);
 		updateViews.setOnClickPendingIntent(R.id.forward_button, 
-				getPendingIntentForForwardOrBackButton(context, true, pageNumber + 1));
+				getPendingIntentForForwardOrBackButton(context, true, pageNumber + 1, appWidgetId));
 		
 		
 		// if no previous app results, disable back button
@@ -104,7 +127,7 @@ public class WidgetUpdater {
 		
 		log.d("back button page number: %d", pageNumber - 1);
 		updateViews.setOnClickPendingIntent(R.id.back_button, 
-				getPendingIntentForForwardOrBackButton(context, false, pageNumber - 1));
+				getPendingIntentForForwardOrBackButton(context, false, pageNumber - 1, appWidgetId));
 			
 		
 		
@@ -112,7 +135,8 @@ public class WidgetUpdater {
 		
 	}
 
-	private static PendingIntent getPendingIntentForForwardOrBackButton(Context context, boolean forward, int newPageNumber) {
+	private static PendingIntent getPendingIntentForForwardOrBackButton(
+			Context context, boolean forward, int newPageNumber, int appWidgetId) {
 		
 		
 		Intent intent = new Intent();
@@ -120,6 +144,7 @@ public class WidgetUpdater {
 				: AppTrackerWidgetProvider.ACTION_UPDATE_PAGE_BACK);
 
 		intent.putExtra(NEW_PAGE_NUMBER, newPageNumber);
+		intent.putExtra(APP_WIDGET_ID, appWidgetId);
 		
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
                 0 /* no requestCode */, intent, PendingIntent.FLAG_UPDATE_CURRENT);

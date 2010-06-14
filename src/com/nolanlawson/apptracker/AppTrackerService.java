@@ -56,9 +56,9 @@ public class AppTrackerService extends IntentService {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		synchronized (AppHistoryDbHelper.class) {
-			dbHelper = new AppHistoryDbHelper(getApplicationContext());
-		}
+
+		dbHelper = new AppHistoryDbHelper(getApplicationContext());
+		
 	}
 	
 	

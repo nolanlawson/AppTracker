@@ -19,7 +19,8 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	private static UtilLogger log = new UtilLogger(AppHistoryDbHelper.class);
 	
 	//TODO: make this configurable
-	private static final String[] appsToIgnore = {"com.android.launcher2", // launcher
+	private static final String[] appsToIgnore = {"com.android.launcher", // launcher
+		                                          "com.android.launcher2", // launcher2
 	                                              "com.nolanlawson.apptracker", // apptracker itself
 	                                              "com.android.contacts", // contacts OR phone
 	                                              "com.android.browser", // browser
@@ -145,7 +146,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		
-		String sql = "create table " + TABLE_NAME
+		String sql = "create table if not exists " + TABLE_NAME
 		+ " (" +
 		COLUMN_ID + " integer not null primary key autoincrement, " +
 		COLUMN_PACKAGE + " text not null, " +
