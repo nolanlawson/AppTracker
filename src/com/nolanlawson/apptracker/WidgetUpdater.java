@@ -13,7 +13,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.RemoteViews;
 
@@ -32,6 +31,7 @@ public class WidgetUpdater {
 	
 	public static final String NEW_PAGE_NUMBER = "newPageNumber";
 	public static final String APP_WIDGET_ID = "appWidgetId";
+	private static final String URI_SCHEME = "app_tracker_widget";
 	
 	/**
 	 * update only the app widgets associated with the given id
@@ -145,9 +145,13 @@ public class WidgetUpdater {
 
 		intent.putExtra(NEW_PAGE_NUMBER, newPageNumber);
 		intent.putExtra(APP_WIDGET_ID, appWidgetId);
-		
+		// gotta make this unique for this appwidgetid - otherwise, the PendingIntents conflict
+		// it seems to be a quasi-bug in Android
+		Uri data = Uri.withAppendedPath(Uri.parse(URI_SCHEME + "://widget/id/#"+forward + newPageNumber), String.valueOf(appWidgetId));
+        intent.setData(data);
+        
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
-                0 /* no requestCode */, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                0 /* no requestCode */, intent, PendingIntent.FLAG_ONE_SHOT);
 		
 		return pendingIntent;
 		

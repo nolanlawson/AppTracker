@@ -26,6 +26,8 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 
 		super.onDeleted(context, appWidgetIds);
 		
+		log.d("deleting appWidgetIds: %s", appWidgetIds);
+		
 		for (int appWidgetId : appWidgetIds) {
 			PreferenceFetcher.deleteCurrentPageNumber(context, appWidgetId);
 		}
@@ -68,7 +70,7 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 			
 				PreferenceFetcher.setCurrentPageNumber(context, newPageNumber, appWidgetId);
 				
-				log.d("moving to new page; pageNumber is now %d", newPageNumber);
+				log.d("moving to new page for appWidgetId %d; pageNumber is now %d", appWidgetId, newPageNumber);
 				
 				updateWidget(context, appWidgetId);
 			
@@ -84,7 +86,7 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager,
 			int[] appWidgetIds) {
 		super.onUpdate(context, appWidgetManager, appWidgetIds);
-		log.d("onUpdate()");
+		log.d("onUpdate() for appWidgetIds %s", appWidgetIds);
 		startBackgroundServiceIfNotAlreadyRunning(context);
 
 		updateWidget(context);
