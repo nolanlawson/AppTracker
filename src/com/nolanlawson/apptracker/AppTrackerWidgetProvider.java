@@ -25,6 +25,12 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 	public void onDeleted(Context context, int[] appWidgetIds) {
 
 		super.onDeleted(context, appWidgetIds);
+		
+		for (int appWidgetId : appWidgetIds) {
+			PreferenceFetcher.deleteCurrentPageNumber(context, appWidgetId);
+		}
+		
+		
 		log.d("onDeleted()");
 	}
 

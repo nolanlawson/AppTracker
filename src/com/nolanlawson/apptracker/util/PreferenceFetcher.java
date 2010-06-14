@@ -15,7 +15,7 @@ public class PreferenceFetcher {
 	public static int getCurrentPageNumber(Context context, int appWidgetId) {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		
-		int result = prefs.getInt("current_page_number_" + appWidgetId, 0);
+		int result = prefs.getInt(getPreferenceName(appWidgetId), 0);
 		
 		return result;
 	}
@@ -26,9 +26,26 @@ public class PreferenceFetcher {
 		
 		SharedPreferences.Editor editor = prefs.edit();
 		
-		editor.putInt("current_page_number_" + appWidgetId, pageNumber);
-		
+		editor.putInt(getPreferenceName(appWidgetId), pageNumber);
 		editor.commit();
+	}
+	
+	/**
+	 * delete a record of this appWidgetId's page number
+	 * @param context
+	 * @param appWidgetId
+	 */
+	public static void deleteCurrentPageNumber(Context context, int appWidgetId) {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		
+		SharedPreferences.Editor editor = prefs.edit();
+		
+		editor.remove(getPreferenceName(appWidgetId));
+		editor.commit();		
+	}
+	
+	private static String getPreferenceName(int appWidgetId) {
+		return "current_page_number_" + appWidgetId;
 	}
 	
 }
