@@ -94,7 +94,7 @@ public class AppTrackerService extends IntentService {
 			while ((line = reader.readLine()) != null) {
 
 				if (line.contains("Starting activity") && line.contains("act=android.intent.action.MAIN")
-						&& line.contains("flg=0x10200000")) {
+						&& line.contains("flg=0x1")) {
 					log.d("log is %s", line);
 
 					Matcher matcher = launcherPattern.matcher(line);
