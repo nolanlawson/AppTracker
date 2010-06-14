@@ -25,7 +25,7 @@ public class DatetimeUtil {
 				return mins + " mins ago";
 			}
 		} else if (timeDiff < TimeUnit.SECONDS.toMillis(60 * 60 * 24)) { // less than a day ago
-			long hours = Math.round(TimeUnit.SECONDS.convert(timeDiff, TimeUnit.MILLISECONDS) / 60.0 * 60);
+			long hours = Math.round(TimeUnit.SECONDS.convert(timeDiff, TimeUnit.MILLISECONDS) / (60.0 * 60));
 			if (hours == 1) {
 				return "1 hour ago";
 			} else {
