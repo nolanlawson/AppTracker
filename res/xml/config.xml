@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+	android:persistent="false">
+
+	<ListPreference android:key="@string/sort_type_preference"
+		android:title="@string/sort_type_title" android:summary="@string/sort_type_summary"
+		android:entries="@array/sort_type_list" android:entryValues="@array/sort_type_list"
+		android:defaultValue="@string/sort_type_recent" android:persistent="false" />
+
+	<EditTextPreference android:key="@string/page_number_preference"
+		android:title="@string/page_number_title" android:summary="@string/page_number_summary"
+		android:dialogTitle="@string/page_number_title" android:defaultValue="1"
+		android:persistent="false"/>
+
+	<CheckBoxPreference android:key="@string/lock_page_preference"
+		android:title="@string/lock_page_title" android:summary="@string/lock_page_summary" 
+		android:persistent="false"/>
+
+
+	<CheckBoxPreference android:key="@string/hide_subtext_preference"
+		android:title="@string/hide_subtext_title" android:summary="@string/hide_subtext_summary"
+		android:persistent="false"/>
+
+
+</PreferenceScreen>

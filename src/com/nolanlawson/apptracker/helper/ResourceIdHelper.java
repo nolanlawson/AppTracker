@@ -1,8 +1,8 @@
-package com.nolanlawson.apptracker.util;
+package com.nolanlawson.apptracker.helper;
 
 import com.nolanlawson.apptracker.R;
 
-public class ResourceIdFetcher {
+public class ResourceIdHelper {
 
 	public static int getAppTitleId(int i) {
 		switch (i) {

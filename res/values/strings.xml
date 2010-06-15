@@ -2,6 +2,25 @@
 <resources>
     <string name="hello">Hello World, AppTrackerActivity!</string>
     <string name="app_name">App Tracker</string>
+    <string name="waiting">Waiting...</string>
     <string name="back_arrow">&lt;</string>
     <string name="forward_arrow">&gt;</string>
+    <string name="sort_type_preference">app_tracker_type</string>
+    <string name="sort_type_title">Sort Type</string>
+    <string name="sort_type_summary">Recent, Most Used, or Time-Decay</string>
+    <string name="sort_type_recent">Recent</string>
+    <string name="sort_type_most_used">Most Used</string>
+    <string name="sort_type_time_decay">Time Decay</string>
+    <string name="page_number_preference">page_number</string>
+    <string name="page_number_title">Default Page Number</string>
+    <string name="page_number_summary">Set the initial page of results to show</string>
+    <string name="lock_page_preference">lock_page</string>
+    <string name="lock_page_title">Lock Page</string>
+    <string name="lock_page_summary">Hide \"&lt;\" and \"&gt;\" buttons</string>
+    <string name="hide_subtext_preference">hide_subtext</string>
+    <string name="hide_subtext_title">Hide Subtext</string>
+    <string name="hide_subtext_summary">Hide ranking information below app name</string>
+    <string name="invalid_page_number">Invalid page number. Using default of 1.</string>
+    
+    
 </resources>

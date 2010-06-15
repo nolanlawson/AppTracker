@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
-import com.nolanlawson.apptracker.util.PreferenceFetcher;
+import com.nolanlawson.apptracker.helper.PreferenceHelper;
 import com.nolanlawson.apptracker.util.ServiceUtil;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
@@ -29,7 +29,7 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 		log.d("deleting appWidgetIds: %s", appWidgetIds);
 		
 		for (int appWidgetId : appWidgetIds) {
-			PreferenceFetcher.deleteCurrentPageNumber(context, appWidgetId);
+			PreferenceHelper.deletePreferences(context, appWidgetId);
 		}
 		
 		
@@ -64,11 +64,11 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 				|| ACTION_UPDATE_PAGE_BACK.equals(intent.getAction())) {
 			
 			int newPageNumber = intent.getIntExtra(WidgetUpdater.NEW_PAGE_NUMBER, 0);
-			int appWidgetId = intent.getIntExtra(WidgetUpdater.APP_WIDGET_ID, -1);
+			int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
 			
 			if (appWidgetId != -1) {
 			
-				PreferenceFetcher.setCurrentPageNumber(context, newPageNumber, appWidgetId);
+				PreferenceHelper.setCurrentPageNumber(context, newPageNumber, appWidgetId);
 				
 				log.d("moving to new page for appWidgetId %d; pageNumber is now %d", appWidgetId, newPageNumber);
 				

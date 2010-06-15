@@ -23,8 +23,8 @@ import android.widget.RemoteViews;
 
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
 import com.nolanlawson.apptracker.db.AppHistoryEntry;
+import com.nolanlawson.apptracker.helper.ResourceIdHelper;
 import com.nolanlawson.apptracker.util.DatetimeUtil;
-import com.nolanlawson.apptracker.util.ResourceIdFetcher;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
 /**

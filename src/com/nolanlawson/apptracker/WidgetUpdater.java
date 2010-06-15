@@ -18,9 +18,9 @@ import android.widget.RemoteViews;
 
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
 import com.nolanlawson.apptracker.db.AppHistoryEntry;
+import com.nolanlawson.apptracker.helper.PreferenceHelper;
+import com.nolanlawson.apptracker.helper.ResourceIdHelper;
 import com.nolanlawson.apptracker.util.DatetimeUtil;
-import com.nolanlawson.apptracker.util.PreferenceFetcher;
-import com.nolanlawson.apptracker.util.ResourceIdFetcher;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
 public class WidgetUpdater {
@@ -30,7 +30,6 @@ public class WidgetUpdater {
 	public static final int APPS_PER_PAGE = 4;
 	
 	public static final String NEW_PAGE_NUMBER = "newPageNumber";
-	public static final String APP_WIDGET_ID = "appWidgetId";
 	private static final String URI_SCHEME = "app_tracker_widget";
 	
 	/**
@@ -67,7 +66,7 @@ public class WidgetUpdater {
 		
 		RemoteViews updateViews = new RemoteViews(context.getPackageName(), R.layout.tracker_widget);
 		
-		int pageNumber = PreferenceFetcher.getCurrentPageNumber(context, appWidgetId);
+		int pageNumber = PreferenceHelper.getCurrentPageNumber(context, appWidgetId);
 		
 		List<AppHistoryEntry> appHistories = 
 			dbHelper.getMostRecentAppHistoryEntries(APPS_PER_PAGE, pageNumber * APPS_PER_PAGE);
@@ -90,10 +89,10 @@ public class WidgetUpdater {
 				
 				log.d("label is %s", label);
 				
-				updateViews.setTextViewText(ResourceIdFetcher.getAppTitleId(i), label);
-				updateViews.setTextViewText(ResourceIdFetcher.getAppDescriptionId(i), dateDiff);
-				updateViews.setImageViewBitmap(ResourceIdFetcher.getAppIconId(i), iconBitmap);
-				updateViews.setViewVisibility(ResourceIdFetcher.getRelativeLayoutId(i), View.VISIBLE);
+				updateViews.setTextViewText(ResourceIdHelper.getAppTitleId(i), label);
+				updateViews.setTextViewText(ResourceIdHelper.getAppDescriptionId(i), dateDiff);
+				updateViews.setImageViewBitmap(ResourceIdHelper.getAppIconId(i), iconBitmap);
+				updateViews.setViewVisibility(ResourceIdHelper.getRelativeLayoutId(i), View.VISIBLE);
 				
 				Intent intent = new Intent();
 				intent.setClassName(appHistoryEntry.getPackageName(), appHistoryEntry.getPackageName() + "." + appHistoryEntry.getProcess());
@@ -101,37 +100,66 @@ public class WidgetUpdater {
 
                 PendingIntent pendingIntent = PendingIntent.getActivity(context,
                         0 /* no requestCode */, intent, 0 /* no flags */);
-                updateViews.setOnClickPendingIntent(ResourceIdFetcher.getRelativeLayoutId(i), pendingIntent);
+                updateViews.setOnClickPendingIntent(ResourceIdHelper.getRelativeLayoutId(i), pendingIntent);
                 
 			} else {
 				// no entry; just hide the icon and text
-				updateViews.setViewVisibility(ResourceIdFetcher.getRelativeLayoutId(i), View.INVISIBLE);
+				updateViews.setViewVisibility(ResourceIdHelper.getRelativeLayoutId(i), View.INVISIBLE);
 			}
 		}
 		
+		setSubtextVisibility(context, appWidgetId, updateViews);
 		
-		
-		// if no more app results, disable forward button
-		// TODO: optimize this
-		boolean noMoreAppResults = dbHelper.getMostRecentAppHistoryEntries(APPS_PER_PAGE, (pageNumber + 1) * APPS_PER_PAGE).isEmpty();
-
-		updateViews.setViewVisibility(R.id.forward_button, noMoreAppResults ? View.INVISIBLE : View.VISIBLE);
-
-		log.d("forward button page number: %d", pageNumber + 1);
-		updateViews.setOnClickPendingIntent(R.id.forward_button, 
-				getPendingIntentForForwardOrBackButton(context, true, pageNumber + 1, appWidgetId));
-		
-		
-		// if no previous app results, disable back button
-		updateViews.setViewVisibility(R.id.back_button, pageNumber == 0 ? View.INVISIBLE : View.VISIBLE);
-		
-		log.d("back button page number: %d", pageNumber - 1);
-		updateViews.setOnClickPendingIntent(R.id.back_button, 
-				getPendingIntentForForwardOrBackButton(context, false, pageNumber - 1, appWidgetId));
-			
-		
-		
+		setBackAndForwardButtons(context, appWidgetId, updateViews, pageNumber, dbHelper);
 		return updateViews;
+		
+	}
+
+	private static void setBackAndForwardButtons(Context context,
+			int appWidgetId, RemoteViews updateViews, int pageNumber, AppHistoryDbHelper dbHelper) {
+		
+		
+		boolean lockPage = PreferenceHelper.getLockPagePreference(context, appWidgetId);
+		
+		log.d("lockPage is %s", lockPage);
+		
+		if (lockPage) {
+		
+			updateViews.setViewVisibility(R.id.back_button, View.INVISIBLE);
+			updateViews.setViewVisibility(R.id.forward_button, View.INVISIBLE);
+		} else {
+		
+			// if no more app results, disable forward button
+			// TODO: optimize this
+			boolean noMoreAppResults = dbHelper.getMostRecentAppHistoryEntries(APPS_PER_PAGE, (pageNumber + 1) * APPS_PER_PAGE).isEmpty();
+	
+			updateViews.setViewVisibility(R.id.forward_button, noMoreAppResults ? View.INVISIBLE : View.VISIBLE);
+	
+			log.d("forward button page number: %d", pageNumber + 1);
+			updateViews.setOnClickPendingIntent(R.id.forward_button, 
+					getPendingIntentForForwardOrBackButton(context, true, pageNumber + 1, appWidgetId));
+			
+			// if no previous app results, disable back button
+			updateViews.setViewVisibility(R.id.back_button, pageNumber == 0 ? View.INVISIBLE : View.VISIBLE);
+			
+			log.d("back button page number: %d", pageNumber - 1);
+			updateViews.setOnClickPendingIntent(R.id.back_button, 
+					getPendingIntentForForwardOrBackButton(context, false, pageNumber - 1, appWidgetId));
+		}
+		
+	}
+
+	private static void setSubtextVisibility(Context context,
+			int appWidgetId, RemoteViews updateViews) {
+		
+		boolean hideSubtext = PreferenceHelper.getHideSubtextPreference(context, appWidgetId);
+		
+		int subTextVisibility = hideSubtext ? View.INVISIBLE : View.VISIBLE;
+		
+		updateViews.setViewVisibility(R.id.app_description_1, subTextVisibility);
+		updateViews.setViewVisibility(R.id.app_description_2, subTextVisibility);
+		updateViews.setViewVisibility(R.id.app_description_3, subTextVisibility);
+		updateViews.setViewVisibility(R.id.app_description_4, subTextVisibility);
 		
 	}
 
@@ -144,7 +172,7 @@ public class WidgetUpdater {
 				: AppTrackerWidgetProvider.ACTION_UPDATE_PAGE_BACK);
 
 		intent.putExtra(NEW_PAGE_NUMBER, newPageNumber);
-		intent.putExtra(APP_WIDGET_ID, appWidgetId);
+		intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
 		// gotta make this unique for this appwidgetid - otherwise, the PendingIntents conflict
 		// it seems to be a quasi-bug in Android
 		Uri data = Uri.withAppendedPath(Uri.parse(URI_SCHEME + "://widget/id/#"+forward + newPageNumber), String.valueOf(appWidgetId));
