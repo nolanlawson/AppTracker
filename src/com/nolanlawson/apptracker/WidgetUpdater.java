@@ -1,5 +1,7 @@
 package com.nolanlawson.apptracker;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.PendingIntent;
@@ -18,6 +20,7 @@ import android.widget.RemoteViews;
 
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
 import com.nolanlawson.apptracker.db.AppHistoryEntry;
+import com.nolanlawson.apptracker.db.SortType;
 import com.nolanlawson.apptracker.helper.PreferenceHelper;
 import com.nolanlawson.apptracker.helper.ResourceIdHelper;
 import com.nolanlawson.apptracker.util.DatetimeUtil;
@@ -25,12 +28,14 @@ import com.nolanlawson.apptracker.util.UtilLogger;
 
 public class WidgetUpdater {
 	
-	private static UtilLogger log = new UtilLogger(WidgetUpdater.class);
 	
 	public static final int APPS_PER_PAGE = 4;
 	
 	public static final String NEW_PAGE_NUMBER = "newPageNumber";
 	private static final String URI_SCHEME = "app_tracker_widget";
+	
+	private static final String DATE_FORMATTER_STRING = "0.00";
+	private static UtilLogger log = new UtilLogger(WidgetUpdater.class);
 	
 	/**
 	 * update only the app widgets associated with the given id
@@ -57,6 +62,9 @@ public class WidgetUpdater {
 		int[] appWidgetIds = manager.getAppWidgetIds(widget);
 		for (int appWidgetId : appWidgetIds) {
 			RemoteViews updateViews = buildUpdate(context, dbHelper, appWidgetId);
+			if (updateViews == null) { // nothing to see yet
+				continue;
+			}
 			manager.updateAppWidget(appWidgetId, updateViews);
 		}
 	}
@@ -67,13 +75,22 @@ public class WidgetUpdater {
 		RemoteViews updateViews = new RemoteViews(context.getPackageName(), R.layout.tracker_widget);
 		
 		int pageNumber = PreferenceHelper.getCurrentPageNumber(context, appWidgetId);
+		String sortTypeAsString = PreferenceHelper.getSortTypePreference(context, appWidgetId);
+		SortType sortType = SortType.findByName(context, sortTypeAsString);
 		
 		List<AppHistoryEntry> appHistories = 
-			dbHelper.getMostRecentAppHistoryEntries(APPS_PER_PAGE, pageNumber * APPS_PER_PAGE);
+			dbHelper.findAppHistoryEntries(sortType, APPS_PER_PAGE, pageNumber * APPS_PER_PAGE);
 		
 		log.d("Received the following appHistories: %s", appHistories);
 		
+		if (appHistories.isEmpty()) {
+			log.d("No app history entries yet; canceling update");
+			return null;
+		}
+		
 		PackageManager packageManager = context.getPackageManager();
+		
+		List<CharSequence> labels = new ArrayList<CharSequence>();
 		
 		for (int i = 0; i < APPS_PER_PAGE; i++) {
 			
@@ -85,12 +102,10 @@ public class WidgetUpdater {
 				
 				CharSequence label = packageInfo.applicationInfo.loadLabel(packageManager);
 				Bitmap iconBitmap = ((BitmapDrawable)packageInfo.applicationInfo.loadIcon(packageManager)).getBitmap();
-				String dateDiff = DatetimeUtil.getHumanReadableDateDiff(appHistoryEntry.getLastAccessed());
-				
-				log.d("label is %s", label);
+				String subtextText = createSubtext(context, sortType, appHistoryEntry);
 				
 				updateViews.setTextViewText(ResourceIdHelper.getAppTitleId(i), label);
-				updateViews.setTextViewText(ResourceIdHelper.getAppDescriptionId(i), dateDiff);
+				updateViews.setTextViewText(ResourceIdHelper.getAppDescriptionId(i), subtextText);
 				updateViews.setImageViewBitmap(ResourceIdHelper.getAppIconId(i), iconBitmap);
 				updateViews.setViewVisibility(ResourceIdHelper.getRelativeLayoutId(i), View.VISIBLE);
 				
@@ -102,26 +117,53 @@ public class WidgetUpdater {
                         0 /* no requestCode */, intent, 0 /* no flags */);
                 updateViews.setOnClickPendingIntent(ResourceIdHelper.getRelativeLayoutId(i), pendingIntent);
                 
+                labels.add(label);
+                
 			} else {
 				// no entry; just hide the icon and text
 				updateViews.setViewVisibility(ResourceIdHelper.getRelativeLayoutId(i), View.INVISIBLE);
 			}
 		}
 		
+		log.d("Labels are: %s", labels);
+		
 		setSubtextVisibility(context, appWidgetId, updateViews);
 		
-		setBackAndForwardButtons(context, appWidgetId, updateViews, pageNumber, dbHelper);
+		setBackAndForwardButtons(context, appWidgetId, updateViews, pageNumber, dbHelper, sortType);
 		return updateViews;
 		
 	}
 
+	private static String createSubtext(Context context, SortType sortType,
+			AppHistoryEntry appHistoryEntry) {
+		
+		//TODO: make this localizable
+		switch (sortType) {
+		case Recent:
+			return DatetimeUtil.getHumanReadableDateDiff(appHistoryEntry.getLastAccessed());
+		case MostUsed:
+			int count = appHistoryEntry.getCount();
+			
+			if (count == 1) {
+				return count +" hit";
+			} else {
+				return count +" hits";
+			}
+		case TimeDecay:
+			DecimalFormat decimalFormat = new DecimalFormat(DATE_FORMATTER_STRING);
+			String formattedDecayScore = decimalFormat.format(appHistoryEntry.getDecayScore());
+			return "Score: " + formattedDecayScore;
+		default:
+			throw new IllegalArgumentException("cannot find sortType: " + sortType);
+		}
+	}
+
 	private static void setBackAndForwardButtons(Context context,
-			int appWidgetId, RemoteViews updateViews, int pageNumber, AppHistoryDbHelper dbHelper) {
+			int appWidgetId, RemoteViews updateViews, int pageNumber, AppHistoryDbHelper dbHelper,
+			SortType sortType) {
 		
 		
 		boolean lockPage = PreferenceHelper.getLockPagePreference(context, appWidgetId);
-		
-		log.d("lockPage is %s", lockPage);
 		
 		if (lockPage) {
 		
@@ -131,7 +173,7 @@ public class WidgetUpdater {
 		
 			// if no more app results, disable forward button
 			// TODO: optimize this
-			boolean noMoreAppResults = dbHelper.getMostRecentAppHistoryEntries(APPS_PER_PAGE, (pageNumber + 1) * APPS_PER_PAGE).isEmpty();
+			boolean noMoreAppResults = dbHelper.findAppHistoryEntries(sortType, APPS_PER_PAGE, (pageNumber + 1) * APPS_PER_PAGE).isEmpty();
 	
 			updateViews.setViewVisibility(R.id.forward_button, noMoreAppResults ? View.INVISIBLE : View.VISIBLE);
 	

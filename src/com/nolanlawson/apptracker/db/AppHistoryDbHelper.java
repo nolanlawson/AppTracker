@@ -3,6 +3,7 @@ package com.nolanlawson.apptracker.db;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -17,6 +18,8 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	
 	//logger
 	private static UtilLogger log = new UtilLogger(AppHistoryDbHelper.class);
+	
+	public static final long DECAY_CONST = TimeUnit.SECONDS.toMillis(60 * 60 * 24 * 7); // seven days
 	
 	//TODO: make this configurable
 	private static final String[] appsToIgnore = {"com.android.launcher", // launcher
@@ -40,26 +43,56 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	private static final String COLUMN_PROCESS = "process";
 	private static final String COLUMN_COUNT = "count";
 	private static final String COLUMN_LAST_ACCESS = "lastAccess";
+	private static final String COLUMN_DECAY_SCORE = "decayScore";
+	private static final String COLUMN_LAST_UPDATE = "lastUpdate";
 	
 	private static final String[] COLUMNS = 
-			{COLUMN_ID, COLUMN_PACKAGE, COLUMN_PROCESS, COLUMN_COUNT, COLUMN_LAST_ACCESS};
+			{COLUMN_ID, COLUMN_PACKAGE, COLUMN_PROCESS, 
+			 COLUMN_COUNT, COLUMN_LAST_ACCESS, COLUMN_DECAY_SCORE, COLUMN_LAST_UPDATE};
 	
 	// constructors
 	public AppHistoryDbHelper(Context context) {
 		super(context, DB_NAME, null, DB_VERSION);
 	}
+	// overrides
 	
+	@Override
+	public void onCreate(SQLiteDatabase db) {
+		
+		String sql = "create table if not exists " + TABLE_NAME
+		+ " (" +
+		COLUMN_ID + " integer not null primary key autoincrement, " +
+		COLUMN_PACKAGE + " text not null, " +
+		COLUMN_PROCESS + " text not null, " +
+		COLUMN_COUNT + " int not null, " +
+		COLUMN_LAST_ACCESS + " int not null, " +
+		COLUMN_DECAY_SCORE + " double not null, " +
+		COLUMN_LAST_UPDATE + " int not null" +
+		");";
+		
+		db.execSQL(sql);
+
+	}
+
+	@Override
+	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+
+	}
+
 	// methods
 	
-	public List<AppHistoryEntry> getMostRecentAppHistoryEntries(int limit, int offset) {
+	public List<AppHistoryEntry> findAppHistoryEntries(SortType sortType, int limit, int offset) {
 		
 		String appsToIgnoreString = "(\"" + TextUtils.join("\",\"", appsToIgnore) + "\")";
+		
+		String orderByClause = createOrderByClause(sortType);
 		
 		String sql = "select " + TextUtils.join(",", COLUMNS)
 				+ " from " + TABLE_NAME
 				+ " where " + COLUMN_PACKAGE +" not in " + appsToIgnoreString
-				+ " order by " + COLUMN_LAST_ACCESS
-				+ " desc limit " + limit + " offset " + offset;
+				+ orderByClause
+				+ " limit " + limit + " offset " + offset;
 		
 		Cursor cursor = getWritableDatabase().rawQuery(sql, null);
 		
@@ -70,7 +103,27 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		return result;
 		
 	}
-	
+
+	/**
+	 * Go through each decay score and reduce them by a small amount given the current time
+	 * and the last time we updated
+	 */
+	public void updateAllDecayScores() {
+		
+		List<AppHistoryEntry> appHistoryEntries = findAllAppHistoryEntries();
+		
+		log.d("Updating all decay scores for %d entries", appHistoryEntries.size());
+		
+		long currentTime = System.currentTimeMillis();
+		
+
+		for (AppHistoryEntry appHistoryEntry : appHistoryEntries) {
+			updateDecayScore(appHistoryEntry, currentTime);
+			
+		}
+
+	}
+
 	/**
 	 * Increment the count of the specified package and process
 	 * and update its timestamp to be the most recent, or insert if it
@@ -78,37 +131,39 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	 */
 	public void incrementAndUpdate(String packageName, String process) {
 		
-		if (findByPackageAndProcess(packageName, process) == null) {
-			// create new
-			log.d("inserting new app history: %s, %s", packageName, process);
-			insertNewAppHistoryEntry(packageName, process);
-		}
-		log.d("updating/incrementing app history: %s, %s", packageName, process);
-		
 		long currentTime = System.currentTimeMillis();
 		
-		String sql = "update " + TABLE_NAME
-			+ " set " + COLUMN_COUNT + " = " + COLUMN_COUNT + "+1, "
-			+ COLUMN_LAST_ACCESS + " = " + currentTime
-			+ " where " + COLUMN_PACKAGE + "=? "
-			+ " and " + COLUMN_PROCESS + "=?";
+		AppHistoryEntry existingEntry = findByPackageAndProcess(packageName, process);
+		
+		if (existingEntry == null) {
+			// create new
+			log.d("inserting new app history: %s, %s", packageName, process);
+			insertNewAppHistoryEntry(packageName, process, currentTime);
+			return;
+		}
+		
+		log.d("updating/incrementing app history: %s, %s", packageName, process);
+		
+		String sql = "update %s "
+			+ " set %s = %s + 1, " // count
+			+ "%s = %d, " // timestamp
+			+ "%s = %s + 1 "// decay score
+			+ " where %s = ? "
+			+ " and %s = ?";
+		
+		sql = String.format(sql, TABLE_NAME, 
+				COLUMN_COUNT, COLUMN_COUNT, 
+				COLUMN_LAST_ACCESS, currentTime,
+				COLUMN_DECAY_SCORE, COLUMN_DECAY_SCORE,				
+				COLUMN_PACKAGE, COLUMN_PROCESS);
+		
+		
 		String[] bindArgs = {packageName,process};
 		
 		getWritableDatabase().execSQL(sql, bindArgs);
 	
 	}
-	
-	public void insertNewAppHistoryEntry(String packageName, String process) {
 		
-		ContentValues contentValues = new ContentValues();
-		contentValues.put(COLUMN_PACKAGE, packageName);
-		contentValues.put(COLUMN_PROCESS, process);
-		contentValues.put(COLUMN_COUNT, 0);
-		contentValues.put(COLUMN_LAST_ACCESS, 0);
-		
-		getWritableDatabase().insert(TABLE_NAME, null, contentValues);
-	}
-	
 	public AppHistoryEntry findByPackageAndProcess(String packageName, String process) {
 		
 		ContentValues contentValues = new ContentValues();
@@ -130,6 +185,33 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		
 		
 	}
+
+	private List<AppHistoryEntry> findAllAppHistoryEntries() {
+		
+		Cursor cursor = getWritableDatabase().query(TABLE_NAME, COLUMNS, null, null, null, null, null);
+		
+		List<AppHistoryEntry> result = fromCursor(cursor);
+		
+		cursor.close();
+		
+		return result;
+		
+	}
+	private String createOrderByClause(SortType sortType) {
+		StringBuilder stringBuilder = new StringBuilder(" order by ");
+		switch (sortType) {
+		case Recent:
+			stringBuilder.append(COLUMN_LAST_ACCESS).append(" desc ");
+			break;
+		case MostUsed:
+			stringBuilder.append(COLUMN_COUNT).append(" desc ");
+			break;
+		case TimeDecay:
+			stringBuilder.append(COLUMN_DECAY_SCORE).append(" desc ");
+			break;
+		}
+		return stringBuilder.toString();
+	}
 	
 	private List<AppHistoryEntry> fromCursor(Cursor cursor) {
 		
@@ -137,33 +219,52 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		
 		while (cursor.moveToNext()) {
 			AppHistoryEntry appHistoryEntry = AppHistoryEntry.newAppHistoryEntry(
-					cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getInt(3), new Date(cursor.getLong(4)));
+					cursor.getInt(0), cursor.getString(1), cursor.getString(2), 
+					cursor.getInt(3), new Date(cursor.getLong(4)), cursor.getDouble(5),
+					cursor.getLong(6));
 			result.add(appHistoryEntry);
 		}
 		
 		return result;
 	}
 
-	@Override
-	public void onCreate(SQLiteDatabase db) {
+	private void updateDecayScore(AppHistoryEntry appHistoryEntry, long currentTime) {
+		// existing entry; update decay score
+		long lastUpdate = appHistoryEntry.getLastUpdate();
+		double lastScore = appHistoryEntry.getDecayScore();
 		
-		String sql = "create table if not exists " + TABLE_NAME
-		+ " (" +
-		COLUMN_ID + " integer not null primary key autoincrement, " +
-		COLUMN_PACKAGE + " text not null, " +
-		COLUMN_PROCESS + " text not null, " +
-		COLUMN_COUNT + " int not null, " +
-		COLUMN_LAST_ACCESS + " int not null" +
-		");";
+		//log.d("last score: " + lastScore);
+		//log.d("lastAccessed: " + lastAccessed);
+		//log.d("current time: " + currentTime);
+		//log.d("decay const: " + DECAY_CONST);
 		
-		db.execSQL(sql);
-
+		double newDecayScore = (lastScore * Math.exp((1.0 * currentTime - lastUpdate) / -DECAY_CONST));
+		
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(COLUMN_DECAY_SCORE, newDecayScore);
+		contentValues.put(COLUMN_LAST_UPDATE, currentTime);
+		
+		String whereClause = COLUMN_ID + "=" + appHistoryEntry.getId();
+		
+		log.d("updating decay score for appHistoryEntry: %s", appHistoryEntry);
+		log.d("where clause is: " + whereClause);
+		
+		getWritableDatabase().update(TABLE_NAME, contentValues, whereClause, null);
+		
 	}
 
-	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
-
+	private void insertNewAppHistoryEntry(String packageName, String process, long currentTime) {
+		
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(COLUMN_PACKAGE, packageName);
+		contentValues.put(COLUMN_PROCESS, process);
+		contentValues.put(COLUMN_COUNT, 1);
+		contentValues.put(COLUMN_LAST_ACCESS, currentTime);
+		contentValues.put(COLUMN_DECAY_SCORE, 1);
+		contentValues.put(COLUMN_LAST_UPDATE, currentTime);
+		
+		getWritableDatabase().insert(TABLE_NAME, null, contentValues);
 	}
+
 
 }

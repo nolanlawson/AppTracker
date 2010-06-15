@@ -89,7 +89,7 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 		log.d("onUpdate() for appWidgetIds %s", appWidgetIds);
 		startBackgroundServiceIfNotAlreadyRunning(context);
 
-		updateWidget(context);
+		updateWidgetWithPeriodicUpdate(context);
 
 	}
 
@@ -123,13 +123,15 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 	/*
 	 * update all app widget ids in the background
 	 */
-	private static void updateWidget(final Context context) {
+	private static void updateWidgetWithPeriodicUpdate(final Context context) {
 		AsyncTask<Void, Void, Void> updateTask = new AsyncTask<Void, Void, Void>() {
 
 			@Override
 			protected Void doInBackground(Void... params) {
 
 				AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);
+				
+				dbHelper.updateAllDecayScores();
 				
 				WidgetUpdater.updateWidget(context, dbHelper);
 				dbHelper.close();

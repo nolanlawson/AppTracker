@@ -9,6 +9,8 @@ public class AppHistoryEntry {
 	private String process;
 	private int count;
 	private Date lastAccessed;
+	private double decayScore;
+	private long lastUpdate;
 	
 	public int getId() {
 		return id;
@@ -41,8 +43,22 @@ public class AppHistoryEntry {
 		this.lastAccessed = lastAccessed;
 	}
 	
+	public double getDecayScore() {
+		return decayScore;
+	}
+	public void setDecayScore(double decayScore) {
+		this.decayScore = decayScore;
+	}
+	
+	public long getLastUpdate() {
+		return lastUpdate;
+	}
+	public void setLastUpdate(long lastUpdate) {
+		this.lastUpdate = lastUpdate;
+	}
 	public static AppHistoryEntry newAppHistoryEntry(
-			int id, String packageName, String process, int count, Date lastAccessed) {
+			int id, String packageName, String process, int count, 
+			Date lastAccessed, double decayScore, long lastUpdate) {
 		
 		AppHistoryEntry appHistoryEntry = new AppHistoryEntry();
 		appHistoryEntry.setId(id);
@@ -50,6 +66,8 @@ public class AppHistoryEntry {
 		appHistoryEntry.setProcess(process);
 		appHistoryEntry.setCount(count);
 		appHistoryEntry.setLastAccessed(lastAccessed);
+		appHistoryEntry.setDecayScore(decayScore);
+		appHistoryEntry.setLastUpdate(lastUpdate);
 		
 		return appHistoryEntry;
 		
@@ -57,11 +75,9 @@ public class AppHistoryEntry {
 	}
 	@Override
 	public String toString() {
-		return "AppHistoryEntry [count=" + count + ", id=" + id
-				+ ", lastAccessed=" + lastAccessed + ", packageName="
-				+ packageName + ", process=" + process + "]";
+		return "AppHistoryEntry [count=" + count + ", decayScore=" + decayScore
+				+ ", id=" + id + ", lastAccessed=" + lastAccessed
+				+ ", packageName=" + packageName + ", process=" + process + "]";
 	}
-	
-	
 	
 }

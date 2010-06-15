@@ -77,14 +77,14 @@ public class PreferenceHelper {
 		
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		
-		return prefs.getString(getSortTypePreference(context, appWidgetId), 
+		return prefs.getString(getSortTypePreferenceName(context, appWidgetId), 
 				context.getResources().getString(R.string.sort_type_recent));
 	}
 	
 	public static void setSortTypePreference(Context context, String sortType, int appWidgetId) {
 		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
 		
-		editor.putString(getLockPagePreferenceName(context, appWidgetId), sortType);
+		editor.putString(getSortTypePreferenceName(context, appWidgetId), sortType);
 		editor.commit();
 		
 	}	
