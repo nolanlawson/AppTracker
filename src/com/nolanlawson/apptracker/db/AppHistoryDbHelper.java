@@ -23,6 +23,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		                                          "com.android.launcher2", // launcher2
 	                                              "com.nolanlawson.apptracker", // apptracker itself
 	                                              "com.android.contacts", // contacts OR phone
+	                                              "com.android.phone", // phone
 	                                              "com.android.browser", // browser
 	                                              "com.android.mms"}; // messaging
 	
