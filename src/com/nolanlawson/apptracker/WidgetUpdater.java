@@ -100,7 +100,7 @@ public class WidgetUpdater {
 				
 				PackageInfo packageInfo = getPackageInfo(context, appHistoryEntry);
 				
-				CharSequence label = packageInfo.applicationInfo.loadLabel(packageManager);
+				CharSequence label = packageInfo.applicationInfo.loadLabel(packageManager); // npe here
 				Bitmap iconBitmap = ((BitmapDrawable)packageInfo.applicationInfo.loadIcon(packageManager)).getBitmap();
 				String subtextText = createSubtext(context, sortType, appHistoryEntry);
 				

@@ -106,7 +106,9 @@ public class AppTrackerService extends IntentService {
 						String process = matcher.group(2);
 						log.d("package name is: " + packageName);
 						log.d("process name is: " + process);
-						dbHelper.incrementAndUpdate(packageName, process);
+						synchronized (AppHistoryDbHelper.class) {
+							dbHelper.incrementAndUpdate(packageName, process);
+						}
 						WidgetUpdater.updateWidget(this, dbHelper);
 					}
 

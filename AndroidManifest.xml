@@ -47,6 +47,8 @@
 
 
 		<service android:name=".AppTrackerService" />
+		
+		<service android:name=".UpdateAppStatsService" />
 
 	</application>
 

@@ -116,10 +116,16 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		
 		long currentTime = System.currentTimeMillis();
 		
-
-		for (AppHistoryEntry appHistoryEntry : appHistoryEntries) {
-			updateDecayScore(appHistoryEntry, currentTime);
-			
+		SQLiteDatabase db = getWritableDatabase();
+		db.beginTransaction();
+		try {
+			for (AppHistoryEntry appHistoryEntry : appHistoryEntries) {
+				updateDecayScore(db, appHistoryEntry, currentTime);
+				
+			}
+			db.setTransactionSuccessful();
+		} finally {
+			db.endTransaction();
 		}
 
 	}
@@ -228,7 +234,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		return result;
 	}
 
-	private void updateDecayScore(AppHistoryEntry appHistoryEntry, long currentTime) {
+	private void updateDecayScore(SQLiteDatabase db, AppHistoryEntry appHistoryEntry, long currentTime) {
 		// existing entry; update decay score
 		long lastUpdate = appHistoryEntry.getLastUpdate();
 		double lastScore = appHistoryEntry.getDecayScore();
@@ -249,7 +255,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		log.d("updating decay score for appHistoryEntry: %s", appHistoryEntry);
 		log.d("where clause is: " + whereClause);
 		
-		getWritableDatabase().update(TABLE_NAME, contentValues, whereClause, null);
+		db.update(TABLE_NAME, contentValues, whereClause, null);
 		
 	}
 

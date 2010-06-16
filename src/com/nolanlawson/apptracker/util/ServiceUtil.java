@@ -3,6 +3,7 @@ package com.nolanlawson.apptracker.util;
 import java.util.List;
 
 import android.app.ActivityManager;
+import android.content.ComponentName;
 import android.content.Context;
 
 public class ServiceUtil {
@@ -11,25 +12,31 @@ public class ServiceUtil {
 	
 	public static boolean checkIfAppTrackerServiceIsRunning(Context context) {
 		
-		ActivityManager activityManager = (ActivityManager) context
-				.getSystemService(Context.ACTIVITY_SERVICE);
+		return checkIfServiceIsRunning(context, "com.nolanlawson.apptracker.AppTrackerService");
+	}
+
+	public static boolean checkIfUpdateAppStatsServiceIsRunning(Context context) {
+		return checkIfServiceIsRunning(context, "com.nolanlawson.apptracker.UpdateAppStatsService");
+	}
+	
+	private static boolean checkIfServiceIsRunning(Context context, String serviceName) {
 		
-		List<ActivityManager.RunningServiceInfo> procList = activityManager
-				.getRunningServices(Integer.MAX_VALUE);
+		ComponentName componentName = new ComponentName("com.nolanlawson.apptracker", serviceName);
 		
-		if (procList != null && procList.size() > 0) {
+		ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+
+		List<ActivityManager.RunningServiceInfo> procList = activityManager.getRunningServices(Integer.MAX_VALUE);
+
+		if (procList != null) {
 
 			for (ActivityManager.RunningServiceInfo appProcInfo : procList) {
-				if (appProcInfo != null) {
-					//log.d("process is: " + appProcInfo.process);
-					if (appProcInfo.process.equals("com.nolanlawson.apptracker")) {
-						log.d("intentservice is already running");
-						return true;
-					}
+				if (appProcInfo != null && componentName.equals(appProcInfo.service)) {
+					log.d("%s is already running", serviceName);
+					return true;
 				}
 			}
 		}
-		log.d("intentservice is not running");
-		return false;
+		log.d("%s is not running", serviceName);
+		return false;	
 	}
 }

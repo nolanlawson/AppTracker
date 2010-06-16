@@ -89,7 +89,7 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 		log.d("onUpdate() for appWidgetIds %s", appWidgetIds);
 		startBackgroundServiceIfNotAlreadyRunning(context);
 
-		updateWidgetWithPeriodicUpdate(context);
+		doPeriodicUpdate(context);
 
 	}
 
@@ -103,44 +103,27 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 	}
 
 	private static void updateWidget(final Context context, final int appWidgetId) {
-		AsyncTask<Void, Void, Void> updateTask = new AsyncTask<Void, Void, Void>() {
 
-			@Override
-			protected Void doInBackground(Void... params) {
 
-				AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);
-				
-				WidgetUpdater.updateWidget(context, dbHelper, appWidgetId);
-				dbHelper.close();
+		AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);
+		
+		WidgetUpdater.updateWidget(context, dbHelper, appWidgetId);
+		dbHelper.close();
 
-				return null;
-			}
-		};
 
-		updateTask.execute();
 	}
 	
 	/*
 	 * update all app widget ids in the background
 	 */
-	private static void updateWidgetWithPeriodicUpdate(final Context context) {
-		AsyncTask<Void, Void, Void> updateTask = new AsyncTask<Void, Void, Void>() {
+	private static void doPeriodicUpdate(final Context context) {
+		
+		if (!ServiceUtil.checkIfUpdateAppStatsServiceIsRunning(context)) {
 
-			@Override
-			protected Void doInBackground(Void... params) {
-
-				AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);
-				
-				dbHelper.updateAllDecayScores();
-				
-				WidgetUpdater.updateWidget(context, dbHelper);
-				dbHelper.close();
-
-				return null;
-			}
-		};
-
-		updateTask.execute();
+			Intent intent = new Intent(context, UpdateAppStatsService.class);
+			context.startService(intent);
+		}		
+		
 	}
 
 }
