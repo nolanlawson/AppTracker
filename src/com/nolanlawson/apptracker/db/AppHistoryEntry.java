@@ -2,6 +2,8 @@ package com.nolanlawson.apptracker.db;
 
 import java.util.Date;
 
+import android.content.ComponentName;
+
 public class AppHistoryEntry {
 
 	private int id;
@@ -90,6 +92,20 @@ public class AppHistoryEntry {
 				+ ", id=" + id + ", installed=" + installed + ", lastAccessed="
 				+ lastAccessed + ", lastUpdate=" + lastUpdate
 				+ ", packageName=" + packageName + ", process=" + process + "]";
+	}
+	
+	public ComponentName toComponentName() {
+		String fullProcessName;
+
+		if (process.startsWith(".")) {
+			// beginning period is the most common case - this means that the process's path is
+			// simply appended to the package name
+			fullProcessName = packageName + process;
+		} else {
+			// strange case where the full path is specified (e.g. the Maps app)
+			fullProcessName = process;
+		}
+		return new ComponentName(packageName, fullProcessName);
 	}
 
 	

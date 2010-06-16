@@ -3,28 +3,13 @@ package com.nolanlawson.apptracker;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import android.app.IntentService;
-import android.app.PendingIntent;
-import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
-import android.view.View;
-import android.widget.RemoteViews;
 
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
-import com.nolanlawson.apptracker.db.AppHistoryEntry;
-import com.nolanlawson.apptracker.helper.ResourceIdHelper;
-import com.nolanlawson.apptracker.util.DatetimeUtil;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
 /**

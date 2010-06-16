@@ -14,7 +14,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -25,6 +25,7 @@ import com.nolanlawson.apptracker.db.SortType;
 import com.nolanlawson.apptracker.helper.PreferenceHelper;
 import com.nolanlawson.apptracker.helper.ResourceIdHelper;
 import com.nolanlawson.apptracker.util.DatetimeUtil;
+import com.nolanlawson.apptracker.util.DrawableUtil;
 import com.nolanlawson.apptracker.util.Pair;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
@@ -102,9 +103,15 @@ public class WidgetUpdater {
 				Pair<AppHistoryEntry,PackageInfo> pair = packageInfos.get(i);
 				AppHistoryEntry appHistoryEntry = pair.getFirst();
 				PackageInfo packageInfo = pair.getSecond();
+				ComponentName componentName = appHistoryEntry.toComponentName();
 				
 				CharSequence label = packageInfo.applicationInfo.loadLabel(packageManager);
-				Bitmap iconBitmap = ((BitmapDrawable)packageInfo.applicationInfo.loadIcon(packageManager)).getBitmap();
+				
+				Drawable iconDrawable = packageInfo.applicationInfo.loadIcon(packageManager);
+				Bitmap iconBitmap = DrawableUtil.convertIconToBitmap(context, iconDrawable);
+				
+				
+				
 				String subtextText = createSubtext(context, sortType, appHistoryEntry);
 				
 				updateViews.setTextViewText(ResourceIdHelper.getAppTitleId(i), label);
@@ -113,20 +120,7 @@ public class WidgetUpdater {
 				updateViews.setViewVisibility(ResourceIdHelper.getRelativeLayoutId(i), View.VISIBLE);
 				
 				Intent intent = new Intent();
-				
-				String fullProcessName;
-
-				if (appHistoryEntry.getProcess().startsWith(".")) {
-					// beginning period is the most common case - this means that the process's path is
-					// simply appended to the package name
-					fullProcessName = appHistoryEntry.getPackageName() + appHistoryEntry.getProcess();
-				} else {
-					// strange case where the full path is specified (e.g. the Maps app)
-					fullProcessName = appHistoryEntry.getProcess();
-
-				}
-				
-				intent.setClassName(appHistoryEntry.getPackageName(), fullProcessName);
+				intent.setComponent(componentName);
 				intent.setAction(Intent.ACTION_MAIN);
 
                 PendingIntent pendingIntent = PendingIntent.getActivity(context,
