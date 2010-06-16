@@ -43,122 +43,113 @@
 
 	</LinearLayout>
 
-	<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	<LinearLayout android:orientation="vertical"
+		android:gravity="center_vertical|center_horizontal"
 		android:layout_width="fill_parent" android:layout_height="0px"
 		android:layout_weight="0.25" android:id="@+id/app_item_1"
 		android:clickable="true" android:focusable="true"
 		android:drawSelectorOnTop="false" android:background="@drawable/app_selector"
 		android:visibility="invisible">
+		
+		<ImageView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:src="@drawable/icon"
+			android:id="@+id/app_icon_1" android:scaleType="center" android:maxWidth="48dp"
+			android:maxHeight="48dp"/>
 
 		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:id="@+id/app_title_1"
+			android:textSize="13sp" android:paddingLeft="3dp" android:text="App Title"
+			android:gravity="center_vertical" android:background="@drawable/bubble"
+			android:textColor="@android:color/white" android:singleLine="true" />
+			
+		<TextView android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:id="@+id/app_description_1"
-			android:paddingLeft="3dp" android:textSize="12sp"
-			android:layout_centerHorizontal="true"
-			android:layout_alignParentBottom="true" android:background="@drawable/bubble_small"
+			android:paddingLeft="3dp" android:textSize="12sp" android:background="@drawable/bubble_small"
 			android:textColor="@android:color/white" android:gravity="center_vertical"
 			android:text="4 mins ago" android:singleLine="true"
 			android:paddingBottom="5dp" />
 
-		<TextView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:id="@+id/app_title_1"
-			android:textSize="13sp" android:layout_above="@+id/app_description_1"
-			android:paddingLeft="3dp" android:text="App Title" android:gravity="center_vertical"
-			android:layout_centerHorizontal="true" android:background="@drawable/bubble"
-			android:textColor="@android:color/white" android:singleLine="true" />
-
-		<ImageView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:src="@drawable/icon"
-			android:id="@+id/app_icon_1" android:layout_centerHorizontal="true"
-			android:layout_above="@+id/app_title_1" />
-
-	</RelativeLayout>
-
-	<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	</LinearLayout>
+	<LinearLayout android:orientation="vertical"
+		android:gravity="center_vertical|center_horizontal"
 		android:layout_width="fill_parent" android:layout_height="0px"
 		android:layout_weight="0.25" android:id="@+id/app_item_2"
 		android:clickable="true" android:focusable="true"
 		android:drawSelectorOnTop="false" android:background="@drawable/app_selector"
 		android:visibility="invisible">
+		
+		<ImageView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:src="@drawable/icon"
+			android:id="@+id/app_icon_2" android:scaleType="center" android:maxWidth="48dp"
+			android:maxHeight="48dp"/>
 
 		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:id="@+id/app_title_2"
+			android:textSize="13sp" android:paddingLeft="3dp" android:text="App Title"
+			android:gravity="center_vertical" android:background="@drawable/bubble"
+			android:textColor="@android:color/white" android:singleLine="true" />
+			
+		<TextView android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:id="@+id/app_description_2"
-			android:paddingLeft="3dp" android:textSize="12sp"
-			android:layout_centerHorizontal="true"
-			android:layout_alignParentBottom="true" android:background="@drawable/bubble_small"
+			android:paddingLeft="3dp" android:textSize="12sp" android:background="@drawable/bubble_small"
 			android:textColor="@android:color/white" android:gravity="center_vertical"
 			android:text="4 mins ago" android:singleLine="true"
 			android:paddingBottom="5dp" />
 
-		<TextView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:id="@+id/app_title_2"
-			android:textSize="13sp" android:layout_above="@+id/app_description_2"
-			android:paddingLeft="3dp" android:text="App Title" android:gravity="center_vertical"
-			android:layout_centerHorizontal="true" android:background="@drawable/bubble"
-			android:textColor="@android:color/white" android:singleLine="true" />
-
-		<ImageView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:src="@drawable/icon"
-			android:id="@+id/app_icon_2" android:layout_centerHorizontal="true"
-			android:layout_above="@+id/app_title_2" />
-
-	</RelativeLayout>
-	<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	</LinearLayout>
+		<LinearLayout android:orientation="vertical"
+		android:gravity="center_vertical|center_horizontal"
 		android:layout_width="fill_parent" android:layout_height="0px"
 		android:layout_weight="0.25" android:id="@+id/app_item_3"
 		android:clickable="true" android:focusable="true"
 		android:drawSelectorOnTop="false" android:background="@drawable/app_selector"
 		android:visibility="invisible">
+		
+		<ImageView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:src="@drawable/icon"
+			android:id="@+id/app_icon_3" android:scaleType="center" android:maxWidth="48dp"
+			android:maxHeight="48dp"/>
 
 		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:id="@+id/app_title_3"
+			android:textSize="13sp" android:paddingLeft="3dp" android:text="App Title"
+			android:gravity="center_vertical" android:background="@drawable/bubble"
+			android:textColor="@android:color/white" android:singleLine="true" />
+			
+		<TextView android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:id="@+id/app_description_3"
-			android:paddingLeft="3dp" android:textSize="12sp"
-			android:layout_centerHorizontal="true"
-			android:layout_alignParentBottom="true" android:background="@drawable/bubble_small"
+			android:paddingLeft="3dp" android:textSize="12sp" android:background="@drawable/bubble_small"
 			android:textColor="@android:color/white" android:gravity="center_vertical"
 			android:text="4 mins ago" android:singleLine="true"
 			android:paddingBottom="5dp" />
 
-		<TextView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:id="@+id/app_title_3"
-			android:textSize="13sp" android:layout_above="@+id/app_description_3"
-			android:paddingLeft="3dp" android:text="App Title" android:gravity="center_vertical"
-			android:layout_centerHorizontal="true" android:background="@drawable/bubble"
-			android:textColor="@android:color/white" android:singleLine="true" />
-
-		<ImageView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:src="@drawable/icon"
-			android:id="@+id/app_icon_3" android:layout_centerHorizontal="true"
-			android:layout_above="@+id/app_title_3" />
-
-	</RelativeLayout>
-	<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	</LinearLayout>
+	
+		<LinearLayout android:orientation="vertical"
+		android:gravity="center_vertical|center_horizontal"
 		android:layout_width="fill_parent" android:layout_height="0px"
 		android:layout_weight="0.25" android:id="@+id/app_item_4"
 		android:clickable="true" android:focusable="true"
 		android:drawSelectorOnTop="false" android:background="@drawable/app_selector"
 		android:visibility="invisible">
-
-		<TextView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:id="@+id/app_description_4"
-			android:paddingLeft="3dp" android:textSize="12sp"
-			android:layout_centerHorizontal="true"
-			android:layout_alignParentBottom="true" android:background="@drawable/bubble_small"
-			android:textColor="@android:color/white" android:gravity="center_vertical"
-			android:text="4 mins ago" android:singleLine="true"
-
-			android:paddingBottom="5dp" />
+		
+		<ImageView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:src="@drawable/icon"
+			android:id="@+id/app_icon_4" android:scaleType="center" android:maxWidth="48dp"
+			android:maxHeight="48dp"/>
 
 		<TextView android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:id="@+id/app_title_4"
-			android:textSize="13sp" android:layout_above="@+id/app_description_4"
-			android:paddingLeft="3dp" android:text="App Title" android:gravity="center_vertical"
-			android:layout_centerHorizontal="true" android:background="@drawable/bubble"
+			android:textSize="13sp" android:paddingLeft="3dp" android:text="App Title"
+			android:gravity="center_vertical" android:background="@drawable/bubble"
 			android:textColor="@android:color/white" android:singleLine="true" />
+			
+		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:id="@+id/app_description_4"
+			android:paddingLeft="3dp" android:textSize="12sp" android:background="@drawable/bubble_small"
+			android:textColor="@android:color/white" android:gravity="center_vertical"
+			android:text="4 mins ago" android:singleLine="true"
+			android:paddingBottom="5dp" />
 
-		<ImageView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:src="@drawable/icon"
-			android:id="@+id/app_icon_4" android:layout_centerHorizontal="true"
-			android:layout_above="@+id/app_title_4" />
-
-	</RelativeLayout>
+	</LinearLayout>
 </LinearLayout>
