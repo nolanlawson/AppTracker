@@ -49,7 +49,7 @@
 		android:layout_weight="0.25" android:id="@+id/app_item_1"
 		android:clickable="true" android:focusable="true"
 		android:drawSelectorOnTop="false" android:background="@drawable/app_selector"
-		android:visibility="invisible">
+		android:visibility="visible">
 		
 		<ImageView android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:src="@drawable/icon"
@@ -58,16 +58,16 @@
 
 		<TextView android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:id="@+id/app_title_1"
-			android:textSize="13sp" android:paddingLeft="3dp" android:text="App Title"
+			android:textSize="13sp" android:paddingLeft="3dp"
 			android:gravity="center_vertical" android:background="@drawable/bubble"
-			android:textColor="@android:color/white" android:singleLine="true" />
+			android:textColor="@android:color/white" android:singleLine="true"  android:text="@string/waiting"/>
 			
 		<TextView android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:id="@+id/app_description_1"
 			android:paddingLeft="3dp" android:textSize="12sp" android:background="@drawable/bubble_small"
 			android:textColor="@android:color/white" android:gravity="center_vertical"
 			android:text="4 mins ago" android:singleLine="true"
-			android:paddingBottom="5dp" />
+			android:paddingBottom="5dp" android:visibility="invisible"/>
 
 	</LinearLayout>
 	<LinearLayout android:orientation="vertical"
