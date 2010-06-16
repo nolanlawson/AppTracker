@@ -43,7 +43,7 @@ public class AppTrackerService extends IntentService {
 	private static UtilLogger log = new UtilLogger(AppTrackerService.class);
 
 	private static Pattern launcherPattern = Pattern
-			.compile("\\bcmp=(.+?)/\\.?(.+?)\\s");
+			.compile("\\bcmp=([^/]+)/(\\.?\\S+)\\s");
 
 
 
@@ -104,6 +104,7 @@ public class AppTrackerService extends IntentService {
 					if (matcher.find()) {
 						String packageName = matcher.group(1);
 						String process = matcher.group(2);
+						
 						log.d("package name is: " + packageName);
 						log.d("process name is: " + process);
 						synchronized (AppHistoryDbHelper.class) {

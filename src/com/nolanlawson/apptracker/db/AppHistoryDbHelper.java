@@ -41,13 +41,14 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	private static final String COLUMN_ID = "_id";
 	private static final String COLUMN_PACKAGE = "package";
 	private static final String COLUMN_PROCESS = "process";
+	private static final String COLUMN_INSTALLED = "installed";
 	private static final String COLUMN_COUNT = "count";
 	private static final String COLUMN_LAST_ACCESS = "lastAccess";
 	private static final String COLUMN_DECAY_SCORE = "decayScore";
 	private static final String COLUMN_LAST_UPDATE = "lastUpdate";
 	
 	private static final String[] COLUMNS = 
-			{COLUMN_ID, COLUMN_PACKAGE, COLUMN_PROCESS, 
+			{COLUMN_ID, COLUMN_PACKAGE, COLUMN_PROCESS, COLUMN_INSTALLED,
 			 COLUMN_COUNT, COLUMN_LAST_ACCESS, COLUMN_DECAY_SCORE, COLUMN_LAST_UPDATE};
 	
 	// constructors
@@ -64,6 +65,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		COLUMN_ID + " integer not null primary key autoincrement, " +
 		COLUMN_PACKAGE + " text not null, " +
 		COLUMN_PROCESS + " text not null, " +
+		COLUMN_INSTALLED + " int not null, " +
 		COLUMN_COUNT + " int not null, " +
 		COLUMN_LAST_ACCESS + " int not null, " +
 		COLUMN_DECAY_SCORE + " double not null, " +
@@ -82,7 +84,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 
 	// methods
 	
-	public List<AppHistoryEntry> findAppHistoryEntries(SortType sortType, int limit, int offset) {
+	public List<AppHistoryEntry> findInstalledAppHistoryEntries(SortType sortType, int limit, int offset) {
 		
 		String appsToIgnoreString = "(\"" + TextUtils.join("\",\"", appsToIgnore) + "\")";
 		
@@ -91,6 +93,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		String sql = "select " + TextUtils.join(",", COLUMNS)
 				+ " from " + TABLE_NAME
 				+ " where " + COLUMN_PACKAGE +" not in " + appsToIgnoreString
+				+ " and " + COLUMN_INSTALLED + " = 1 "
 				+ orderByClause
 				+ " limit " + limit + " offset " + offset;
 		
@@ -153,14 +156,16 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		String sql = "update %s "
 			+ " set %s = %s + 1, " // count
 			+ "%s = %d, " // timestamp
-			+ "%s = %s + 1 "// decay score
+			+ "%s = %s + 1, "// decay score
+			+ "%s = 1 " // installed, just in case the app was re-installed
 			+ " where %s = ? "
 			+ " and %s = ?";
 		
 		sql = String.format(sql, TABLE_NAME, 
 				COLUMN_COUNT, COLUMN_COUNT, 
 				COLUMN_LAST_ACCESS, currentTime,
-				COLUMN_DECAY_SCORE, COLUMN_DECAY_SCORE,				
+				COLUMN_DECAY_SCORE, COLUMN_DECAY_SCORE,	
+				COLUMN_INSTALLED,
 				COLUMN_PACKAGE, COLUMN_PROCESS);
 		
 		
@@ -192,6 +197,17 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		
 	}
 
+	public void setInstalled(int id, boolean bool) {
+		
+		ContentValues contentValues = new ContentValues();
+		
+		contentValues.put(COLUMN_INSTALLED, bool);
+		
+		String whereClause = COLUMN_ID + "=" + id;
+		
+		getWritableDatabase().update(TABLE_NAME, contentValues, whereClause, null);
+		
+	}
 	private List<AppHistoryEntry> findAllAppHistoryEntries() {
 		
 		Cursor cursor = getWritableDatabase().query(TABLE_NAME, COLUMNS, null, null, null, null, null);
@@ -225,9 +241,9 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		
 		while (cursor.moveToNext()) {
 			AppHistoryEntry appHistoryEntry = AppHistoryEntry.newAppHistoryEntry(
-					cursor.getInt(0), cursor.getString(1), cursor.getString(2), 
-					cursor.getInt(3), new Date(cursor.getLong(4)), cursor.getDouble(5),
-					cursor.getLong(6));
+					cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getInt(3) == 1,
+					cursor.getInt(4), new Date(cursor.getLong(5)), cursor.getDouble(6),
+					cursor.getLong(7));
 			result.add(appHistoryEntry);
 		}
 		
@@ -264,6 +280,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(COLUMN_PACKAGE, packageName);
 		contentValues.put(COLUMN_PROCESS, process);
+		contentValues.put(COLUMN_INSTALLED, 1);
 		contentValues.put(COLUMN_COUNT, 1);
 		contentValues.put(COLUMN_LAST_ACCESS, currentTime);
 		contentValues.put(COLUMN_DECAY_SCORE, 1);
@@ -271,6 +288,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		
 		getWritableDatabase().insert(TABLE_NAME, null, contentValues);
 	}
+
 
 
 }

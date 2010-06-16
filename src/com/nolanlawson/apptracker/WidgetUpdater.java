@@ -2,6 +2,7 @@ package com.nolanlawson.apptracker;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import android.app.PendingIntent;
@@ -24,6 +25,7 @@ import com.nolanlawson.apptracker.db.SortType;
 import com.nolanlawson.apptracker.helper.PreferenceHelper;
 import com.nolanlawson.apptracker.helper.ResourceIdHelper;
 import com.nolanlawson.apptracker.util.DatetimeUtil;
+import com.nolanlawson.apptracker.util.Pair;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
 public class WidgetUpdater {
@@ -47,7 +49,9 @@ public class WidgetUpdater {
 		
 		AppWidgetManager manager = AppWidgetManager.getInstance(context);
 		RemoteViews updateViews = buildUpdate(context, dbHelper, appWidgetId);
-		manager.updateAppWidget(appWidgetId, updateViews);
+		if (updateViews != null) {
+			manager.updateAppWidget(appWidgetId, updateViews);
+		}
 	}
 	
 	/**
@@ -74,33 +78,32 @@ public class WidgetUpdater {
 		
 		RemoteViews updateViews = new RemoteViews(context.getPackageName(), R.layout.tracker_widget);
 		
+		
 		int pageNumber = PreferenceHelper.getCurrentPageNumber(context, appWidgetId);
 		String sortTypeAsString = PreferenceHelper.getSortTypePreference(context, appWidgetId);
 		SortType sortType = SortType.findByName(context, sortTypeAsString);
 		
-		List<AppHistoryEntry> appHistories = 
-			dbHelper.findAppHistoryEntries(sortType, APPS_PER_PAGE, pageNumber * APPS_PER_PAGE);
+		PackageManager packageManager = context.getPackageManager();
 		
-		log.d("Received the following appHistories: %s", appHistories);
+		List<Pair<AppHistoryEntry,PackageInfo>> packageInfos = getPackageInfos(
+				context, appWidgetId, dbHelper, packageManager, pageNumber, sortType);
 		
-		if (appHistories.isEmpty()) {
-			log.d("No app history entries yet; canceling update");
+		if (packageInfos.isEmpty()) {
+			// nothing to show for now; just return
 			return null;
 		}
-		
-		PackageManager packageManager = context.getPackageManager();
 		
 		List<CharSequence> labels = new ArrayList<CharSequence>();
 		
 		for (int i = 0; i < APPS_PER_PAGE; i++) {
 			
-			if (i < appHistories.size()) {
+			if (i < packageInfos.size()) {
 			
-				AppHistoryEntry appHistoryEntry = appHistories.get(i);
+				Pair<AppHistoryEntry,PackageInfo> pair = packageInfos.get(i);
+				AppHistoryEntry appHistoryEntry = pair.getFirst();
+				PackageInfo packageInfo = pair.getSecond();
 				
-				PackageInfo packageInfo = getPackageInfo(context, appHistoryEntry);
-				
-				CharSequence label = packageInfo.applicationInfo.loadLabel(packageManager); // npe here
+				CharSequence label = packageInfo.applicationInfo.loadLabel(packageManager);
 				Bitmap iconBitmap = ((BitmapDrawable)packageInfo.applicationInfo.loadIcon(packageManager)).getBitmap();
 				String subtextText = createSubtext(context, sortType, appHistoryEntry);
 				
@@ -110,7 +113,20 @@ public class WidgetUpdater {
 				updateViews.setViewVisibility(ResourceIdHelper.getRelativeLayoutId(i), View.VISIBLE);
 				
 				Intent intent = new Intent();
-				intent.setClassName(appHistoryEntry.getPackageName(), appHistoryEntry.getPackageName() + "." + appHistoryEntry.getProcess());
+				
+				String fullProcessName;
+
+				if (appHistoryEntry.getProcess().startsWith(".")) {
+					// beginning period is the most common case - this means that the process's path is
+					// simply appended to the package name
+					fullProcessName = appHistoryEntry.getPackageName() + appHistoryEntry.getProcess();
+				} else {
+					// strange case where the full path is specified (e.g. the Maps app)
+					fullProcessName = appHistoryEntry.getProcess();
+
+				}
+				
+				intent.setClassName(appHistoryEntry.getPackageName(), fullProcessName);
 				intent.setAction(Intent.ACTION_MAIN);
 
                 PendingIntent pendingIntent = PendingIntent.getActivity(context,
@@ -131,6 +147,58 @@ public class WidgetUpdater {
 		
 		setBackAndForwardButtons(context, appWidgetId, updateViews, pageNumber, dbHelper, sortType);
 		return updateViews;
+		
+	}
+
+	/**
+	 * Get the package infos for each app history entry fetched from the db, and check
+	 * to see if they were uninstalled or not.
+	 * @param context
+	 * @param appWidgetId
+	 * @param dbHelper
+	 * @param packageManager
+	 * @param pageNumber
+	 * @param sortType
+	 * @return
+	 */
+	private static List<Pair<AppHistoryEntry,PackageInfo>> getPackageInfos(
+			Context context, int appWidgetId, AppHistoryDbHelper dbHelper, 
+			PackageManager packageManager, int pageNumber, SortType sortType) {
+		
+		List<Pair<AppHistoryEntry,PackageInfo>> packageInfos = new ArrayList<Pair<AppHistoryEntry,PackageInfo>>();
+		
+		List<AppHistoryEntry> appHistories;
+		
+		mainloop: while (true) {
+		
+			appHistories = dbHelper.findInstalledAppHistoryEntries(sortType, APPS_PER_PAGE, pageNumber * APPS_PER_PAGE);
+			
+			for (AppHistoryEntry appHistory : appHistories) {
+				
+				PackageInfo packageInfo = getPackageInfo(context, packageManager, appHistory, dbHelper);
+				
+				if (packageInfo == null) { // uninstalled
+					synchronized (AppHistoryDbHelper.class) {
+						// update the database to reflect that the app is uninstalled
+						dbHelper.setInstalled(appHistory.getId(), false);
+					}
+					packageInfos.clear();
+					// try to select from the database again, while skipping the uninstalled one
+					continue mainloop;
+				}
+				packageInfos.add(new Pair<AppHistoryEntry,PackageInfo>(appHistory, packageInfo));
+			}
+			break;
+		}
+		
+		log.d("Received the following appHistories: %s", appHistories);
+		
+		if (appHistories.isEmpty()) {
+			log.d("No app history entries yet; canceling update");
+			return Collections.emptyList();
+		}
+		
+		return packageInfos;
 		
 	}
 
@@ -173,7 +241,7 @@ public class WidgetUpdater {
 		
 			// if no more app results, disable forward button
 			// TODO: optimize this
-			boolean noMoreAppResults = dbHelper.findAppHistoryEntries(sortType, APPS_PER_PAGE, (pageNumber + 1) * APPS_PER_PAGE).isEmpty();
+			boolean noMoreAppResults = dbHelper.findInstalledAppHistoryEntries(sortType, APPS_PER_PAGE, (pageNumber + 1) * APPS_PER_PAGE).isEmpty();
 	
 			updateViews.setViewVisibility(R.id.forward_button, noMoreAppResults ? View.INVISIBLE : View.VISIBLE);
 	
@@ -227,8 +295,10 @@ public class WidgetUpdater {
 		
 	}
 
-	private static PackageInfo getPackageInfo(Context context, AppHistoryEntry appHistoryEntry) {
-		PackageManager packageManager = context.getPackageManager();
+	private static PackageInfo getPackageInfo(
+			Context context, PackageManager packageManager, 
+			AppHistoryEntry appHistoryEntry, AppHistoryDbHelper dbHelper) {
+
 		PackageInfo packageInfo = null;
 		try {
 			packageInfo = packageManager.getPackageInfo(appHistoryEntry.getPackageName(), 0);

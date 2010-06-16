@@ -7,6 +7,7 @@ public class AppHistoryEntry {
 	private int id;
 	private String packageName;
 	private String process;
+	private boolean installed;
 	private int count;
 	private Date lastAccessed;
 	private double decayScore;
@@ -56,14 +57,24 @@ public class AppHistoryEntry {
 	public void setLastUpdate(long lastUpdate) {
 		this.lastUpdate = lastUpdate;
 	}
+	
+	
+	public boolean isInstalled() {
+		return installed;
+	}
+	public void setInstalled(boolean installed) {
+		this.installed = installed;
+	}
+	
 	public static AppHistoryEntry newAppHistoryEntry(
-			int id, String packageName, String process, int count, 
+			int id, String packageName, String process, boolean installed, int count, 
 			Date lastAccessed, double decayScore, long lastUpdate) {
 		
 		AppHistoryEntry appHistoryEntry = new AppHistoryEntry();
 		appHistoryEntry.setId(id);
 		appHistoryEntry.setPackageName(packageName);
 		appHistoryEntry.setProcess(process);
+		appHistoryEntry.setInstalled(installed);
 		appHistoryEntry.setCount(count);
 		appHistoryEntry.setLastAccessed(lastAccessed);
 		appHistoryEntry.setDecayScore(decayScore);
@@ -76,8 +87,10 @@ public class AppHistoryEntry {
 	@Override
 	public String toString() {
 		return "AppHistoryEntry [count=" + count + ", decayScore=" + decayScore
-				+ ", id=" + id + ", lastAccessed=" + lastAccessed
+				+ ", id=" + id + ", installed=" + installed + ", lastAccessed="
+				+ lastAccessed + ", lastUpdate=" + lastUpdate
 				+ ", packageName=" + packageName + ", process=" + process + "]";
 	}
+
 	
 }
