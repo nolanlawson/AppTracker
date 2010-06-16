@@ -67,7 +67,7 @@
 			android:paddingLeft="3dp" android:textSize="12sp" android:background="@drawable/bubble_small"
 			android:textColor="@android:color/white" android:gravity="center_vertical"
 			android:text="4 mins ago" android:singleLine="true"
-			android:paddingBottom="5dp" android:visibility="invisible"/>
+			android:visibility="invisible"/>
 
 	</LinearLayout>
 	<LinearLayout android:orientation="vertical"
@@ -93,8 +93,7 @@
 			android:layout_height="wrap_content" android:id="@+id/app_description_2"
 			android:paddingLeft="3dp" android:textSize="12sp" android:background="@drawable/bubble_small"
 			android:textColor="@android:color/white" android:gravity="center_vertical"
-			android:text="4 mins ago" android:singleLine="true"
-			android:paddingBottom="5dp" />
+			android:text="4 mins ago" android:singleLine="true"/>
 
 	</LinearLayout>
 		<LinearLayout android:orientation="vertical"
@@ -120,8 +119,7 @@
 			android:layout_height="wrap_content" android:id="@+id/app_description_3"
 			android:paddingLeft="3dp" android:textSize="12sp" android:background="@drawable/bubble_small"
 			android:textColor="@android:color/white" android:gravity="center_vertical"
-			android:text="4 mins ago" android:singleLine="true"
-			android:paddingBottom="5dp" />
+			android:text="4 mins ago" android:singleLine="true"/>
 
 	</LinearLayout>
 	
@@ -148,8 +146,7 @@
 			android:layout_height="wrap_content" android:id="@+id/app_description_4"
 			android:paddingLeft="3dp" android:textSize="12sp" android:background="@drawable/bubble_small"
 			android:textColor="@android:color/white" android:gravity="center_vertical"
-			android:text="4 mins ago" android:singleLine="true"
-			android:paddingBottom="5dp" />
+			android:text="4 mins ago" android:singleLine="true"/>
 
 	</LinearLayout>
 </LinearLayout>
