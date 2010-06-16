@@ -53,8 +53,7 @@
 		
 		<ImageView android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:src="@drawable/icon"
-			android:id="@+id/app_icon_1" android:scaleType="center" android:maxWidth="48dp"
-			android:maxHeight="48dp"/>
+			android:id="@+id/app_icon_1"/>
 
 		<TextView android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:id="@+id/app_title_1"
@@ -80,8 +79,7 @@
 		
 		<ImageView android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:src="@drawable/icon"
-			android:id="@+id/app_icon_2" android:scaleType="center" android:maxWidth="48dp"
-			android:maxHeight="48dp"/>
+			android:id="@+id/app_icon_2"/>
 
 		<TextView android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:id="@+id/app_title_2"
@@ -106,8 +104,7 @@
 		
 		<ImageView android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:src="@drawable/icon"
-			android:id="@+id/app_icon_3" android:scaleType="center" android:maxWidth="48dp"
-			android:maxHeight="48dp"/>
+			android:id="@+id/app_icon_3"/>
 
 		<TextView android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:id="@+id/app_title_3"
@@ -133,8 +130,7 @@
 		
 		<ImageView android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:src="@drawable/icon"
-			android:id="@+id/app_icon_4" android:scaleType="center" android:maxWidth="48dp"
-			android:maxHeight="48dp"/>
+			android:id="@+id/app_icon_4"/>
 
 		<TextView android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:id="@+id/app_title_4"
