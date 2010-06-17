@@ -3,36 +3,48 @@ package com.nolanlawson.apptracker;
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
-import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.view.KeyEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.RemoteViews;
-import android.widget.Toast;
 
+import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
 import com.nolanlawson.apptracker.helper.PreferenceHelper;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
 
-public class AppTrackerWidgetConfiguration extends PreferenceActivity {
+public class AppTrackerWidgetConfiguration extends PreferenceActivity implements OnClickListener {
 
 	private static UtilLogger log = new UtilLogger(AppTrackerWidgetConfiguration.class);
 	
 	private int appWidgetId;
+	private AppHistoryDbHelper dbHelper;
+	private Button okButton;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		addPreferencesFromResource(R.xml.config);
+		setContentView(R.layout.preference_list_content_with_button);
+		
+		addPreferencesFromResource(R.xml.tracker_widget_config);
+		
+		dbHelper = new AppHistoryDbHelper(getApplicationContext());
 		
 		Bundle extras = getIntent().getExtras();
 		
 		appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID);
+		okButton = (Button) findViewById(R.id.config_ok_button);
+		
+		okButton.setOnClickListener(this);
+		
+		initializePreferences();
 		
 	}
 	
@@ -40,17 +52,50 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity {
 	protected void onPause() {
 		super.onPause();
 	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		dbHelper.close();
+	}
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			saveConfigurations();
-			setResult();
-			finish();
+			completeConfig();
 			return true;
 		}
 
 		return (super.onKeyDown(keyCode, event));
+	}
+	
+	private void completeConfig() {
+		saveConfigurations();
+		setResult();
+		finish();
+	}
+	
+	private void initializePreferences() {
+		
+		int numAppHistories = dbHelper.findCountOfInstalledAppHistoryEntries();
+		
+		log.d("num app histories: %d", numAppHistories);
+		
+		// possible pages of results to show
+		int numPages = (numAppHistories / WidgetUpdater.APPS_PER_PAGE) 
+			+ (numAppHistories % WidgetUpdater.APPS_PER_PAGE == 0 ? 0 : 1);
+		
+		CharSequence[] pageNumbers = new CharSequence[numPages];
+		
+		for (int i = 0; i < numPages; i++) {
+			pageNumbers[i] = Integer.toString(i + 1);
+		}
+		ListPreference pageNumberPreference = (ListPreference) findPreference(R.string.page_number_preference);
+		
+		pageNumberPreference.setEntries(pageNumbers);
+		pageNumberPreference.setEntryValues(pageNumbers);
+		
+		
 	}
 	
 	private void setResult() {
@@ -87,19 +132,9 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity {
 		
 		PreferenceHelper.setSortTypePreference(getApplicationContext(), sortType.toString(), appWidgetId);
 		
-		EditTextPreference pageNumberPreference = (EditTextPreference) findPreference(R.string.page_number_preference);
+		ListPreference pageNumberPreference = (ListPreference) findPreference(R.string.page_number_preference);
 		
-		int pageNumber = 0;
-		try {
-			pageNumber = Integer.parseInt(pageNumberPreference.getText()) - 1;
-			
-			if (pageNumber < 0) {
-				showInvalidPageNumberToast();
-				pageNumber = 0;
-			}
-		} catch (NumberFormatException ignore) {
-			showInvalidPageNumberToast();
-		}
+		int pageNumber = Integer.parseInt(pageNumberPreference.getEntry().toString()) - 1;
 		
 		PreferenceHelper.setCurrentPageNumber(getApplicationContext(), pageNumber, appWidgetId);
 		
@@ -112,14 +147,17 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity {
 		PreferenceHelper.setHideSubtextPreference(getApplicationContext(), hideSubtext, appWidgetId);
 
 	}
-	
-	private void showInvalidPageNumberToast() {
-		Toast.makeText(getApplicationContext(), R.string.invalid_page_number, Toast.LENGTH_LONG).show();
-		
-	}
+
 
 	private Preference findPreference(int stringResId) {
 		return findPreference(getResources().getString(stringResId));
+	}
+
+	@Override
+	public void onClick(View v) {
+		// ok button clicked
+		completeConfig();
+		
 	}
 		
 }

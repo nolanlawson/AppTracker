@@ -84,16 +84,30 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 
 	// methods
 	
+	public int findCountOfInstalledAppHistoryEntries() {
+		
+		String whereClause = createObligatoryWhereClause();
+		
+		Cursor cursor = getWritableDatabase().query(TABLE_NAME, new String[]{"count(*)"}, whereClause, 
+				null, null, null, null);
+		
+		cursor.moveToFirst();
+		int result = cursor.getInt(0);
+		cursor.close();
+		
+		return result;
+		
+		
+	}
+	
 	public List<AppHistoryEntry> findInstalledAppHistoryEntries(SortType sortType, int limit, int offset) {
 		
-		String appsToIgnoreString = "(\"" + TextUtils.join("\",\"", appsToIgnore) + "\")";
-		
 		String orderByClause = createOrderByClause(sortType);
+		String whereClause = createObligatoryWhereClause();
 		
 		String sql = "select " + TextUtils.join(",", COLUMNS)
 				+ " from " + TABLE_NAME
-				+ " where " + COLUMN_PACKAGE +" not in " + appsToIgnoreString
-				+ " and " + COLUMN_INSTALLED + " = 1 "
+				+ " where " + whereClause
 				+ orderByClause
 				+ " limit " + limit + " offset " + offset;
 		
@@ -208,6 +222,18 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		getWritableDatabase().update(TABLE_NAME, contentValues, whereClause, null);
 		
 	}
+	
+	private String createObligatoryWhereClause() {
+		
+		StringBuilder stringBuilder = new StringBuilder(" ");
+		
+		stringBuilder.append(COLUMN_PACKAGE).append(" not in (\"")
+				.append(TextUtils.join("\",\"", appsToIgnore))
+				.append("\") and ").append(COLUMN_INSTALLED).append("=1 ");
+		
+		return stringBuilder.toString();
+	}
+	
 	private List<AppHistoryEntry> findAllAppHistoryEntries() {
 		
 		Cursor cursor = getWritableDatabase().query(TABLE_NAME, COLUMNS, null, null, null, null, null);
@@ -268,8 +294,8 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		
 		String whereClause = COLUMN_ID + "=" + appHistoryEntry.getId();
 		
-		log.d("updating decay score for appHistoryEntry: %s", appHistoryEntry);
-		log.d("where clause is: " + whereClause);
+		//log.d("updating decay score for appHistoryEntry: %s", appHistoryEntry);
+		//log.d("where clause is: " + whereClause);
 		
 		db.update(TABLE_NAME, contentValues, whereClause, null);
 		

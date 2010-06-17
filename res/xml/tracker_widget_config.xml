@@ -7,10 +7,11 @@
 		android:entries="@array/sort_type_list" android:entryValues="@array/sort_type_list"
 		android:defaultValue="@string/sort_type_recent" android:persistent="false" />
 
-	<EditTextPreference android:key="@string/page_number_preference"
+
+
+	<ListPreference android:key="@string/page_number_preference"
 		android:title="@string/page_number_title" android:summary="@string/page_number_summary"
-		android:dialogTitle="@string/page_number_title" android:defaultValue="1"
-		android:persistent="false"/>
+		android:defaultValue="1" android:persistent="false"/>
 
 	<CheckBoxPreference android:key="@string/lock_page_preference"
 		android:title="@string/lock_page_title" android:summary="@string/lock_page_summary" 

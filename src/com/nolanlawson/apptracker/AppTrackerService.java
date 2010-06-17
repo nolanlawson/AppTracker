@@ -104,8 +104,7 @@ public class AppTrackerService extends IntentService {
 		}
 
 		catch (IOException e) {
-			log.e(e, "unexpected");
-			throw new RuntimeException(e);
+			log.e(e, "unexpected exception");
 		}
 
 		finally {
@@ -113,11 +112,11 @@ public class AppTrackerService extends IntentService {
 				try {
 					reader.close();
 				} catch (IOException e) {
-					log.e(e, "unexpected");
+					log.e(e, "unexpected exception");
 				}
 			}
 
-			log.d("done reading logs");
+			log.d("AppTrackerService died for some reason");
 
 		}
 	}
