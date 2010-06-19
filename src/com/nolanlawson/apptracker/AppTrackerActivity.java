@@ -17,6 +17,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.ListView;
@@ -31,7 +32,7 @@ import com.nolanlawson.apptracker.helper.ServiceHelper;
 import com.nolanlawson.apptracker.util.Pair;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
-public class AppTrackerActivity extends ListActivity implements OnTouchListener {
+public class AppTrackerActivity extends ListActivity implements OnTouchListener, OnClickListener {
     
 	private static final int LOAD_BATCH_SIZE = 4; // how many apps to put in the list at once
 	
@@ -158,6 +159,7 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener 
 		
 		for (Button button : buttons) {
 			button.setOnTouchListener(this);
+			button.setOnClickListener(this);
 		}
 	}
 	
@@ -281,29 +283,40 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener 
 		if (event.getAction() == MotionEvent.ACTION_UP) {
 			
 			log.d("action up!");
-			switch (v.getId()) {
-			case R.id.recent_button:
-				sortType = SortType.Recent;
-				setButtonAsPressed(recentButton);
-				break;
-			case R.id.most_used_button:
-				sortType = SortType.MostUsed;
-				setButtonAsPressed(mostUsedButton);
-				break;
-			case R.id.time_decay_button:
-				sortType = SortType.TimeDecay;
-				setButtonAsPressed(timeDecayButton);
-				break;
-			}
-			adapter.setSortType(sortType);
-			adapter.sort(LoadedAppHistoryEntry.orderBy(sortType));
-			adapter.notifyDataSetInvalidated();
+			clickButton(v);
 			
 			return true;
 		}
 		
 		return false;
 	}
+	
+
+	@Override
+	public void onClick(View v) {
+		clickButton(v);
+	}
+	private void clickButton(View v) {
+		switch (v.getId()) {
+		case R.id.recent_button:
+			sortType = SortType.Recent;
+			setButtonAsPressed(recentButton);
+			break;
+		case R.id.most_used_button:
+			sortType = SortType.MostUsed;
+			setButtonAsPressed(mostUsedButton);
+			break;
+		case R.id.time_decay_button:
+			sortType = SortType.TimeDecay;
+			setButtonAsPressed(timeDecayButton);
+			break;
+		}
+		adapter.setSortType(sortType);
+		adapter.sort(LoadedAppHistoryEntry.orderBy(sortType));
+		adapter.notifyDataSetInvalidated();
+		
+	}
+
 	
 	private void setButtonAsPressed(final Button button) {
 		
