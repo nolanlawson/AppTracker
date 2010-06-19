@@ -16,7 +16,7 @@
     <string name="page_number_summary">Page of results to show when locked</string>
     <string name="lock_page_preference">lock_page</string>
     <string name="lock_page_title">Lock Page</string>
-    <string name="lock_page_summary">Disallow paging between results</string>
+    <string name="lock_page_summary">Show one page of results</string>
     <string name="hide_subtext_preference">hide_subtext</string>
     <string name="hide_subtext_title">Hide Subtext</string>
     <string name="hide_subtext_summary">Don\'t show ranking information below app name</string>
@@ -30,6 +30,6 @@
     <string name="full_app_list">Full App List</string>
     <string name="user_guide">User Guide</string>
     <string name="about">About</string>
-    
+    <string name="loading">Loading...</string>
     
 </resources>

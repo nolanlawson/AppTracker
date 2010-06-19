@@ -1,8 +1,6 @@
 package com.nolanlawson.apptracker;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import android.app.PendingIntent;
@@ -12,7 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -22,9 +19,10 @@ import android.widget.RemoteViews;
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
 import com.nolanlawson.apptracker.db.AppHistoryEntry;
 import com.nolanlawson.apptracker.db.SortType;
+import com.nolanlawson.apptracker.helper.PackageInfoHelper;
 import com.nolanlawson.apptracker.helper.PreferenceHelper;
 import com.nolanlawson.apptracker.helper.ResourceIdHelper;
-import com.nolanlawson.apptracker.util.DatetimeUtil;
+import com.nolanlawson.apptracker.helper.SubtextHelper;
 import com.nolanlawson.apptracker.util.DrawableUtil;
 import com.nolanlawson.apptracker.util.Pair;
 import com.nolanlawson.apptracker.util.UtilLogger;
@@ -37,7 +35,7 @@ public class WidgetUpdater {
 	public static final String NEW_PAGE_NUMBER = "newPageNumber";
 	private static final String URI_SCHEME = "app_tracker_widget";
 	
-	private static final String DATE_FORMATTER_STRING = "0.00";
+	
 	private static UtilLogger log = new UtilLogger(WidgetUpdater.class);
 	
 	/**
@@ -86,8 +84,8 @@ public class WidgetUpdater {
 		
 		PackageManager packageManager = context.getPackageManager();
 		
-		List<Pair<AppHistoryEntry,PackageInfo>> packageInfos = getPackageInfos(
-				context, appWidgetId, dbHelper, packageManager, pageNumber, sortType);
+		List<Pair<AppHistoryEntry,PackageInfo>> packageInfos = PackageInfoHelper.getPackageInfos(
+				context, dbHelper, packageManager, pageNumber, APPS_PER_PAGE, sortType);
 		
 		if (packageInfos.isEmpty()) {
 			// nothing to show for now; just return
@@ -112,7 +110,7 @@ public class WidgetUpdater {
 				
 				
 				
-				String subtextText = createSubtext(context, sortType, appHistoryEntry);
+				String subtextText = SubtextHelper.createSubtext(context, sortType, appHistoryEntry);
 				
 				updateViews.setTextViewText(ResourceIdHelper.getAppTitleId(i), label);
 				updateViews.setTextViewText(ResourceIdHelper.getAppDescriptionId(i), subtextText);
@@ -145,83 +143,6 @@ public class WidgetUpdater {
 		return updateViews;
 		
 	}
-
-	/**
-	 * Get the package infos for each app history entry fetched from the db, and check
-	 * to see if they were uninstalled or not.
-	 * @param context
-	 * @param appWidgetId
-	 * @param dbHelper
-	 * @param packageManager
-	 * @param pageNumber
-	 * @param sortType
-	 * @return
-	 */
-	private static List<Pair<AppHistoryEntry,PackageInfo>> getPackageInfos(
-			Context context, int appWidgetId, AppHistoryDbHelper dbHelper, 
-			PackageManager packageManager, int pageNumber, SortType sortType) {
-		
-		List<Pair<AppHistoryEntry,PackageInfo>> packageInfos = new ArrayList<Pair<AppHistoryEntry,PackageInfo>>();
-		
-		List<AppHistoryEntry> appHistories;
-		
-		mainloop: while (true) {
-		
-			appHistories = dbHelper.findInstalledAppHistoryEntries(sortType, APPS_PER_PAGE, pageNumber * APPS_PER_PAGE);
-			
-			for (AppHistoryEntry appHistory : appHistories) {
-				
-				PackageInfo packageInfo = getPackageInfo(context, packageManager, appHistory, dbHelper);
-				
-				if (packageInfo == null) { // uninstalled
-					synchronized (AppHistoryDbHelper.class) {
-						// update the database to reflect that the app is uninstalled
-						dbHelper.setInstalled(appHistory.getId(), false);
-					}
-					packageInfos.clear();
-					// try to select from the database again, while skipping the uninstalled one
-					continue mainloop;
-				}
-				packageInfos.add(new Pair<AppHistoryEntry,PackageInfo>(appHistory, packageInfo));
-			}
-			break;
-		}
-		
-		log.d("Received the following appHistories: %s", appHistories);
-		
-		if (appHistories.isEmpty()) {
-			log.d("No app history entries yet; canceling update");
-			return Collections.emptyList();
-		}
-		
-		return packageInfos;
-		
-	}
-
-	private static String createSubtext(Context context, SortType sortType,
-			AppHistoryEntry appHistoryEntry) {
-		
-		//TODO: make this localizable
-		switch (sortType) {
-		case Recent:
-			return DatetimeUtil.getHumanReadableDateDiff(appHistoryEntry.getLastAccessed());
-		case MostUsed:
-			int count = appHistoryEntry.getCount();
-			
-			if (count == 1) {
-				return count +" hit";
-			} else {
-				return count +" hits";
-			}
-		case TimeDecay:
-			DecimalFormat decimalFormat = new DecimalFormat(DATE_FORMATTER_STRING);
-			String formattedDecayScore = decimalFormat.format(appHistoryEntry.getDecayScore());
-			return "Score: " + formattedDecayScore;
-		default:
-			throw new IllegalArgumentException("cannot find sortType: " + sortType);
-		}
-	}
-
 	private static void setBackAndForwardButtons(Context context,
 			int appWidgetId, RemoteViews updateViews, int pageNumber, AppHistoryDbHelper dbHelper,
 			SortType sortType) {
@@ -305,17 +226,4 @@ public class WidgetUpdater {
 		
 	}
 
-	private static PackageInfo getPackageInfo(
-			Context context, PackageManager packageManager, 
-			AppHistoryEntry appHistoryEntry, AppHistoryDbHelper dbHelper) {
-
-		PackageInfo packageInfo = null;
-		try {
-			packageInfo = packageManager.getPackageInfo(appHistoryEntry.getPackageName(), 0);
-		} catch (NameNotFoundException e) {
-			log.e(e, "package no longer installed: %s", appHistoryEntry);
-		}
-		
-		return packageInfo;
-	}
 }

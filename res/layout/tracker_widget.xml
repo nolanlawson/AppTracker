@@ -52,7 +52,7 @@
 		android:visibility="visible">
 		
 		<ImageView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:src="@drawable/icon"
+			android:layout_height="wrap_content" android:src="@drawable/android_plus_target"
 			android:id="@+id/app_icon_1"/>
 
 		<TextView android:layout_width="wrap_content"
