@@ -32,8 +32,10 @@ import com.nolanlawson.apptracker.helper.ServiceHelper;
 import com.nolanlawson.apptracker.util.Pair;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
-public class AppTrackerActivity extends ListActivity implements OnClickListener, OnTouchListener {
+public class AppTrackerActivity extends ListActivity implements OnTouchListener {
     
+	private static final int LOAD_BATCH_SIZE = 4; // how many apps to put in the list at once
+	
 	private static UtilLogger log = new UtilLogger(AppTrackerActivity.class);
 	
 	private Button recentButton, mostUsedButton, timeDecayButton;
@@ -75,7 +77,16 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener,
 
     }    
     
+    
+    
     @Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+		log.d("onWindowFocusChanged()");
+		setAppropriateButtonAsPressed();
+	}
+
+	@Override
     protected void onDestroy() {
     	super.onDestroy();
     	log.d("onDestroy()");
@@ -131,9 +142,7 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener,
 		buttons = new Button[]{recentButton, mostUsedButton, timeDecayButton};
 		
 		for (Button button : buttons) {
-			button.setOnClickListener(this);
 			button.setOnTouchListener(this);
-			button.setEnabled(listAlreadyLoaded);
 		}
 	}
 	
@@ -197,7 +206,7 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener,
 						entryList.add(loadedEntry);
 						
 						// batch the updates for a smoother-looking UI
-						if (entryList.size() == 2 || i == pairs.size() - 1) {
+						if (entryList.size() == LOAD_BATCH_SIZE || i == pairs.size() - 1) {
 							publishProgress(entryList.toArray(new LoadedAppHistoryEntry[entryList.size()]));
 							entryList.clear();
 						}
@@ -218,6 +227,8 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener,
 				for (LoadedAppHistoryEntry entry : values) {
 					adapter.add(entry);
 				}
+
+				adapter.sort(LoadedAppHistoryEntry.orderBy(sortType));
 				adapter.notifyDataSetChanged();
 				
 			}
@@ -226,9 +237,6 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener,
 			protected void onPostExecute(Void result) {
 				super.onPostExecute(result);
 				
-				for (Button button : buttons) {
-					button.setEnabled(true);
-				}
 				getListView().removeFooterView(progressView);
 				
 			}
@@ -236,12 +244,6 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener,
 		};
 		
 		task.execute((Void)null);
-		
-	}
-	
-	@Override
-	public void onClick(View v) {
-
 		
 	}
 
