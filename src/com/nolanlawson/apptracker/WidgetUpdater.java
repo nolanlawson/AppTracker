@@ -46,6 +46,8 @@ public class WidgetUpdater {
 	 */
 	public static void updateWidget(Context context, AppHistoryDbHelper dbHelper, int appWidgetId) {
 		
+		log.d("updating widget for appWidgetId: " + appWidgetId);
+		
 		AppWidgetManager manager = AppWidgetManager.getInstance(context);
 		RemoteViews updateViews = buildUpdate(context, dbHelper, appWidgetId);
 		if (updateViews != null) {
@@ -60,6 +62,8 @@ public class WidgetUpdater {
 	 */
 	public static void updateWidget(Context context, AppHistoryDbHelper dbHelper) {
 
+		log.d("updating widget for all app widget ids");
+		
 		ComponentName widget = new ComponentName(context, AppTrackerWidgetProvider.class);
 		AppWidgetManager manager = AppWidgetManager.getInstance(context);
 		int[] appWidgetIds = manager.getAppWidgetIds(widget);

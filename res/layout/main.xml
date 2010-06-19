@@ -23,22 +23,10 @@
 
 	</LinearLayout>
 	
-	<LinearLayout android:layout_width="fill_parent"
-		android:layout_height="fill_parent" android:orientation="vertical"
-		android:gravity="center_vertical|center_horizontal"
-		android:id="@android:id/empty">
-	
-		<ProgressBar android:id="@+id/loading_progress_bar"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:indeterminate="true" />
-		
-		<TextView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:text="@string/loading"
-			android:paddingTop="15dp" android:textSize="16sp" />
 
-	</LinearLayout>
 	
 	<ListView android:id="@android:id/list" android:layout_width="fill_parent"
-		android:layout_height="0px" android:layout_weight="1.0"/>
+		android:layout_height="0px" android:layout_weight="1.0"
+		android:paddingLeft="5dp" android:paddingRight="5dp"/>
 
 </LinearLayout>

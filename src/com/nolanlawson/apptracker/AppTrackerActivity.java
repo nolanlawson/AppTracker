@@ -10,8 +10,11 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.ListView;
 
@@ -22,9 +25,12 @@ import com.nolanlawson.apptracker.db.AppHistoryEntry;
 import com.nolanlawson.apptracker.db.SortType;
 import com.nolanlawson.apptracker.helper.PackageInfoHelper;
 import com.nolanlawson.apptracker.util.Pair;
+import com.nolanlawson.apptracker.util.UtilLogger;
 
-public class AppTrackerActivity extends ListActivity implements OnClickListener {
+public class AppTrackerActivity extends ListActivity implements OnClickListener, OnTouchListener {
     
+	private static UtilLogger log = new UtilLogger(AppTrackerActivity.class);
+	
 	private Button recentButton, mostUsedButton, timeDecayButton;
 	private Button[] buttons;
 	
@@ -57,6 +63,19 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener 
 		setContentView(R.layout.main);
 		setUpWidgets(true);
 		
+		switch (sortType) {
+		case Recent:
+			setButtonAsPressed(recentButton);
+			break;
+		case MostUsed:
+			setButtonAsPressed(mostUsedButton);
+			break;
+		case TimeDecay:
+			setButtonAsPressed(timeDecayButton);
+			break;
+		}
+		
+		
 	}
 
 	@Override
@@ -78,6 +97,7 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener 
 		
 		for (Button button : buttons) {
 			button.setOnClickListener(this);
+			button.setOnTouchListener(this);
 			button.setEnabled(listAlreadyLoaded);
 		}
 	}
@@ -88,10 +108,26 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener 
 		
 		final Context context = getApplicationContext();
 		
-		AsyncTask<Void, Void, List<LoadedAppHistoryEntry>> task = new AsyncTask<Void, Void, List<LoadedAppHistoryEntry>>(){
+		adapter = new LoadedAppHistoryAdapter(
+				context, R.layout.app_history_item, new ArrayList<LoadedAppHistoryEntry>(), sortType);
+		
+		LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		
+		final View progressView = layoutInflater.inflate(R.layout.progress_footer, null);
+		
+		getListView().addFooterView(progressView);
+		
+		setListAdapter(adapter);
+		
+		
+		
+		AsyncTask<Void, LoadedAppHistoryEntry, Void> task = 
+			new AsyncTask<Void, LoadedAppHistoryEntry, Void>(){
 
+			
+			
 			@Override
-			protected List<LoadedAppHistoryEntry> doInBackground(Void... params) {
+			protected Void doInBackground(Void... params) {
 				
 				AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(getApplicationContext());
 				
@@ -102,39 +138,52 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener 
 					List<Pair<AppHistoryEntry, PackageInfo>> pairs = 
 						PackageInfoHelper.getPackageInfos(context, dbHelper, packageManager,0, Integer.MAX_VALUE, sortType);
 					
-					List<LoadedAppHistoryEntry> loadedEntries = new ArrayList<LoadedAppHistoryEntry>();
+					List<LoadedAppHistoryEntry> entryList = new ArrayList<LoadedAppHistoryEntry>();
 					
-					for (Pair<AppHistoryEntry, PackageInfo> pair : pairs) {
+					
+					for (int i = 0; i < pairs.size(); i++) {
+						
+						Pair<AppHistoryEntry, PackageInfo> pair = pairs.get(i);
 						LoadedAppHistoryEntry loadedEntry = LoadedAppHistoryEntry.fromAppHistoryEntry(
 								pair.getFirst(), pair.getSecond(), packageManager, getApplicationContext());
-						loadedEntries.add(loadedEntry);
+						entryList.add(loadedEntry);
+						
+						// batch the updates for a smoother-looking UI
+						if (entryList.size() == 2 || i == pairs.size() - 1) {
+							publishProgress(entryList.toArray(new LoadedAppHistoryEntry[entryList.size()]));
+							entryList.clear();
+						}
 					}
 					
-					return loadedEntries;
+					
+					return null;
 					
 				} finally {
 					dbHelper.close();
 				}
 			}
-
-			
 			
 			@Override
-			protected void onProgressUpdate(Void... values) {
-				// TODO Auto-generated method stub
+			protected void onProgressUpdate(LoadedAppHistoryEntry... values) {
 				super.onProgressUpdate(values);
+				adapter.setNotifyOnChange(false);
+				for (LoadedAppHistoryEntry entry : values) {
+					adapter.add(entry);
+				}
+				adapter.notifyDataSetChanged();
+				
 			}
 
 			@Override
-			protected void onPostExecute(List<LoadedAppHistoryEntry> result) {
+			protected void onPostExecute(Void result) {
 				super.onPostExecute(result);
-				adapter = new LoadedAppHistoryAdapter(context, R.layout.app_history_item, result, sortType);
-				
-				setListAdapter(adapter);
 				
 				for (Button button : buttons) {
 					button.setEnabled(true);
 				}
+				setButtonAsPressed(recentButton);
+				getListView().removeFooterView(progressView);
+				
 			}
 		
 		};
@@ -145,18 +194,51 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener 
 	
 	@Override
 	public void onClick(View v) {
-		switch (v.getId()) {
-		case R.id.recent_button:
-			sortType = sortType.Recent;
-			break;
-		case R.id.most_used_button:
-			sortType = sortType.MostUsed;
-			break;
-		case R.id.time_decay_button:
-			sortType = SortType.TimeDecay;
-			break;
-		}
-		adapter.sort(LoadedAppHistoryEntry.orderBy(sortType));
+
 		
 	}
+
+	@Override
+	public boolean onTouch(View v, MotionEvent event) {
+				
+		// have to do onTouch/ActionUp instead of onClick because
+		// onClick will override the "pressed" setting
+		if (event.getAction() == MotionEvent.ACTION_UP) {
+			
+			log.d("action up!");
+			switch (v.getId()) {
+			case R.id.recent_button:
+				sortType = SortType.Recent;
+				setButtonAsPressed(recentButton);
+				break;
+			case R.id.most_used_button:
+				sortType = SortType.MostUsed;
+				setButtonAsPressed(mostUsedButton);
+				break;
+			case R.id.time_decay_button:
+				sortType = SortType.TimeDecay;
+				setButtonAsPressed(timeDecayButton);
+				break;
+			}
+			adapter.setSortType(sortType);
+			adapter.sort(LoadedAppHistoryEntry.orderBy(sortType));
+			adapter.notifyDataSetInvalidated();
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
+	private void setButtonAsPressed(final Button button) {
+		
+		for (Button otherButton : buttons) {
+			if (otherButton.getId() != button.getId()) {
+				otherButton.setPressed(false);
+			}
+		}
+		button.setPressed(true);
+		
+	}
+
 }
