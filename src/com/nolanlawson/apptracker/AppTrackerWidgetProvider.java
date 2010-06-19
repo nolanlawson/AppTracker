@@ -54,7 +54,7 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		super.onReceive(context, intent);
-		log.d("onReceive()");
+		log.d("onReceive(); intent is: %s",intent);
 		startBackgroundServiceIfNotAlreadyRunning(context);
 		
 

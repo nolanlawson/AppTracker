@@ -3,6 +3,7 @@ package com.nolanlawson.apptracker.db;
 import java.util.Date;
 
 import android.content.ComponentName;
+import android.content.Intent;
 
 public class AppHistoryEntry {
 
@@ -106,6 +107,16 @@ public class AppHistoryEntry {
 			fullProcessName = process;
 		}
 		return new ComponentName(packageName, fullProcessName);
+	}
+	
+	public Intent toIntent() {
+		
+		Intent intent = new Intent();
+		intent.setComponent(toComponentName());
+		intent.setAction(Intent.ACTION_MAIN);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		
+		return intent;
 	}
 
 	

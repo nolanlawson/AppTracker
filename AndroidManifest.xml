@@ -30,6 +30,12 @@
 			</intent-filter>
 			
 			<intent-filter>
+				<action android:name="android.intent.action.BOOT_COMPLETED" />
+				<category android:name="android.intent.category.HOME" />
+			</intent-filter>
+			
+			
+			<intent-filter>
 				<action android:name="com.nolanlawson.apptracker.action.PAGE_UPDATE_FORWARD" />
 				<data android:scheme="app_tracker_widget" />
 			</intent-filter>

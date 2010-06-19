@@ -45,6 +45,8 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener,
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        log.d("onCreate()");
+        
         setContentView(R.layout.main);
         
         setUpWidgets(false);
@@ -57,11 +59,22 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener,
     @Override
     protected void onResume() {
     	super.onResume();
+    	log.d("onResume()");
+		setUpList();
 		
-        setUpList();
+		setAppropriateButtonAsPressed();
     }
-    
+    @Override
+    protected void onPause() {
+    	super.onPause();
+    	log.d("onPause()");
 
+    }    
+    @Override
+    protected void onDestroy() {
+    	super.onDestroy();
+    	log.d("onDestroy()");
+    }
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
@@ -70,17 +83,7 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener,
 		setContentView(R.layout.main);
 		setUpWidgets(true);
 		
-		switch (sortType) {
-		case Recent:
-			setButtonAsPressed(recentButton);
-			break;
-		case MostUsed:
-			setButtonAsPressed(mostUsedButton);
-			break;
-		case TimeDecay:
-			setButtonAsPressed(timeDecayButton);
-			break;
-		}
+		setAppropriateButtonAsPressed();
 		
 		
 	}
@@ -91,9 +94,7 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener,
 		
 		LoadedAppHistoryEntry appHistoryEntry = adapter.getItem(position);
 		
-		Intent intent = new Intent();
-		intent.setComponent(appHistoryEntry.getAppHistoryEntry().toComponentName());
-		intent.setAction(Intent.ACTION_MAIN);
+		Intent intent = appHistoryEntry.getAppHistoryEntry().toIntent();
 		
 		startActivity(intent);
 	}
@@ -128,6 +129,20 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener,
 			button.setOnClickListener(this);
 			button.setOnTouchListener(this);
 			button.setEnabled(listAlreadyLoaded);
+		}
+	}
+	
+	private void setAppropriateButtonAsPressed() {
+		switch (sortType) {
+		case Recent:
+			setButtonAsPressed(recentButton);
+			break;
+		case MostUsed:
+			setButtonAsPressed(mostUsedButton);
+			break;
+		case TimeDecay:
+			setButtonAsPressed(timeDecayButton);
+			break;
 		}
 	}
     
@@ -209,7 +224,6 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener,
 				for (Button button : buttons) {
 					button.setEnabled(true);
 				}
-				setButtonAsPressed(recentButton);
 				getListView().removeFooterView(progressView);
 				
 			}

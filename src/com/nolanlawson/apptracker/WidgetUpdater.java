@@ -121,9 +121,7 @@ public class WidgetUpdater {
 				updateViews.setImageViewBitmap(ResourceIdHelper.getAppIconId(i), iconBitmap);
 				updateViews.setViewVisibility(ResourceIdHelper.getRelativeLayoutId(i), View.VISIBLE);
 				
-				Intent intent = new Intent();
-				intent.setComponent(componentName);
-				intent.setAction(Intent.ACTION_MAIN);
+				Intent intent = appHistoryEntry.toIntent();
 
                 PendingIntent pendingIntent = PendingIntent.getActivity(context,
                         0 /* no requestCode */, intent, 0 /* no flags */);
