@@ -17,7 +17,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.ListView;
@@ -127,8 +126,22 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener 
 	}
 
 	@Override
-	public boolean onMenuItemSelected(int featureId, MenuItem item) {
-		return super.onMenuItemSelected(featureId, item);
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    switch (item.getItemId()) {
+	    case R.id.menu_refresh:
+	    	setUpList();
+	    	break;
+	    case R.id.menu_settings:
+	    	//TODO
+	    	break;
+	    case R.id.menu_user_guide:
+	    	//TODO
+	    	break;
+	    case R.id.menu_about:
+	    	//TODO
+	    	break;
+	    }
+	    return super.onOptionsItemSelected(item);
 	}
 
 	@Override
