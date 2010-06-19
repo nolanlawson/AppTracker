@@ -38,6 +38,8 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener 
 	
 	private static UtilLogger log = new UtilLogger(AppTrackerActivity.class);
 	
+	private static boolean listLoading = false;
+	
 	private Button recentButton, mostUsedButton, timeDecayButton;
 	private Button[] buttons;
 	
@@ -162,6 +164,14 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener 
     
 	private void setUpList() {
 
+		synchronized (AppTrackerActivity.class) {
+			if (listLoading) {
+				return; // somebody else already doing it
+			} else {
+				listLoading = true; // we're doing it
+			}
+		}
+		
 		adapter.clear();
 		
 		// set up the list in the background with a "loading" progress because it's slooooow
@@ -172,7 +182,7 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener 
 		
 		final View progressView = layoutInflater.inflate(R.layout.progress_footer, null);
 		
-		getListView().addFooterView(progressView);
+		getListView().addFooterView(progressView, null, false);
 		
 		setListAdapter(adapter);
 		
@@ -238,6 +248,9 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener 
 				super.onPostExecute(result);
 				
 				getListView().removeFooterView(progressView);
+				synchronized (AppTrackerActivity.class) {
+					listLoading = false;
+				}
 				
 			}
 		
