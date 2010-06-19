@@ -5,12 +5,16 @@ import java.util.List;
 
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -83,13 +87,35 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener,
 
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-
 		super.onListItemClick(l, v, position, id);
+		
+		LoadedAppHistoryEntry appHistoryEntry = adapter.getItem(position);
+		
+		Intent intent = new Intent();
+		intent.setComponent(appHistoryEntry.getAppHistoryEntry().toComponentName());
+		intent.setAction(Intent.ACTION_MAIN);
+		
+		startActivity(intent);
 	}
 
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.main_menu, menu);
+		
+		return true;
+	}
 
+	@Override
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		return super.onMenuItemSelected(featureId, item);
+	}
 
-
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		return super.onPrepareOptionsMenu(menu);
+	}
 
 	private void setUpWidgets(boolean listAlreadyLoaded) {
 		
