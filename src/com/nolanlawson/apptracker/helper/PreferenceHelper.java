@@ -58,6 +58,22 @@ public class PreferenceHelper {
 		
 	}
 	
+	public static boolean getHideAppTitlePreference(Context context, int appWidgetId) {
+		
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		
+		return prefs.getBoolean(getHideAppTitlePreferenceName(context, appWidgetId), false);
+	}
+	
+	public static void setHideAppTitlePreference(Context context, boolean bool, int appWidgetId) {
+		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+		
+		editor.putBoolean(getHideAppTitlePreferenceName(context, appWidgetId), bool);
+		editor.commit();
+		
+	}
+	
+	
 	public static boolean getLockPagePreference(Context context, int appWidgetId) {
 		
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -89,6 +105,8 @@ public class PreferenceHelper {
 		
 	}	
 	
+	
+	
 	private static String getCurrentPagePreferenceName(Context context, int appWidgetId) {
 		return concat(context, R.string.page_number_preference, appWidgetId);
 	}
@@ -103,6 +121,10 @@ public class PreferenceHelper {
 	
 	private static String getSortTypePreferenceName(Context context, int appWidgetId) {
 		return concat(context, R.string.sort_type_preference, appWidgetId);
+	}
+	
+	private static String getHideAppTitlePreferenceName(Context context, int appWidgetId) {
+		return concat(context, R.string.hide_app_title_preference, appWidgetId);
 	}
 	
 	private static String concat(Context context, int resId, int appWidgetId) {

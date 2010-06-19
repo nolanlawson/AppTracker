@@ -137,7 +137,9 @@ public class WidgetUpdater {
 		
 		log.d("Labels are: %s", labels);
 		
+		setAppTitleVisibility(context, appWidgetId, updateViews);
 		setSubtextVisibility(context, appWidgetId, updateViews);
+		
 		
 		setBackAndForwardButtons(context, appWidgetId, updateViews, pageNumber, dbHelper, sortType);
 		return updateViews;
@@ -229,8 +231,8 @@ public class WidgetUpdater {
 		
 		if (lockPage) {
 		
-			updateViews.setViewVisibility(R.id.back_button, View.INVISIBLE);
-			updateViews.setViewVisibility(R.id.forward_button, View.INVISIBLE);
+			updateViews.setViewVisibility(R.id.back_button, View.GONE);
+			updateViews.setViewVisibility(R.id.forward_button, View.GONE);
 		} else {
 		
 			// if no more app results, disable forward button
@@ -258,7 +260,7 @@ public class WidgetUpdater {
 		
 		boolean hideSubtext = PreferenceHelper.getHideSubtextPreference(context, appWidgetId);
 		
-		int subTextVisibility = hideSubtext ? View.INVISIBLE : View.VISIBLE;
+		int subTextVisibility = hideSubtext ? View.GONE : View.VISIBLE;
 		
 		updateViews.setViewVisibility(R.id.app_description_1, subTextVisibility);
 		updateViews.setViewVisibility(R.id.app_description_2, subTextVisibility);
@@ -267,6 +269,20 @@ public class WidgetUpdater {
 		
 	}
 
+	private static void setAppTitleVisibility(Context context, int appWidgetId,
+			RemoteViews updateViews) {
+		boolean hideAppTitle = PreferenceHelper.getHideAppTitlePreference(context, appWidgetId);
+		
+		int subTextVisibility = hideAppTitle ? View.GONE : View.VISIBLE;
+		
+		updateViews.setViewVisibility(R.id.app_title_1, subTextVisibility);
+		updateViews.setViewVisibility(R.id.app_title_2, subTextVisibility);
+		updateViews.setViewVisibility(R.id.app_title_3, subTextVisibility);
+		updateViews.setViewVisibility(R.id.app_title_4, subTextVisibility);
+		
+	}
+
+	
 	private static PendingIntent getPendingIntentForForwardOrBackButton(
 			Context context, boolean forward, int newPageNumber, int appWidgetId) {
 		

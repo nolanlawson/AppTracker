@@ -1,6 +1,5 @@
 package com.nolanlawson.apptracker;
 
-import android.app.AlertDialog.Builder;
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.net.Uri;
@@ -9,6 +8,7 @@ import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.preference.Preference.OnPreferenceChangeListener;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -20,13 +20,16 @@ import com.nolanlawson.apptracker.helper.PreferenceHelper;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
 
-public class AppTrackerWidgetConfiguration extends PreferenceActivity implements OnClickListener {
+public class AppTrackerWidgetConfiguration extends PreferenceActivity implements OnClickListener, OnPreferenceChangeListener {
 
 	private static UtilLogger log = new UtilLogger(AppTrackerWidgetConfiguration.class);
 	
 	private int appWidgetId;
 	private AppHistoryDbHelper dbHelper;
 	private Button okButton;
+	
+	private CheckBoxPreference lockPagePreference, hideSubtextPreference, hideAppTitlePreference;
+	private ListPreference sortTypePreference, pageNumberPreference;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +81,8 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 	
 	private void initializePreferences() {
 		
+		sortTypePreference = (ListPreference) findPreference(R.string.sort_type_preference);
+		
 		int numAppHistories = dbHelper.findCountOfInstalledAppHistoryEntries();
 		
 		log.d("num app histories: %d", numAppHistories);
@@ -91,11 +96,19 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 		for (int i = 0; i < numPages; i++) {
 			pageNumbers[i] = Integer.toString(i + 1);
 		}
-		ListPreference pageNumberPreference = (ListPreference) findPreference(R.string.page_number_preference);
+		pageNumberPreference = (ListPreference) findPreference(R.string.page_number_preference);
 		
 		pageNumberPreference.setEntries(pageNumbers);
 		pageNumberPreference.setEntryValues(pageNumbers);
 		
+		
+		lockPagePreference = (CheckBoxPreference) findPreference(R.string.lock_page_preference);
+		
+		lockPagePreference.setOnPreferenceChangeListener(this);
+		
+		hideSubtextPreference = (CheckBoxPreference) findPreference(R.string.hide_subtext_preference);
+		
+		hideAppTitlePreference = (CheckBoxPreference) findPreference(R.string.hide_app_title_preference);
 		
 	}
 	
@@ -128,24 +141,24 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 
 		log.d("Saving configurations...");
 		
-		ListPreference sortTypePreference = (ListPreference) findPreference(R.string.sort_type_preference);
+		
 		CharSequence sortType = sortTypePreference.getEntry();
 		
 		PreferenceHelper.setSortTypePreference(getApplicationContext(), sortType.toString(), appWidgetId);
-		
-		ListPreference pageNumberPreference = (ListPreference) findPreference(R.string.page_number_preference);
 		
 		int pageNumber = Integer.parseInt(pageNumberPreference.getEntry().toString()) - 1;
 		
 		PreferenceHelper.setCurrentPageNumber(getApplicationContext(), pageNumber, appWidgetId);
 		
-		CheckBoxPreference lockPagePreference = (CheckBoxPreference) findPreference(R.string.lock_page_preference);
 		boolean lockPage = lockPagePreference.isChecked();
 		PreferenceHelper.setLockPagePreference(getApplicationContext(), lockPage, appWidgetId);
 		
-		CheckBoxPreference hideSubtextPreference = (CheckBoxPreference) findPreference(R.string.hide_subtext_preference);
+		
 		boolean hideSubtext = hideSubtextPreference.isChecked();
 		PreferenceHelper.setHideSubtextPreference(getApplicationContext(), hideSubtext, appWidgetId);
+		
+		boolean hideAppTitle = hideAppTitlePreference.isChecked();
+		PreferenceHelper.setHideAppTitlePreference(getApplicationContext(), hideAppTitle, appWidgetId);
 
 	}
 
@@ -159,6 +172,15 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 		// ok button clicked
 		completeConfig();
 		
+	}
+
+	@Override
+	public boolean onPreferenceChange(Preference preference, Object newValue) {
+		
+		// enable or disable the page number preference
+		pageNumberPreference.setEnabled((Boolean)newValue);
+		
+		return true;
 	}
 		
 }
