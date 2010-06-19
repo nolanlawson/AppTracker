@@ -21,6 +21,10 @@
     <string name="hide_subtext_title">Hide Subtext</string>
     <string name="hide_subtext_summary">Hide ranking information below app name</string>
     <string name="invalid_page_number">Invalid page number. Using default of 1.</string>
+    <string name="settings">Settings</string>
+    <string name="full_app_list">Full App List</string>
+    <string name="user_guide">User Guide</string>
+    <string name="about">About</string>
     
     
 </resources>

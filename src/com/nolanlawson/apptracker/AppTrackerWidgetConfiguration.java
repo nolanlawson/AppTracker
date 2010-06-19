@@ -1,5 +1,6 @@
 package com.nolanlawson.apptracker;
 
+import android.app.AlertDialog.Builder;
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.net.Uri;
@@ -45,7 +46,6 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 		okButton.setOnClickListener(this);
 		
 		initializePreferences();
-		
 	}
 	
 	@Override
@@ -69,6 +69,7 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 		return (super.onKeyDown(keyCode, event));
 	}
 	
+
 	private void completeConfig() {
 		saveConfigurations();
 		setResult();

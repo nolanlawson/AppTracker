@@ -1,0 +1,12 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+<item android:id="@+id/menu_settings" android:title="@string/settings"
+		android:alphabeticShortcut="@string/settings" android:icon="@android:drawable/ic_menu_agenda"/>
+		
+<item android:id="@+id/menu_user_guide" android:title="@string/user_guide"
+		android:alphabeticShortcut="@string/user_guide" android:icon="@android:drawable/ic_menu_manage"/>	
+			
+<item android:id="@+id/menu_about" android:title="@string/about"
+		android:alphabeticShortcut="@string/about" android:icon="@android:drawable/ic_menu_info_details"/>	
+		
+</menu>
