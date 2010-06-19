@@ -28,6 +28,7 @@ import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
 import com.nolanlawson.apptracker.db.AppHistoryEntry;
 import com.nolanlawson.apptracker.db.SortType;
 import com.nolanlawson.apptracker.helper.PackageInfoHelper;
+import com.nolanlawson.apptracker.helper.ServiceHelper;
 import com.nolanlawson.apptracker.util.Pair;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
@@ -47,6 +48,8 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener,
         super.onCreate(savedInstanceState);
         log.d("onCreate()");
         
+        ServiceHelper.startBackgroundServiceIfNotAlreadyRunning(getApplicationContext());
+        
         setContentView(R.layout.main);
         
         setUpWidgets(false);
@@ -64,12 +67,14 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener,
 		
 		setAppropriateButtonAsPressed();
     }
+    
     @Override
     protected void onPause() {
     	super.onPause();
     	log.d("onPause()");
 
     }    
+    
     @Override
     protected void onDestroy() {
     	super.onDestroy();

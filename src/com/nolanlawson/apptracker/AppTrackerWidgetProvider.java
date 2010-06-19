@@ -8,7 +8,7 @@ import android.os.AsyncTask;
 
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
 import com.nolanlawson.apptracker.helper.PreferenceHelper;
-import com.nolanlawson.apptracker.util.ServiceUtil;
+import com.nolanlawson.apptracker.helper.ServiceHelper;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
 public class AppTrackerWidgetProvider extends AppWidgetProvider {
@@ -47,7 +47,7 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 		super.onEnabled(context);
 		log.d("onEnabled()");
 
-		startBackgroundServiceIfNotAlreadyRunning(context);
+		ServiceHelper.startBackgroundServiceIfNotAlreadyRunning(context);
 
 	}
 
@@ -55,7 +55,7 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 	public void onReceive(Context context, Intent intent) {
 		super.onReceive(context, intent);
 		log.d("onReceive(); intent is: %s",intent);
-		startBackgroundServiceIfNotAlreadyRunning(context);
+		ServiceHelper.startBackgroundServiceIfNotAlreadyRunning(context);
 		
 
 		
@@ -87,19 +87,10 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 			int[] appWidgetIds) {
 		super.onUpdate(context, appWidgetManager, appWidgetIds);
 		log.d("onUpdate() for appWidgetIds %s", appWidgetIds);
-		startBackgroundServiceIfNotAlreadyRunning(context);
+		ServiceHelper.startBackgroundServiceIfNotAlreadyRunning(context);
 
 		doPeriodicUpdate(context);
 
-	}
-
-	private static synchronized void startBackgroundServiceIfNotAlreadyRunning(
-			Context context) {
-		if (!ServiceUtil.checkIfAppTrackerServiceIsRunning(context)) {
-
-			Intent intent = new Intent(context, AppTrackerService.class);
-			context.startService(intent);
-		}
 	}
 
 	private static void updateWidget(final Context context, final int appWidgetId) {
@@ -118,7 +109,7 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 	 */
 	private static void doPeriodicUpdate(final Context context) {
 		
-		if (!ServiceUtil.checkIfUpdateAppStatsServiceIsRunning(context)) {
+		if (!ServiceHelper.checkIfUpdateAppStatsServiceIsRunning(context)) {
 
 			Intent intent = new Intent(context, UpdateAppStatsService.class);
 			context.startService(intent);

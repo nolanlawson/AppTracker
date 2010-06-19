@@ -1,14 +1,27 @@
-package com.nolanlawson.apptracker.util;
+package com.nolanlawson.apptracker.helper;
 
 import java.util.List;
+
+import com.nolanlawson.apptracker.AppTrackerService;
+import com.nolanlawson.apptracker.util.UtilLogger;
 
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 
-public class ServiceUtil {
+public class ServiceHelper {
 
-	private static UtilLogger log = new UtilLogger(ServiceUtil.class);
+	private static UtilLogger log = new UtilLogger(ServiceHelper.class);
+	
+	public static synchronized void startBackgroundServiceIfNotAlreadyRunning(
+			Context context) {
+		if (!ServiceHelper.checkIfAppTrackerServiceIsRunning(context)) {
+
+			Intent intent = new Intent(context, AppTrackerService.class);
+			context.startService(intent);
+		}
+	}
 	
 	public static boolean checkIfAppTrackerServiceIsRunning(Context context) {
 		
