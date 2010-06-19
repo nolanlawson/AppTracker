@@ -1,5 +1,5 @@
-Who needs home screen icons? This widget automatically updates a list of your favorite apps, with three sortings to choose from: Recent, Most Used, and Time Decay.
+App Tracker Premium is a license for App Tracker Free.  You still need the free version installed for it to work.
 
-Page through a list of your recently launched apps, or fill up a whole 16x16 screen with your favorites! Lots of combinations.
+App Tracker is a widget that tracks your most recent and most used apps.
 
-Try the free version first!
+Page through your recent app history, or fill up a 16x16 screen with your top apps! Lots of combinations in the premium version.
