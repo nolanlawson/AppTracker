@@ -44,15 +44,18 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener,
         setContentView(R.layout.main);
         
         setUpWidgets(false);
-        
-        setUpList();
+
+		adapter = new LoadedAppHistoryAdapter(
+				this, R.layout.app_history_item, new ArrayList<LoadedAppHistoryEntry>(), sortType);
+
     }
 
-	@Override
-	protected void onDestroy() {
+    @Override
+    protected void onResume() {
+    	super.onResume();
 		
-		super.onDestroy();
-	}    
+        setUpList();
+    }
     
 
 
@@ -104,12 +107,11 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener,
     
 	private void setUpList() {
 
+		adapter.clear();
+		
 		// set up the list in the background with a "loading" progress because it's slooooow
 		
 		final Context context = getApplicationContext();
-		
-		adapter = new LoadedAppHistoryAdapter(
-				context, R.layout.app_history_item, new ArrayList<LoadedAppHistoryEntry>(), sortType);
 		
 		LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		
