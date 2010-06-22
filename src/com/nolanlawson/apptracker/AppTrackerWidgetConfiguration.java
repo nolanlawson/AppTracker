@@ -168,8 +168,8 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 		boolean hideAppTitle = hideAppTitlePreference.isChecked();
 		PreferenceHelper.setHideAppTitlePreference(getApplicationContext(), hideAppTitle, appWidgetId);
 		
-		boolean showBackground = showBackgroundPreference.isChecked();
-		PreferenceHelper.setShowBackgroundPreference(getApplicationContext(), showBackground, appWidgetId);
+		//boolean showBackground = showBackgroundPreference.isChecked();
+		//PreferenceHelper.setShowBackgroundPreference(getApplicationContext(), showBackground, appWidgetId);
 		
 		boolean stretchToFill = stretchToFillPreference.isChecked();
 		PreferenceHelper.setStretchToFillPreference(getApplicationContext(), stretchToFill, appWidgetId);
