@@ -28,7 +28,8 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 	private AppHistoryDbHelper dbHelper;
 	private Button okButton;
 	
-	private CheckBoxPreference lockPagePreference, hideSubtextPreference, hideAppTitlePreference;
+	private CheckBoxPreference lockPagePreference, hideSubtextPreference, hideAppTitlePreference, 
+			showBackgroundPreference, stretchToFillPreference;
 	private ListPreference sortTypePreference, pageNumberPreference;
 	
 	@Override
@@ -108,8 +109,15 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 		
 		hideSubtextPreference = (CheckBoxPreference) findPreference(R.string.hide_subtext_preference);
 		
+		hideSubtextPreference.setOnPreferenceChangeListener(this);
+		
 		hideAppTitlePreference = (CheckBoxPreference) findPreference(R.string.hide_app_title_preference);
 		
+		hideAppTitlePreference.setOnPreferenceChangeListener(this);
+		
+		//showBackgroundPreference = (CheckBoxPreference) findPreference(R.string.show_background_preference);
+		
+		stretchToFillPreference = (CheckBoxPreference) findPreference(R.string.stretch_to_fill_preference);
 	}
 	
 	private void setResult() {
@@ -159,6 +167,13 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 		
 		boolean hideAppTitle = hideAppTitlePreference.isChecked();
 		PreferenceHelper.setHideAppTitlePreference(getApplicationContext(), hideAppTitle, appWidgetId);
+		
+		boolean showBackground = showBackgroundPreference.isChecked();
+		PreferenceHelper.setShowBackgroundPreference(getApplicationContext(), showBackground, appWidgetId);
+		
+		boolean stretchToFill = stretchToFillPreference.isChecked();
+		PreferenceHelper.setStretchToFillPreference(getApplicationContext(), stretchToFill, appWidgetId);
+				
 
 	}
 
@@ -176,11 +191,37 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 
 	@Override
 	public boolean onPreferenceChange(Preference preference, Object newValue) {
+
+		String lockPagePreferenceKey = getResources().getString(R.string.lock_page_preference);
+		String hideAppTitlePreferenceKey = getResources().getString(R.string.hide_app_title_preference);
+		String hideSubtextPreferenceKey = getResources().getString(R.string.hide_subtext_preference);
 		
-		// enable or disable the page number preference
-		pageNumberPreference.setEnabled((Boolean)newValue);
+		if (preference.getKey().equals(lockPagePreferenceKey)) {
+			// enable or disable the page number preference depending on whether it's locked
+			pageNumberPreference.setEnabled((Boolean)newValue);
+		}
+		
+		boolean enableStretchToFill = (Boolean)newValue;
+		
+		// if it's being set to true, then we know we want to enable stretch to fill
+		// otherwise, we have to check each one individually,
+		// because we want to enable or disable the stretch to fill depending on whether or not ANY element
+		// is "hidden"
+		if (!(Boolean)newValue) {
+			if (preference.getKey().equals(lockPagePreferenceKey)) {
+				enableStretchToFill = hideAppTitlePreference.isChecked() || hideSubtextPreference.isChecked();
+			} else if (preference.getKey().equals(hideAppTitlePreferenceKey)) {
+				enableStretchToFill = lockPagePreference.isChecked() || hideSubtextPreference.isChecked();
+			} else if (preference.getKey().equals(hideSubtextPreferenceKey)) {
+				enableStretchToFill = hideAppTitlePreference.isChecked() || lockPagePreference.isChecked();
+			}
+		}
+		
+		stretchToFillPreference.setEnabled(enableStretchToFill);
 		
 		return true;
 	}
+	
+	
 		
 }

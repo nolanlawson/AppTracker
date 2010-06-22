@@ -27,6 +27,15 @@
 	<CheckBoxPreference android:key="@string/hide_subtext_preference"
 		android:title="@string/hide_subtext_title" android:summary="@string/hide_subtext_summary"
 		android:persistent="false" />
+		
+	<!-- <CheckBoxPreference android:key="@string/show_background_preference"
+		android:title="@string/show_background_title" android:summary="@string/show_background_summary"
+		android:persistent="false"/> -->
+		
+				
+	<CheckBoxPreference android:key="@string/stretch_to_fill_preference"
+		android:title="@string/stretch_to_fill_title" android:summary="@string/stretch_to_fill_summary"
+		android:persistent="false" android:defaultValue="true" android:enabled="false"/>
 
 
 </PreferenceScreen>

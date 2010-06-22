@@ -89,6 +89,36 @@ public class PreferenceHelper {
 		
 	}	
 	
+	public static boolean getShowBackgroundPreference(Context context, int appWidgetId) {
+		
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		
+		return prefs.getBoolean(getShowBackgroundPreferenceName(context, appWidgetId), false);
+	}
+	
+	public static void setShowBackgroundPreference(Context context, boolean bool, int appWidgetId) {
+		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+		
+		editor.putBoolean(getShowBackgroundPreferenceName(context, appWidgetId), bool);
+		editor.commit();
+		
+	}	
+	
+	public static boolean getStretchToFillPreference(Context context, int appWidgetId) {
+		
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		
+		return prefs.getBoolean(getStretchToFillPreferenceName(context, appWidgetId), true);
+	}
+	
+	public static void setStretchToFillPreference(Context context, boolean bool, int appWidgetId) {
+		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+		
+		editor.putBoolean(getStretchToFillPreferenceName(context, appWidgetId), bool);
+		editor.commit();
+		
+	}		
+	
 	public static String getSortTypePreference(Context context, int appWidgetId) {
 		
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -125,6 +155,12 @@ public class PreferenceHelper {
 	
 	private static String getHideAppTitlePreferenceName(Context context, int appWidgetId) {
 		return concat(context, R.string.hide_app_title_preference, appWidgetId);
+	}
+	private static String getShowBackgroundPreferenceName(Context context, int appWidgetId) {
+		return concat(context, R.string.show_background_preference, appWidgetId);
+	}
+	private static String getStretchToFillPreferenceName(Context context, int appWidgetId) {
+		return concat(context, R.string.stretch_to_fill_preference, appWidgetId);
 	}
 	
 	private static String concat(Context context, int resId, int appWidgetId) {

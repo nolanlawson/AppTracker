@@ -13,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.RemoteViews;
 
@@ -139,12 +140,23 @@ public class WidgetUpdater {
 		
 		setAppTitleVisibility(context, appWidgetId, updateViews);
 		setSubtextVisibility(context, appWidgetId, updateViews);
+		setBackgroundVisibility(context, appWidgetId, updateViews);
 		
 		
 		setBackAndForwardButtons(context, appWidgetId, updateViews, pageNumber, dbHelper, sortType);
 		return updateViews;
 		
 	}
+	private static void setBackgroundVisibility(Context context,
+			int appWidgetId, RemoteViews updateViews) {
+		
+		boolean showBackground = PreferenceHelper.getShowBackgroundPreference(context, appWidgetId);
+
+		updateViews.setViewVisibility(R.id.widget_background, showBackground ? View.VISIBLE : View.INVISIBLE);
+
+		
+	}
+
 	private static void setBackAndForwardButtons(Context context,
 			int appWidgetId, RemoteViews updateViews, int pageNumber, AppHistoryDbHelper dbHelper,
 			SortType sortType) {
@@ -154,8 +166,9 @@ public class WidgetUpdater {
 		
 		if (lockPage) {
 		
-			updateViews.setViewVisibility(R.id.back_button, View.GONE);
-			updateViews.setViewVisibility(R.id.forward_button, View.GONE);
+			int goneOrInvisible = chooseGoneOrInvisible(context, appWidgetId);
+			updateViews.setViewVisibility(R.id.back_button, goneOrInvisible);
+			updateViews.setViewVisibility(R.id.forward_button, goneOrInvisible);
 		} else {
 		
 			// if no more app results, disable forward button
@@ -183,7 +196,7 @@ public class WidgetUpdater {
 		
 		boolean hideSubtext = PreferenceHelper.getHideSubtextPreference(context, appWidgetId);
 		
-		int subTextVisibility = hideSubtext ? View.GONE : View.VISIBLE;
+		int subTextVisibility = hideSubtext ? chooseGoneOrInvisible(context, appWidgetId) : View.VISIBLE;
 		
 		updateViews.setViewVisibility(R.id.app_description_1, subTextVisibility);
 		updateViews.setViewVisibility(R.id.app_description_2, subTextVisibility);
@@ -196,7 +209,7 @@ public class WidgetUpdater {
 			RemoteViews updateViews) {
 		boolean hideAppTitle = PreferenceHelper.getHideAppTitlePreference(context, appWidgetId);
 		
-		int subTextVisibility = hideAppTitle ? View.GONE : View.VISIBLE;
+		int subTextVisibility = hideAppTitle ? chooseGoneOrInvisible(context, appWidgetId) : View.VISIBLE;
 		
 		updateViews.setViewVisibility(R.id.app_title_1, subTextVisibility);
 		updateViews.setViewVisibility(R.id.app_title_2, subTextVisibility);
@@ -226,6 +239,10 @@ public class WidgetUpdater {
 		
 		return pendingIntent;
 		
+	}
+	
+	private static int chooseGoneOrInvisible(Context context, int appWidgetId) {
+		return PreferenceHelper.getStretchToFillPreference(context, appWidgetId) ? View.GONE : View.INVISIBLE;
 	}
 
 }
