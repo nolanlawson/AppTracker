@@ -1,14 +1,13 @@
 <LinearLayout android:layout_width="fill_parent"
 	android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="horizontal" android:paddingRight="10dp">
+	android:orientation="horizontal" android:paddingRight="10dp" android:gravity="center_vertical">
 
 	<ImageView android:id="@+id/app_history_list_icon"
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
 		android:src="@drawable/android_plus_target" />
 
 	<LinearLayout android:layout_width="0px" android:layout_weight="1.0"
-		android:layout_height="wrap_content" android:orientation="vertical"
-		android:gravity="center_vertical">
+		android:layout_height="wrap_content" android:orientation="vertical">
 
 		<TextView android:id="@+id/app_history_list_title"
 			android:text="App Tracker" android:layout_height="wrap_content"
@@ -23,8 +22,7 @@
 	</LinearLayout>
 
 	<LinearLayout android:layout_width="wrap_content" 
-		android:layout_height="fill_parent" android:orientation="vertical"
-		android:gravity="center_vertical|right">
+		android:layout_height="wrap_content" android:orientation="vertical">
 
 		<TextView android:id="@+id/app_history_list_description"
 			android:text="5 mins ago" android:layout_height="wrap_content"
