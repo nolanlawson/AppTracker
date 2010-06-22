@@ -30,7 +30,16 @@
     <string name="show_background_summary">Add a gray widget tray beneath icons</string>
     <string name="stretch_to_fill_preference">stretch_to_fill</string>
     <string name="stretch_to_fill_title">Stretch to Fill</string>
-    <string name="stretch_to_fill_summary">Stretch icons evenly when text or buttons are hidden</string>        
+    <string name="stretch_to_fill_summary">Stretch icons evenly when text or buttons are hidden</string> 
+    <string name="apps_to_exclude_preference">apps_to_exclude</string>
+    <string name="apps_to_exclude_title">Apps to Exclude</string>
+    <string name="apps_to_exclude_summary">Choose which apps to omit from the list</string>   
+    <string name="time_decay_constant_preference">time_decay_constant</string>
+    <string name="time_decay_constant_title">Time Decay Constant</string>
+    <string name="time_decay_constant_summary">Lower values mean app scores decay faster (default: 7)</string>   
+    <string name="reset_data_preference">reset_data_preference</string>
+    <string name="reset_data_title">Reset Data</string>
+    <string name="reset_data_summary">Delete all saved data and start fresh</string>          
     <string name="settings">Settings</string>
     <string name="full_app_list">Full App List</string>
     <string name="user_guide">User Guide</string>

@@ -6,6 +6,7 @@ import java.util.List;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -27,7 +28,7 @@ import com.nolanlawson.apptracker.data.LoadedAppHistoryEntry;
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
 import com.nolanlawson.apptracker.db.AppHistoryEntry;
 import com.nolanlawson.apptracker.db.SortType;
-import com.nolanlawson.apptracker.helper.PackageInfoHelper;
+import com.nolanlawson.apptracker.helper.ActivityInfoHelper;
 import com.nolanlawson.apptracker.helper.ServiceHelper;
 import com.nolanlawson.apptracker.util.Pair;
 import com.nolanlawson.apptracker.util.UtilLogger;
@@ -217,15 +218,15 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
 				
 					PackageManager packageManager = getPackageManager();
 					
-					List<Pair<AppHistoryEntry, PackageInfo>> pairs = 
-						PackageInfoHelper.getPackageInfos(context, dbHelper, packageManager,0, Integer.MAX_VALUE, sortType);
+					List<Pair<AppHistoryEntry, ActivityInfo>> pairs = 
+						ActivityInfoHelper.getActivityInfos(context, dbHelper, packageManager,0, Integer.MAX_VALUE, sortType);
 					
 					List<LoadedAppHistoryEntry> entryList = new ArrayList<LoadedAppHistoryEntry>();
 					
 					
 					for (int i = 0; i < pairs.size(); i++) {
 						
-						Pair<AppHistoryEntry, PackageInfo> pair = pairs.get(i);
+						Pair<AppHistoryEntry, ActivityInfo> pair = pairs.get(i);
 						LoadedAppHistoryEntry loadedEntry = LoadedAppHistoryEntry.fromAppHistoryEntry(
 								pair.getFirst(), pair.getSecond(), packageManager, getApplicationContext());
 						entryList.add(loadedEntry);

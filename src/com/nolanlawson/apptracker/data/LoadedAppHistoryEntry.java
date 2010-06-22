@@ -3,7 +3,7 @@ package com.nolanlawson.apptracker.data;
 import java.util.Comparator;
 
 import android.content.Context;
-import android.content.pm.PackageInfo;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -59,15 +59,15 @@ public class LoadedAppHistoryEntry {
 
 
 	public static LoadedAppHistoryEntry fromAppHistoryEntry(
-			AppHistoryEntry appHistoryEntry, PackageInfo packageInfo, PackageManager packageManager,
+			AppHistoryEntry appHistoryEntry, ActivityInfo activityInfo, PackageManager packageManager,
 			Context context) {
 		
 		LoadedAppHistoryEntry loadedAppHistoryEntry = new LoadedAppHistoryEntry();
 		loadedAppHistoryEntry.setAppHistoryEntry(appHistoryEntry);
 		
-		loadedAppHistoryEntry.setTitle(packageInfo.applicationInfo.loadLabel(packageManager));
+		loadedAppHistoryEntry.setTitle(activityInfo.loadLabel(packageManager));
 		
-		Drawable iconDrawable = packageInfo.applicationInfo.loadIcon(packageManager);
+		Drawable iconDrawable = activityInfo.loadIcon(packageManager);
 		Bitmap iconBitmap = DrawableUtil.convertIconToBitmap(context, iconDrawable);
 		
 		loadedAppHistoryEntry.setIconBitmap(iconBitmap);

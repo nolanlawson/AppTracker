@@ -5,20 +5,20 @@ import java.util.Collections;
 import java.util.List;
 
 import android.content.Context;
-import android.content.pm.PackageInfo;
+import android.content.pm.ActivityInfo;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 
-import com.nolanlawson.apptracker.WidgetUpdater;
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
 import com.nolanlawson.apptracker.db.AppHistoryEntry;
 import com.nolanlawson.apptracker.db.SortType;
 import com.nolanlawson.apptracker.util.Pair;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
-public class PackageInfoHelper {
+public class ActivityInfoHelper {
 
-	private static UtilLogger log = new UtilLogger(PackageInfoHelper.class);
+	private static UtilLogger log = new UtilLogger(ActivityInfoHelper.class);
 	
 	/**
 	 * Get the package infos for each app history entry fetched from the db, and check
@@ -31,11 +31,11 @@ public class PackageInfoHelper {
 	 * @param sortType
 	 * @return
 	 */
-	public static List<Pair<AppHistoryEntry,PackageInfo>> getPackageInfos(
+	public static List<Pair<AppHistoryEntry,ActivityInfo>> getActivityInfos(
 			Context context, AppHistoryDbHelper dbHelper, 
 			PackageManager packageManager, int pageNumber, int limit, SortType sortType) {
 		
-		List<Pair<AppHistoryEntry,PackageInfo>> packageInfos = new ArrayList<Pair<AppHistoryEntry,PackageInfo>>();
+		List<Pair<AppHistoryEntry,ActivityInfo>> activityInfos = new ArrayList<Pair<AppHistoryEntry,ActivityInfo>>();
 		
 		List<AppHistoryEntry> appHistories;
 		
@@ -46,18 +46,18 @@ public class PackageInfoHelper {
 			
 			for (AppHistoryEntry appHistory : appHistories) {
 				
-				PackageInfo packageInfo = getPackageInfo(context, packageManager, appHistory, dbHelper);
+				ActivityInfo activityInfo = getActivityInfo(packageManager, appHistory);
 				
-				if (packageInfo == null) { // uninstalled
+				if (activityInfo == null) { // uninstalled
 					synchronized (AppHistoryDbHelper.class) {
 						// update the database to reflect that the app is uninstalled
 						dbHelper.setInstalled(appHistory.getId(), false);
 					}
-					packageInfos.clear();
+					activityInfos.clear();
 					// try to select from the database again, while skipping the uninstalled one
 					continue mainloop;
 				}
-				packageInfos.add(new Pair<AppHistoryEntry,PackageInfo>(appHistory, packageInfo));
+				activityInfos.add(new Pair<AppHistoryEntry,ActivityInfo>(appHistory, activityInfo));
 			}
 			break;
 		}
@@ -69,23 +69,22 @@ public class PackageInfoHelper {
 			return Collections.emptyList();
 		}
 		
-		return packageInfos;
+		return activityInfos;
 		
 	}
 	
 
-	private static PackageInfo getPackageInfo(
-			Context context, PackageManager packageManager, 
-			AppHistoryEntry appHistoryEntry, AppHistoryDbHelper dbHelper) {
-
-		PackageInfo packageInfo = null;
+	private static ActivityInfo getActivityInfo(
+			PackageManager packageManager, 
+			AppHistoryEntry appHistoryEntry) {
+		ActivityInfo activityInfo = null;
 		try {
-			packageInfo = packageManager.getPackageInfo(appHistoryEntry.getPackageName(), 0);
+			activityInfo = packageManager.getActivityInfo(appHistoryEntry.toComponentName(), 0);
 		} catch (NameNotFoundException e) {
 			log.e(e, "package no longer installed: %s", appHistoryEntry);
 		}
 		
-		return packageInfo;
+		return activityInfo;
 	}
 
 }

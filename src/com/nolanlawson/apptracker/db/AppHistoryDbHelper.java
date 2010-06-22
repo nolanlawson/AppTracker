@@ -1,6 +1,7 @@
 package com.nolanlawson.apptracker.db;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -19,16 +20,14 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	//logger
 	private static UtilLogger log = new UtilLogger(AppHistoryDbHelper.class);
 	
+	// TODO parameterize
 	public static final long DECAY_CONST = TimeUnit.SECONDS.toMillis(60 * 60 * 24 * 7); // seven days
 	
-	//TODO: make this configurable
-	private static final String[] appsToIgnore = {"com.android.launcher", // launcher
+	// TODO: add more launchers here
+	private static final List<String> appsToIgnoreInitially = Arrays.asList(
+												  "com.android.launcher", // launcher
 		                                          "com.android.launcher2", // launcher2
-	                                              "com.nolanlawson.apptracker", // apptracker itself
-	                                              "com.android.contacts", // contacts OR phone
-	                                              "com.android.phone", // phone
-	                                              "com.android.browser", // browser
-	                                              "com.android.mms"}; // messaging
+		                                          "com.htc.launcher"); // htc launcher
 	
 	// schema constants
 	
@@ -42,13 +41,14 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	private static final String COLUMN_PACKAGE = "package";
 	private static final String COLUMN_PROCESS = "process";
 	private static final String COLUMN_INSTALLED = "installed";
+	private static final String COLUMN_EXCLUDED = "excluded";
 	private static final String COLUMN_COUNT = "count";
 	private static final String COLUMN_LAST_ACCESS = "lastAccess";
 	private static final String COLUMN_DECAY_SCORE = "decayScore";
 	private static final String COLUMN_LAST_UPDATE = "lastUpdate";
 	
 	private static final String[] COLUMNS = 
-			{COLUMN_ID, COLUMN_PACKAGE, COLUMN_PROCESS, COLUMN_INSTALLED,
+			{COLUMN_ID, COLUMN_PACKAGE, COLUMN_PROCESS, COLUMN_INSTALLED, COLUMN_EXCLUDED, 
 			 COLUMN_COUNT, COLUMN_LAST_ACCESS, COLUMN_DECAY_SCORE, COLUMN_LAST_UPDATE};
 	
 	// constructors
@@ -66,6 +66,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		COLUMN_PACKAGE + " text not null, " +
 		COLUMN_PROCESS + " text not null, " +
 		COLUMN_INSTALLED + " int not null, " +
+		COLUMN_EXCLUDED +" int not null, " + 
 		COLUMN_COUNT + " int not null, " +
 		COLUMN_LAST_ACCESS + " int not null, " +
 		COLUMN_DECAY_SCORE + " double not null, " +
@@ -227,9 +228,8 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		
 		StringBuilder stringBuilder = new StringBuilder(" ");
 		
-		stringBuilder.append(COLUMN_PACKAGE).append(" not in (\"")
-				.append(TextUtils.join("\",\"", appsToIgnore))
-				.append("\") and ").append(COLUMN_INSTALLED).append("=1 ");
+		stringBuilder.append(COLUMN_EXCLUDED).append(" = 0 and ")
+				.append(COLUMN_INSTALLED).append(" = 1 ");
 		
 		return stringBuilder.toString();
 	}
@@ -268,8 +268,8 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		while (cursor.moveToNext()) {
 			AppHistoryEntry appHistoryEntry = AppHistoryEntry.newAppHistoryEntry(
 					cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getInt(3) == 1,
-					cursor.getInt(4), new Date(cursor.getLong(5)), cursor.getDouble(6),
-					cursor.getLong(7));
+					cursor.getInt(4) == 1, cursor.getInt(5), new Date(cursor.getLong(6)), cursor.getDouble(7),
+					cursor.getLong(8));
 			result.add(appHistoryEntry);
 		}
 		
@@ -311,6 +311,9 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		contentValues.put(COLUMN_LAST_ACCESS, currentTime);
 		contentValues.put(COLUMN_DECAY_SCORE, 1);
 		contentValues.put(COLUMN_LAST_UPDATE, currentTime);
+		
+		contentValues.put(COLUMN_EXCLUDED, appsToIgnoreInitially.contains(packageName));
+
 		
 		getWritableDatabase().insert(TABLE_NAME, null, contentValues);
 	}

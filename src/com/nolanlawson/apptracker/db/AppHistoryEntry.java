@@ -11,6 +11,7 @@ public class AppHistoryEntry {
 	private String packageName;
 	private String process;
 	private boolean installed;
+	private boolean excluded;
 	private int count;
 	private Date lastAccessed;
 	private double decayScore;
@@ -39,6 +40,14 @@ public class AppHistoryEntry {
 	}
 	public void setCount(int count) {
 		this.count = count;
+	}
+	
+	
+	public boolean isExcluded() {
+		return excluded;
+	}
+	public void setExcluded(boolean excluded) {
+		this.excluded = excluded;
 	}
 	public Date getLastAccessed() {
 		return lastAccessed;
@@ -70,7 +79,7 @@ public class AppHistoryEntry {
 	}
 	
 	public static AppHistoryEntry newAppHistoryEntry(
-			int id, String packageName, String process, boolean installed, int count, 
+			int id, String packageName, String process, boolean installed, boolean excluded, int count, 
 			Date lastAccessed, double decayScore, long lastUpdate) {
 		
 		AppHistoryEntry appHistoryEntry = new AppHistoryEntry();
@@ -78,6 +87,7 @@ public class AppHistoryEntry {
 		appHistoryEntry.setPackageName(packageName);
 		appHistoryEntry.setProcess(process);
 		appHistoryEntry.setInstalled(installed);
+		appHistoryEntry.setExcluded(excluded);
 		appHistoryEntry.setCount(count);
 		appHistoryEntry.setLastAccessed(lastAccessed);
 		appHistoryEntry.setDecayScore(decayScore);
@@ -87,14 +97,16 @@ public class AppHistoryEntry {
 		
 		
 	}
+
+	
 	@Override
 	public String toString() {
 		return "AppHistoryEntry [count=" + count + ", decayScore=" + decayScore
-				+ ", id=" + id + ", installed=" + installed + ", lastAccessed="
-				+ lastAccessed + ", lastUpdate=" + lastUpdate
-				+ ", packageName=" + packageName + ", process=" + process + "]";
+				+ ", excluded=" + excluded + ", id=" + id + ", installed="
+				+ installed + ", lastAccessed=" + lastAccessed
+				+ ", lastUpdate=" + lastUpdate + ", packageName=" + packageName
+				+ ", process=" + process + "]";
 	}
-	
 	public ComponentName toComponentName() {
 		String fullProcessName;
 

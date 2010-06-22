@@ -8,19 +8,19 @@ import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.RemoteViews;
 
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
 import com.nolanlawson.apptracker.db.AppHistoryEntry;
 import com.nolanlawson.apptracker.db.SortType;
-import com.nolanlawson.apptracker.helper.PackageInfoHelper;
+import com.nolanlawson.apptracker.helper.ActivityInfoHelper;
 import com.nolanlawson.apptracker.helper.PreferenceHelper;
 import com.nolanlawson.apptracker.helper.ResourceIdHelper;
 import com.nolanlawson.apptracker.helper.SubtextHelper;
@@ -89,10 +89,10 @@ public class WidgetUpdater {
 		
 		PackageManager packageManager = context.getPackageManager();
 		
-		List<Pair<AppHistoryEntry,PackageInfo>> packageInfos = PackageInfoHelper.getPackageInfos(
+		List<Pair<AppHistoryEntry,ActivityInfo>> activityInfos = ActivityInfoHelper.getActivityInfos(
 				context, dbHelper, packageManager, pageNumber, APPS_PER_PAGE, sortType);
 		
-		if (packageInfos.isEmpty()) {
+		if (activityInfos.isEmpty()) {
 			// nothing to show for now; just return
 			return null;
 		}
@@ -101,19 +101,16 @@ public class WidgetUpdater {
 		
 		for (int i = 0; i < APPS_PER_PAGE; i++) {
 			
-			if (i < packageInfos.size()) {
+			if (i < activityInfos.size()) {
 			
-				Pair<AppHistoryEntry,PackageInfo> pair = packageInfos.get(i);
+				Pair<AppHistoryEntry,ActivityInfo> pair = activityInfos.get(i);
 				AppHistoryEntry appHistoryEntry = pair.getFirst();
-				PackageInfo packageInfo = pair.getSecond();
-				ComponentName componentName = appHistoryEntry.toComponentName();
+				ActivityInfo activityInfo = pair.getSecond();
 				
-				CharSequence label = packageInfo.applicationInfo.loadLabel(packageManager);
+				CharSequence label = activityInfo.loadLabel(packageManager);
 				
-				Drawable iconDrawable = packageInfo.applicationInfo.loadIcon(packageManager);
+				Drawable iconDrawable = activityInfo.loadIcon(packageManager);
 				Bitmap iconBitmap = DrawableUtil.convertIconToBitmap(context, iconDrawable);
-				
-				
 				
 				String subtextText = SubtextHelper.createSubtext(context, sortType, appHistoryEntry);
 				
