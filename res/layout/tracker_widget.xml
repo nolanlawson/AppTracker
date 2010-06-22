@@ -6,7 +6,7 @@ android:layout_width="fill_parent"
 	
 <ImageView android:layout_width="fill_parent"
 	android:layout_height="fill_parent" android:src="@drawable/widget_frame4"
-	android:id="@+id/widget_background"/>
+	android:id="@+id/widget_background" android:visibility="invisible"/>
 
 <LinearLayout
 	android:orientation="vertical" android:layout_width="fill_parent"
