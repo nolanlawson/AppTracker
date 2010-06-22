@@ -73,7 +73,7 @@ public class LoadedAppHistoryAdapter extends
 		// do it silently
 		wrapper.enabledCheckBox.setOnCheckedChangeListener(null);
 		wrapper.enabledCheckBox.setChecked(entry.getAppHistoryEntry().isExcluded());
-		wrapper.enabledCheckBox.setOnCheckedChangeListener(new CheckBoxListener(context, entry.getAppHistoryEntry().getId()));
+		wrapper.enabledCheckBox.setOnCheckedChangeListener(new CheckBoxListener(context, entry));
 		
 		wrapper.description.setVisibility(excludeAppsMode ? View.GONE : View.VISIBLE);
 		wrapper.enabledCheckBox.setVisibility(excludeAppsMode ? View.VISIBLE : View.GONE);
@@ -103,15 +103,16 @@ public class LoadedAppHistoryAdapter extends
 	private static class CheckBoxListener implements OnCheckedChangeListener {
 
 		Context context;
-		int appHistoryEntryId;
+		LoadedAppHistoryEntry entry;
 		
-		CheckBoxListener(Context context, int appHistoryEntryId) {
+		CheckBoxListener(Context context, LoadedAppHistoryEntry entry) {
 			this.context = context;
-			this.appHistoryEntryId = appHistoryEntryId;
+			this.entry = entry;
+			
 		}
 		
 		@Override
-		public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked) {
+		public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
 
 			log.d("onCheckedChanged(): %s", isChecked);
 			
@@ -120,16 +121,19 @@ public class LoadedAppHistoryAdapter extends
 			// update the excluded field in the background to avoid jankiness
 			AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
 
+
 				@Override
 				protected Void doInBackground(Void... params) {
 					
 					// synchronize to avoid race conditions if the user clicks the button wildly
-					synchronized (ViewWrapper.class) {
+					synchronized (CheckBoxListener.class) {
 					
+						entry.getAppHistoryEntry().setExcluded(isChecked);
+						
 						AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(finalContext);
 						
 						try {
-							dbHelper.setExcluded(appHistoryEntryId, isChecked);
+							dbHelper.setExcluded(entry.getAppHistoryEntry().getId(), isChecked);
 						} finally {
 							dbHelper.close();
 						}
