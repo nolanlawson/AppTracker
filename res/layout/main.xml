@@ -3,8 +3,11 @@
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
 	android:orientation="vertical">
 
+	<include layout="@layout/apps_to_exclude_header" android:id="@+id/apps_to_exclude_header_layout"/>
+
 	<LinearLayout android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:orientation="horizontal" android:padding="5dp">
+		android:layout_height="wrap_content" android:orientation="horizontal" android:padding="5dp"
+		android:id="@+id/buttons_layout">
 
 		<Button android:layout_width="0px" android:layout_weight="0.33"
 			android:layout_height="wrap_content" android:text="@string/sort_type_recent"

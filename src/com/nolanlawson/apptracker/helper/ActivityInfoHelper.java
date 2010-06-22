@@ -33,7 +33,8 @@ public class ActivityInfoHelper {
 	 */
 	public static List<Pair<AppHistoryEntry,ActivityInfo>> getActivityInfos(
 			Context context, AppHistoryDbHelper dbHelper, 
-			PackageManager packageManager, int pageNumber, int limit, SortType sortType) {
+			PackageManager packageManager, int pageNumber, int limit, SortType sortType,
+			boolean showExcludedApps) {
 		
 		List<Pair<AppHistoryEntry,ActivityInfo>> activityInfos = new ArrayList<Pair<AppHistoryEntry,ActivityInfo>>();
 		
@@ -42,7 +43,7 @@ public class ActivityInfoHelper {
 		mainloop: while (true) {
 		
 			appHistories = dbHelper.findInstalledAppHistoryEntries(sortType, limit, 
-					pageNumber * limit);
+					pageNumber * limit, showExcludedApps);
 			
 			for (AppHistoryEntry appHistory : appHistories) {
 				

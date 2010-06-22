@@ -7,7 +7,7 @@
 		android:src="@drawable/android_plus_target" />
 
 	<LinearLayout android:layout_width="wrap_content"
-		android:layout_height="fill_parent" android:orientation="vertical"
+		android:layout_height="wrap_content" android:orientation="vertical"
 		android:gravity="center_vertical">
 
 		<TextView android:id="@+id/app_history_list_title"
@@ -15,6 +15,11 @@
 			android:layout_width="wrap_content" android:textSize="16sp"
 			android:textStyle="bold" android:paddingLeft="5dp" 
 			android:maxWidth="150dp"/>
+		<TextView android:id="@+id/app_history_list_subtext"
+			android:text="com.nolanlawson.apptracker" android:layout_height="wrap_content"
+			android:layout_width="wrap_content" android:textSize="14sp"
+			android:paddingLeft="5dp" 
+			android:visibility="gone"/>	
 
 	</LinearLayout>
 
@@ -25,6 +30,11 @@
 		<TextView android:id="@+id/app_history_list_description"
 			android:text="5 mins ago" android:layout_height="wrap_content"
 			android:layout_width="wrap_content" android:textSize="16sp" />
+		
+		<CheckBox android:id="@+id/app_history_list_check_box"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content" android:visibility="gone"
+			android:focusable="false" />
 
 	</LinearLayout>
 

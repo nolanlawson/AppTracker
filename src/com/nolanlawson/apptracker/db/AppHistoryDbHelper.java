@@ -85,9 +85,12 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 
 	// methods
 	
+	/**
+	 * Count number of installed and non-excluded apps
+	 */
 	public int findCountOfInstalledAppHistoryEntries() {
 		
-		String whereClause = createObligatoryWhereClause();
+		String whereClause = createObligatoryWhereClause(false);
 		
 		Cursor cursor = getWritableDatabase().query(TABLE_NAME, new String[]{"count(*)"}, whereClause, 
 				null, null, null, null);
@@ -101,10 +104,11 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		
 	}
 	
-	public List<AppHistoryEntry> findInstalledAppHistoryEntries(SortType sortType, int limit, int offset) {
+	public List<AppHistoryEntry> findInstalledAppHistoryEntries(SortType sortType, int limit, int offset,
+			boolean showExcludedApps) {
 		
 		String orderByClause = createOrderByClause(sortType);
-		String whereClause = createObligatoryWhereClause();
+		String whereClause = createObligatoryWhereClause(showExcludedApps);
 		
 		String sql = "select " + TextUtils.join(",", COLUMNS)
 				+ " from " + TABLE_NAME
@@ -224,12 +228,27 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		
 	}
 	
-	private String createObligatoryWhereClause() {
+	public void setExcluded(int id, boolean bool) {
+		
+		ContentValues contentValues = new ContentValues();
+		
+		contentValues.put(COLUMN_EXCLUDED, bool);
+		
+		String whereClause = COLUMN_ID + "=" + id;
+		
+		getWritableDatabase().update(TABLE_NAME, contentValues, whereClause, null);
+		
+	}
+	
+	private String createObligatoryWhereClause(boolean showExcludedApps) {
 		
 		StringBuilder stringBuilder = new StringBuilder(" ");
 		
-		stringBuilder.append(COLUMN_EXCLUDED).append(" = 0 and ")
-				.append(COLUMN_INSTALLED).append(" = 1 ");
+		stringBuilder.append(COLUMN_INSTALLED).append(" = 1 ");
+		
+		if (!showExcludedApps) {
+			stringBuilder.append(" and ").append(COLUMN_EXCLUDED).append(" = 0 ");
+		}
 		
 		return stringBuilder.toString();
 	}

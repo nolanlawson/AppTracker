@@ -46,5 +46,8 @@
     <string name="refresh">Refresh</string>
     <string name="about">About</string>
     <string name="loading">Loading...</string>
+    <string name="bad_decay_constant_toast">Please enter a whole number between 1 and 100</string>
+    <string name="app_exclude_text">Exclude?</string>
+    <string name="app_name_text">App Name</string>
     
 </resources>

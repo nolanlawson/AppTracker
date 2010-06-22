@@ -90,7 +90,7 @@ public class WidgetUpdater {
 		PackageManager packageManager = context.getPackageManager();
 		
 		List<Pair<AppHistoryEntry,ActivityInfo>> activityInfos = ActivityInfoHelper.getActivityInfos(
-				context, dbHelper, packageManager, pageNumber, APPS_PER_PAGE, sortType);
+				context, dbHelper, packageManager, pageNumber, APPS_PER_PAGE, sortType, false);
 		
 		if (activityInfos.isEmpty()) {
 			// nothing to show for now; just return
@@ -170,7 +170,7 @@ public class WidgetUpdater {
 		
 			// if no more app results, disable forward button
 			// TODO: optimize this
-			boolean noMoreAppResults = dbHelper.findInstalledAppHistoryEntries(sortType, APPS_PER_PAGE, (pageNumber + 1) * APPS_PER_PAGE).isEmpty();
+			boolean noMoreAppResults = dbHelper.findInstalledAppHistoryEntries(sortType, APPS_PER_PAGE, (pageNumber + 1) * APPS_PER_PAGE, false).isEmpty();
 	
 			updateViews.setViewVisibility(R.id.forward_button, noMoreAppResults ? View.INVISIBLE : View.VISIBLE);
 	

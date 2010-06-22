@@ -3,35 +3,47 @@ package com.nolanlawson.apptracker.data;
 import java.util.List;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 
 import com.nolanlawson.apptracker.R;
+import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
 import com.nolanlawson.apptracker.db.SortType;
 import com.nolanlawson.apptracker.helper.SubtextHelper;
+import com.nolanlawson.apptracker.util.UtilLogger;
 
 public class LoadedAppHistoryAdapter extends
 		ArrayAdapter<LoadedAppHistoryEntry> {
 
+	private static UtilLogger log = new UtilLogger(LoadedAppHistoryAdapter.class);
+	
 	private List<LoadedAppHistoryEntry> items;
 	private int resourceId;
 	private SortType sortType;
+	private boolean excludeAppsMode;
 	
 	public LoadedAppHistoryAdapter(Context context, int resourceId, 
-			List<LoadedAppHistoryEntry> items, SortType sortType) {
+			List<LoadedAppHistoryEntry> items, SortType sortType, boolean excludeAppsMode) {
 		super(context, resourceId, items);
 		
 		this.items = items;
 		this.resourceId = resourceId;
 		this.sortType = sortType;
+		this.excludeAppsMode = excludeAppsMode;
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
+		
+		LoadedAppHistoryEntry entry = items.get(position);
 		
 		Context context = parent.getContext();
 		ViewWrapper wrapper;
@@ -43,30 +55,100 @@ public class LoadedAppHistoryAdapter extends
 			wrapper.icon = (ImageView) convertView.findViewById(R.id.app_history_list_icon);
 			wrapper.title = (TextView) convertView.findViewById(R.id.app_history_list_title);
 			wrapper.description = (TextView) convertView.findViewById(R.id.app_history_list_description);
+			wrapper.subtext = (TextView) convertView.findViewById(R.id.app_history_list_subtext);
+			wrapper.enabledCheckBox = (CheckBox) convertView.findViewById(R.id.app_history_list_check_box);
+			
 			convertView.setTag(wrapper);
 		} else {
 			wrapper = (ViewWrapper) convertView.getTag();
 		}
 		
-		LoadedAppHistoryEntry entry = items.get(position);
+		
 		
 		wrapper.icon.setImageBitmap(entry.getIconBitmap());
 		wrapper.title.setText(entry.getTitle());
 		wrapper.description.setText(SubtextHelper.createSubtext(context, sortType, entry.getAppHistoryEntry()));
+		wrapper.subtext.setText(entry.getAppHistoryEntry().getPackageName());
+		
+		// do it silently
+		wrapper.enabledCheckBox.setOnCheckedChangeListener(null);
+		wrapper.enabledCheckBox.setChecked(entry.getAppHistoryEntry().isExcluded());
+		wrapper.enabledCheckBox.setOnCheckedChangeListener(new CheckBoxListener(context, entry.getAppHistoryEntry().getId()));
+		
+		wrapper.description.setVisibility(excludeAppsMode ? View.GONE : View.VISIBLE);
+		wrapper.enabledCheckBox.setVisibility(excludeAppsMode ? View.VISIBLE : View.GONE);
+		wrapper.subtext.setVisibility(excludeAppsMode ? View.VISIBLE : View.GONE);
+		
+		if (excludeAppsMode) {
+			// this wrapping safety check isn't necessary if there's just a checkbox to the right
+			wrapper.title.setMaxWidth(Integer.MAX_VALUE);
+		}
+		
+		
 		
 		return convertView;
 		
 	}
-	
+
 	public void setSortType(SortType sortType) {
 		this.sortType = sortType;
 	}
 	
+	
+	public void setExcludeAppsMode(boolean excludeAppsMode) {
+		this.excludeAppsMode = excludeAppsMode;
+	}
+
 	private static class ViewWrapper {
 		
 		ImageView icon;
-		TextView title, description;
+		TextView title, description, subtext;
+		CheckBox enabledCheckBox;
 		
+	}
+	
+	private static class CheckBoxListener implements OnCheckedChangeListener {
+
+		Context context;
+		int appHistoryEntryId;
+		
+		CheckBoxListener(Context context, int appHistoryEntryId) {
+			this.context = context;
+			this.appHistoryEntryId = appHistoryEntryId;
+		}
+		
+		@Override
+		public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked) {
+
+			log.d("onCheckedChanged(): %s", isChecked);
+			
+			final Context finalContext = context;
+			
+			// update the excluded field in the background to avoid jankiness
+			AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+
+				@Override
+				protected Void doInBackground(Void... params) {
+					
+					// synchronize to avoid race conditions if the user clicks the button wildly
+					synchronized (ViewWrapper.class) {
+					
+						AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(finalContext);
+						
+						try {
+							dbHelper.setExcluded(appHistoryEntryId, isChecked);
+						} finally {
+							dbHelper.close();
+						}
+					}
+					
+					return null;
+				}
+				
+			};
+			task.execute((Void)null);
+			
+		}
 	}
 
 }

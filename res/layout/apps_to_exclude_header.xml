@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:layout_width="fill_parent"
+	android:layout_height="wrap_content" xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:paddingBottom="10dp"
+	android:visibility="gone">
+	
+<LinearLayout android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:orientation="horizontal" android:paddingRight="10dp"
+	style="?android:attr/listSeparatorTextViewStyle">
+
+	<ImageView android:id="@+id/app_history_list_icon"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:src="@drawable/android_plus_target" android:visibility="invisible"/>
+
+	<LinearLayout android:layout_width="wrap_content"
+		android:layout_height="fill_parent" android:orientation="vertical"
+		android:gravity="center_vertical">
+
+		<TextView android:id="@+id/app_history_list_title"
+			android:text="@string/app_name_text" android:layout_height="wrap_content"
+			android:layout_width="wrap_content" android:textSize="18sp"
+			android:textStyle="bold" android:paddingLeft="5dp" 
+			android:maxWidth="150dp"/>
+
+	</LinearLayout>
+
+	<LinearLayout android:layout_width="wrap_content" android:layout_weight="1.0"
+		android:layout_height="fill_parent" android:orientation="vertical"
+		android:gravity="center_vertical|right">
+
+		<TextView android:id="@+id/app_history_list_description"
+			android:text="@string/app_exclude_text" android:layout_height="wrap_content"
+			android:layout_width="wrap_content" android:textSize="18sp" 
+			android:textStyle="bold" />
+
+
+	</LinearLayout>
+
+
+</LinearLayout>
+</LinearLayout>

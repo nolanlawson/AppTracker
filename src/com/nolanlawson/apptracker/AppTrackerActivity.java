@@ -7,7 +7,6 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
@@ -21,6 +20,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.nolanlawson.apptracker.data.LoadedAppHistoryAdapter;
@@ -35,17 +36,22 @@ import com.nolanlawson.apptracker.util.UtilLogger;
 
 public class AppTrackerActivity extends ListActivity implements OnTouchListener, OnClickListener {
     
+	public static String ACTION_EXCLUDE_APPS = "com.nolanlawson.apptracker.action.EXCLUDE_APPS";
+	
 	private static final int LOAD_BATCH_SIZE = 4; // how many apps to put in the list at once
 	
 	private static UtilLogger log = new UtilLogger(AppTrackerActivity.class);
 	
-	private static boolean listLoading = false;
+	private boolean listLoading = false;
 	
+	private LinearLayout buttonsLinearLayout, appsToExcludeHeaderLinearLayout;
 	private Button recentButton, mostUsedButton, timeDecayButton;
 	private Button[] buttons;
 	
 	private LoadedAppHistoryAdapter adapter;
 	private SortType sortType = SortType.Recent;
+	
+	private boolean excludeAppsMode = false;
 	
 	
     @Override
@@ -54,13 +60,23 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
         log.d("onCreate()");
         
         ServiceHelper.startBackgroundServiceIfNotAlreadyRunning(getApplicationContext());
+
+        Intent intent = getIntent();
+    	
+        if (intent != null && intent.getAction().equals(ACTION_EXCLUDE_APPS)) {
+        	excludeAppsMode = true;
+        	setTitle(R.string.apps_to_exclude_title);
+        }
         
         setContentView(R.layout.main);
         
         setUpWidgets(false);
 
+        
 		adapter = new LoadedAppHistoryAdapter(
-				this, R.layout.app_history_item, new ArrayList<LoadedAppHistoryEntry>(), sortType);
+				this, R.layout.app_history_item, new ArrayList<LoadedAppHistoryEntry>(), sortType, excludeAppsMode);
+		
+
 
     }
 
@@ -68,12 +84,19 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
     protected void onResume() {
     	super.onResume();
     	log.d("onResume()");
+    	
 		setUpList();
 		
 		setAppropriateButtonAsPressed();
+		
+		if (excludeAppsMode) {
+			// we're in "exclude apps" mode, so set this up appropriately
+			setUpAsExcludeAppsMode();
+		}  	
+
     }
-    
-    @Override
+
+	@Override
     protected void onPause() {
     	super.onPause();
     	log.d("onPause()");
@@ -98,12 +121,19 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
+		log.d("onConfigurationChanged()");
+		
 		// just redraw the widgets while doing as little work as possible
 		setContentView(R.layout.main);
 		setUpWidgets(true);
 		
 		setAppropriateButtonAsPressed();
 		
+		if (excludeAppsMode) {
+			// we're in "exclude apps" mode, so set this up appropriately
+			setUpAsExcludeAppsMode();
+		}
+	
 		
 	}
 
@@ -113,9 +143,22 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
 		
 		LoadedAppHistoryEntry appHistoryEntry = adapter.getItem(position);
 		
-		Intent intent = appHistoryEntry.getAppHistoryEntry().toIntent();
+		if (excludeAppsMode) {
+			// just check the box if we're in exclude apps mode
+			
+			CheckBox checkBox = (CheckBox) v.findViewById(R.id.app_history_list_check_box);
+			checkBox.performClick();
+			
+		} else {
+			
+			// otherwise launch it
+			
+			Intent intent = appHistoryEntry.getAppHistoryEntry().toIntent();
+			
+			startActivity(intent);			
+		}
 		
-		startActivity(intent);
+
 	}
 
 	
@@ -134,7 +177,8 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
 	    	setUpList();
 	    	break;
 	    case R.id.menu_settings:
-	    	//TODO
+	    	Intent settingsIntent = new Intent(this, SettingsActivity.class);
+	    	startActivity(settingsIntent);
 	    	break;
 	    case R.id.menu_user_guide:
 	    	//TODO
@@ -148,15 +192,35 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
+		
+		
+		// no options if exclude apps mode
+		if (excludeAppsMode) {
+			for (int i = 0; i < menu.size(); i++) {
+				menu.getItem(i).setVisible(false);
+			}
+		}
+		
+		
 		return super.onPrepareOptionsMenu(menu);
 	}
-
+    
+    private void setUpAsExcludeAppsMode() {
+    	
+		buttonsLinearLayout.setVisibility(View.GONE);
+		appsToExcludeHeaderLinearLayout.setVisibility(View.VISIBLE);
+		
+			
+	}
+    
 	private void setUpWidgets(boolean listAlreadyLoaded) {
 		
 		recentButton = (Button) findViewById(R.id.recent_button);
 		mostUsedButton = (Button) findViewById(R.id.most_used_button);
 		timeDecayButton = (Button) findViewById(R.id.time_decay_button);
 		buttons = new Button[]{recentButton, mostUsedButton, timeDecayButton};
+		buttonsLinearLayout = (LinearLayout) findViewById(R.id.buttons_layout);
+		appsToExcludeHeaderLinearLayout = (LinearLayout) findViewById(R.id.apps_to_exclude_header_layout);
 		
 		for (Button button : buttons) {
 			button.setOnTouchListener(this);
@@ -199,7 +263,7 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
 		final View progressView = layoutInflater.inflate(R.layout.progress_footer, null);
 		
 		getListView().addFooterView(progressView, null, false);
-		
+
 		setListAdapter(adapter);
 		
 		
@@ -219,7 +283,7 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
 					PackageManager packageManager = getPackageManager();
 					
 					List<Pair<AppHistoryEntry, ActivityInfo>> pairs = 
-						ActivityInfoHelper.getActivityInfos(context, dbHelper, packageManager,0, Integer.MAX_VALUE, sortType);
+						ActivityInfoHelper.getActivityInfos(context, dbHelper, packageManager,0, Integer.MAX_VALUE, sortType, excludeAppsMode);
 					
 					List<LoadedAppHistoryEntry> entryList = new ArrayList<LoadedAppHistoryEntry>();
 					
@@ -254,7 +318,7 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
 					adapter.add(entry);
 				}
 
-				adapter.sort(LoadedAppHistoryEntry.orderBy(sortType));
+				adapter.sort(excludeAppsMode ? LoadedAppHistoryEntry.orderByLabel() : LoadedAppHistoryEntry.orderBy(sortType));
 				adapter.notifyDataSetChanged();
 				
 			}
@@ -313,7 +377,7 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
 			break;
 		}
 		adapter.setSortType(sortType);
-		adapter.sort(LoadedAppHistoryEntry.orderBy(sortType));
+		adapter.sort(excludeAppsMode ? LoadedAppHistoryEntry.orderByLabel() : LoadedAppHistoryEntry.orderBy(sortType));
 		adapter.notifyDataSetInvalidated();
 		
 	}

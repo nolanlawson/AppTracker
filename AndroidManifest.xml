@@ -18,6 +18,11 @@
 				<action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
 			</intent-filter>
 		</activity>
+		
+		
+		<activity android:name=".SettingsActivity"
+			android:label="@string/settings" android:configChanges="keyboard|keyboardHidden|orientation">
+		</activity>
 
 		<receiver android:name=".AppTrackerWidgetProvider">
 			<intent-filter>
