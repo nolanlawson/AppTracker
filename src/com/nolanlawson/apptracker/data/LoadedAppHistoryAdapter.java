@@ -79,13 +79,6 @@ public class LoadedAppHistoryAdapter extends
 		wrapper.enabledCheckBox.setVisibility(excludeAppsMode ? View.VISIBLE : View.GONE);
 		wrapper.subtext.setVisibility(excludeAppsMode ? View.VISIBLE : View.GONE);
 		
-		if (excludeAppsMode) {
-			// this wrapping safety check isn't necessary if there's just a checkbox to the right
-			wrapper.title.setMaxWidth(Integer.MAX_VALUE);
-		}
-		
-		
-		
 		return convertView;
 		
 	}
