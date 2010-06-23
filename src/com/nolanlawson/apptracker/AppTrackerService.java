@@ -81,7 +81,8 @@ public class AppTrackerService extends IntentService {
 				if (line.contains("Starting activity") 
 						&& line.contains("act=android.intent.action.MAIN")
 						&& line.contains("flg=0x1")  // indicates starting up a new activity, i.e via launcher, AppTracker, or Market notification
-						&& !line.contains("(has extras)")) { // if it has extras, we can't call it (e.g. com.android.phone)
+						&& !line.contains("(has extras)") // if it has extras, we can't call it (e.g. com.android.phone)
+					    && !line.contains("android.intent.category.HOME")) { // ignore Home apps
 					log.d("log is %s", line);
 
 					Matcher matcher = launcherPattern.matcher(line);

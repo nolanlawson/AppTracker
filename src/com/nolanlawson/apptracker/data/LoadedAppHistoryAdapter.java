@@ -113,37 +113,43 @@ public class LoadedAppHistoryAdapter extends
 		
 		@Override
 		public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
-
+			
+			// synchronize to avoid race conditions if the user clicks the button wildly
+			synchronized (CheckBoxListener.class) {	
+				
 			log.d("onCheckedChanged(): %s", isChecked);
-			
-			final Context finalContext = context;
-			
-			// update the excluded field in the background to avoid jankiness
-			AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-
-
-				@Override
-				protected Void doInBackground(Void... params) {
-					
-					// synchronize to avoid race conditions if the user clicks the button wildly
-					synchronized (CheckBoxListener.class) {
-					
+	
+				
+				final Context finalContext = context;
+				
+				// update the excluded field in the background to avoid jankiness
+				AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+	
+	
+					@Override
+					protected Void doInBackground(Void... params) {
+						
+	
+						
 						entry.getAppHistoryEntry().setExcluded(isChecked);
 						
 						AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(finalContext);
 						
 						try {
-							dbHelper.setExcluded(entry.getAppHistoryEntry().getId(), isChecked);
+							synchronized (AppHistoryDbHelper.class) {
+								dbHelper.setExcluded(entry.getAppHistoryEntry().getId(), isChecked);
+							}
 						} finally {
 							dbHelper.close();
 						}
+						
+						
+						return null;
 					}
 					
-					return null;
-				}
-				
-			};
-			task.execute((Void)null);
+				};
+				task.execute((Void)null);
+			}
 			
 		}
 	}

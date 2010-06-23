@@ -21,9 +21,10 @@
 		
 		
 		<activity android:name=".SettingsActivity"
-			android:label="@string/settings" android:configChanges="keyboard|keyboardHidden|orientation">
-		</activity>
-
+			android:label="@string/settings" android:configChanges="keyboard|keyboardHidden|orientation"/>
+		
+		<activity android:name=".HtmlFileActivity" android:theme="@android:style/Theme.Dialog" />
+			
 		<receiver android:name=".AppTrackerWidgetProvider">
 			<intent-filter>
 				<action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

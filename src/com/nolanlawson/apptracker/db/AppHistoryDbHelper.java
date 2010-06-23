@@ -23,12 +23,6 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	// TODO parameterize
 	public static final long DECAY_CONST = TimeUnit.SECONDS.toMillis(60 * 60 * 24 * 7); // seven days
 	
-	// TODO: add more launchers here
-	private static final List<String> appsToIgnoreInitially = Arrays.asList(
-												  "com.android.launcher", // launcher
-		                                          "com.android.launcher2", // launcher2
-		                                          "com.htc.launcher"); // htc launcher
-	
 	// schema constants
 	
 	private static final String DB_NAME = "app_history.db";
@@ -326,12 +320,12 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		contentValues.put(COLUMN_PACKAGE, packageName);
 		contentValues.put(COLUMN_PROCESS, process);
 		contentValues.put(COLUMN_INSTALLED, 1);
+		contentValues.put(COLUMN_EXCLUDED, 0);
 		contentValues.put(COLUMN_COUNT, 1);
 		contentValues.put(COLUMN_LAST_ACCESS, currentTime);
 		contentValues.put(COLUMN_DECAY_SCORE, 1);
 		contentValues.put(COLUMN_LAST_UPDATE, currentTime);
 		
-		contentValues.put(COLUMN_EXCLUDED, appsToIgnoreInitially.contains(packageName));
 
 		
 		getWritableDatabase().insert(TABLE_NAME, null, contentValues);

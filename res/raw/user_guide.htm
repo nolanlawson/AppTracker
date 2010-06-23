@@ -1,0 +1,73 @@
+<html>
+<body>
+
+<font color="#cccccc">
+
+<p align=center><b>Overview</b></p>
+
+App Tracker is a tool for managing apps based on your usage history.  It maintains a running tally of which 
+apps you use the most and how recently you invoke them.  Using this, you can set up widgets that display your 
+most commonly used or recently used apps.
+
+<p align=center><b>Sorting</b></p>
+
+</p>App Tracker offers three ways to sort your data: Recent, Most Used, and Time Decay.   
+Recent and Most Used are pretty intuitive, but Time Decay merits some explanation.    
+
+</p>Time Decay can be thought of as a balance between Recent and Most Used.  For instance, an app that you used 10 times a  
+month ago may not have as high of a score as an app you used 5 times yesterday.  
+As such, Time Decay can be pretty convenient for tracking what your "favorite" apps are at any given time. 
+
+</p>Using the Time Decay Constant setting, you can dial up or down how fast apps decay. 
+Lower values mean that apps scores decay more quickly - i.e. the scoring prefers recency to number of hits. 
+If you're curious about how the formula works, it applies this update function periodically throughout the day: 
+
+</p><font face="Courier New">update(s) = 
+</br>&nbsp;&nbsp;&nbsp;&nbsp;s*<i>e</i><sup>(t'-t)/(-c*86400000)</sup></font>
+
+</p>...where <font face="Courier New">update()</font> is the update function, <font face="Courier New">s</font> is the score, 
+<font face="Courier New">t'</font> is the current time (in milliseconds), <font face="Courier New">t</font> is the time of the last update, 
+<font face="Courier New">c</font> is the decay constant, and 86400000 is the number of milliseconds in a day.  
+
+<p/>The default decay constant is 7, meaning that an app that was accessed 7 
+days ago will have its score decay to about 1/<i>e</i>.  So you can think of the default view as a "week" view.
+
+<p align=center><b>Free vs. Premium Versions</b></p>
+
+</p>App Tracker Free is a fully-functional app and widget.  
+The premium version simply expands upon the free version by offering additional customization.  
+
+<p/>For instance, the premium version allows you to use the "&lt;" and "&gt;" buttons to page between results, 
+so you can see more than just 4 apps.  This means that you could even fill up a 4x4 
+homescreen with 4 App Trackers, allowing you to see your 16 top apps! 
+<p/>Additionally, the premium version allows you to hide the page navigation buttons, app titles, 
+and app descriptions, so you can personalize the look and feel of the widget.  The 
+"stretch to fill" setting allows you to choose whether to keep all App Tracker widgets consistently aligned, 
+or to let them stretch to fill any leftover space.
+
+<p align=center><b>Standalone Application</b></p>
+
+Additionally, both versions of App Tracker offer a standalone app to view 
+all tracked applications and manage which ones appear in the ranking.  To hide 
+apps from the ranking (for instance, commonly used apps like the Dialer and Browser), 
+hit Menu, Settings, and then Apps to Exclude.
+
+<p align=center><b>FAQs</b></p>
+
+</p><i>Why don't the icons align with the native icons?</i>
+
+<p style="margin-left:10pt">If you look at the additional information that has to be 
+fit into the widget (like the navigation buttons and the app subtext), you'll see that 
+there's no way to make the icons line up with the native ones.</p>
+
+<p style="margin-left:10pt">And even if the user chooses 
+to hide that information, it can't work consistently across all Android phones.  Different Android 
+phones just have different Launcher apps (e.g. Google vs. HTC, HelixLauncher vs. Cyanogen), so there's 
+no way (AFAIK) to make a widget that will exactly fit all of them.</p>
+
+
+</font>
+
+
+</body>
+</html>

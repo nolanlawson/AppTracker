@@ -181,10 +181,14 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
 	    	startActivity(settingsIntent);
 	    	break;
 	    case R.id.menu_user_guide:
-	    	//TODO
+	    	Intent userGuideIntent = new Intent(this, HtmlFileActivity.class);
+	    	userGuideIntent.setAction(HtmlFileActivity.ACTION_USER_GUIDE);
+	    	startActivity(userGuideIntent);
 	    	break;
 	    case R.id.menu_about:
-	    	//TODO
+	    	Intent aboutIntent = new Intent(this, HtmlFileActivity.class);
+	    	aboutIntent.setAction(HtmlFileActivity.ACTION_ABOUT);
+	    	startActivity(aboutIntent);
 	    	break;
 	    }
 	    return super.onOptionsItemSelected(item);
