@@ -9,6 +9,8 @@ import com.nolanlawson.apptracker.R;
 
 public class PreferenceHelper {
 
+	public static final int DEFAULT_TIME_DECAY_CONSTANT = 7;
+	
 	public static int getCurrentPageNumber(Context context, int appWidgetId) {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		
@@ -135,7 +137,22 @@ public class PreferenceHelper {
 		
 	}	
 	
+	public static int getDecayConstantPreference(Context context) {
+		
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		
+		return prefs.getInt(context.getResources().getString(R.string.time_decay_constant_preference), 
+				DEFAULT_TIME_DECAY_CONSTANT);
+	}
 	
+	public static void setDecayConstantPreference(Context context, int decayConstant) {
+		
+		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+		
+		editor.putInt(context.getResources().getString(R.string.time_decay_constant_preference), decayConstant);
+		editor.commit();
+		
+	}		
 	
 	private static String getCurrentPagePreferenceName(Context context, int appWidgetId) {
 		return concat(context, R.string.page_number_preference, appWidgetId);

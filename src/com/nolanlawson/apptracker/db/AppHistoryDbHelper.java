@@ -13,15 +13,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
 
+import com.nolanlawson.apptracker.helper.PreferenceHelper;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
 public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	
 	//logger
 	private static UtilLogger log = new UtilLogger(AppHistoryDbHelper.class);
-	
-	// TODO parameterize
-	public static final long DECAY_CONST = TimeUnit.SECONDS.toMillis(60 * 60 * 24 * 7); // seven days
 	
 	// schema constants
 	
@@ -45,9 +43,12 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 			{COLUMN_ID, COLUMN_PACKAGE, COLUMN_PROCESS, COLUMN_INSTALLED, COLUMN_EXCLUDED, 
 			 COLUMN_COUNT, COLUMN_LAST_ACCESS, COLUMN_DECAY_SCORE, COLUMN_LAST_UPDATE};
 	
+	private Context context;
+	
 	// constructors
 	public AppHistoryDbHelper(Context context) {
 		super(context, DB_NAME, null, DB_VERSION);
+		this.context = context;
 	}
 	// overrides
 	
@@ -75,6 +76,11 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
 
+	}
+	
+	public void deleteAll() {
+		
+		getWritableDatabase().execSQL("delete from " + TABLE_NAME);
 	}
 
 	// methods
@@ -294,12 +300,10 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		long lastUpdate = appHistoryEntry.getLastUpdate();
 		double lastScore = appHistoryEntry.getDecayScore();
 		
-		//log.d("last score: " + lastScore);
-		//log.d("lastAccessed: " + lastAccessed);
-		//log.d("current time: " + currentTime);
-		//log.d("decay const: " + DECAY_CONST);
+		int decayConstantInDays = PreferenceHelper.getDecayConstantPreference(context);
+		long decayConstantInMillis = TimeUnit.SECONDS.toMillis(60 * 60 * 24 * decayConstantInDays);
 		
-		double newDecayScore = (lastScore * Math.exp((1.0 * currentTime - lastUpdate) / -DECAY_CONST));
+		double newDecayScore = (lastScore * Math.exp((1.0 * currentTime - lastUpdate) / -decayConstantInMillis));
 		
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(COLUMN_DECAY_SCORE, newDecayScore);

@@ -49,5 +49,8 @@
     <string name="bad_decay_constant_toast">Please enter a whole number between 1 and 100</string>
     <string name="app_exclude_text">Exclude?</string>
     <string name="app_name_text">App Name</string>
+    <string name="delete_all1">Delete all tracked data?</string>
+    <string name="delete_all2">Are you really sure?  This cannot be undone!</string>
+    <string name="data_deleted">Data deleted.</string>
     
 </resources>

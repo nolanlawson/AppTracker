@@ -1,6 +1,9 @@
 package com.nolanlawson.apptracker;
 
+import android.app.AlertDialog.Builder;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
@@ -9,6 +12,8 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.widget.Toast;
 
+import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
+import com.nolanlawson.apptracker.helper.PreferenceHelper;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
 public class SettingsActivity extends PreferenceActivity implements OnPreferenceChangeListener, OnPreferenceClickListener {
@@ -73,6 +78,7 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 			if (valueAsInt < 1 || valueAsInt > 100) {
 				throw new RuntimeException("value must be between 1 and 100");
 			}
+			PreferenceHelper.setDecayConstantPreference(getApplicationContext(), valueAsInt);
 		} catch (Exception ex) {
 			log.e(ex, "Couldn't parse number or bad number: %s", newValue);
 			Toast.makeText(getApplicationContext(), R.string.bad_decay_constant_toast, Toast.LENGTH_LONG).show();
@@ -92,9 +98,54 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 			startActivity(excludeIntent);
 			
 		} else { // reset preference
-			//TODO
+			doResetDialog();
 		}
 		
 		return true;
+	}
+
+	private void doResetDialog() {
+		Builder builder = new Builder(this);
+		
+		builder.setTitle(R.string.reset_data_title);
+		builder.setCancelable(true);
+		builder.setMessage(R.string.delete_all1);
+		builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				Builder builder = new Builder(SettingsActivity.this);
+				
+				builder.setTitle(R.string.reset_data_title);
+				builder.setCancelable(true);
+				builder.setMessage(R.string.delete_all2);
+				builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// ok, delete everything
+						AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(getApplicationContext());
+						
+						try {
+							synchronized (AppHistoryDbHelper.class) {
+								dbHelper.deleteAll();
+							}
+						} finally {
+							dbHelper.close();
+						}
+						
+						Toast.makeText(getApplicationContext(), R.string.data_deleted, Toast.LENGTH_LONG).show();
+						
+					}
+				});
+				builder.setNegativeButton(android.R.string.cancel, null);
+				builder.show();
+				
+			}
+		});
+		builder.setNegativeButton(android.R.string.cancel, null);
+		
+		builder.show();
+		
 	}
 }
