@@ -1,158 +1,178 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-android:layout_width="fill_parent"
-	android:layout_height="fill_parent" >
-	
-<ImageView android:layout_width="fill_parent"
-	android:layout_height="fill_parent" android:src="@drawable/widget_frame4"
-	android:id="@+id/widget_background" android:visibility="invisible"/>
+	android:layout_width="fill_parent" android:layout_height="fill_parent">
 
-<LinearLayout
-	android:orientation="vertical" android:layout_width="fill_parent"
-	android:layout_height="fill_parent" android:gravity="center_vertical"
-	focusable="true" >
+	<ImageView android:layout_width="fill_parent"
+		android:layout_height="fill_parent" android:id="@+id/widget_background"
+		android:visibility="invisible" />
 
-	<LinearLayout android:orientation="horizontal"
-		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:gravity="center_vertical|center_horizontal" 
-		>
-		<LinearLayout android:layout_width="0px"
-			android:layout_height="wrap_content" android:layout_weight="0.5"
-			android:gravity="center_horizontal|center_vertical"
-			android:clickable="true" android:focusable="true"
-			android:drawSelectorOnTop="false" android:background="@drawable/app_selector"
-			android:id="@+id/back_button" android:paddingTop="5dp" android:paddingBottom="5dp">
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:orientation="vertical" android:layout_width="fill_parent"
+		android:layout_height="fill_parent" android:gravity="center_vertical"
+		focusable="true">
 
-			<TextView android:layout_width="wrap_content"
-				android:layout_height="wrap_content" android:paddingLeft="10dp"
-				android:paddingRight="10dp" android:textSize="22sp"
-				android:textStyle="bold" android:background="@drawable/bubble_small"
+		<LinearLayout android:orientation="horizontal"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:gravity="center_vertical|center_horizontal">
+
+			<LinearLayout android:layout_width="0px"
+				android:layout_height="wrap_content" android:layout_weight="0.5"
 				android:gravity="center_horizontal|center_vertical"
-				android:textColor="@android:color/white" android:text="@string/back_arrow"
-				android:singleLine="true" />
+				android:clickable="true" android:focusable="true"
+				android:drawSelectorOnTop="false" android:background="@drawable/app_selector"
+				android:id="@+id/back_button" android:paddingTop="5dp"
+				android:paddingBottom="5dp">
+
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:paddingLeft="10dp"
+					android:paddingRight="10dp" android:textSize="22sp"
+					android:textStyle="bold" android:background="@drawable/bubble_small"
+					android:gravity="center_horizontal|center_vertical"
+					android:textColor="@android:color/white" android:text="@string/back_arrow"
+					android:singleLine="true" />
+
+			</LinearLayout>
+
+			<LinearLayout android:layout_width="0px"
+				android:layout_height="wrap_content" android:layout_weight="0.5"
+				android:gravity="center_horizontal|center_vertical"
+				android:clickable="true" android:focusable="true"
+				android:drawSelectorOnTop="false" android:background="@drawable/app_selector"
+				android:id="@+id/forward_button" android:paddingTop="5dp"
+				android:paddingBottom="5dp">
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:paddingLeft="10dp"
+					android:paddingRight="10dp" android:textSize="22sp"
+					android:textStyle="bold" android:gravity="center_horizontal|center_vertical"
+					android:background="@drawable/bubble_small" android:textColor="@android:color/white"
+					android:text="@string/forward_arrow" android:singleLine="true" />
+			</LinearLayout>
+
 
 		</LinearLayout>
+		<LinearLayout android:orientation="vertical"
+			android:gravity="center_vertical|center_horizontal"
+			android:layout_width="fill_parent" android:layout_height="0px"
+			android:layout_weight="0.25" android:visibility="visible">
 
-		<LinearLayout android:layout_width="0px"
-			android:layout_height="wrap_content" android:layout_weight="0.5"
-			android:gravity="center_horizontal|center_vertical"
-			android:clickable="true" android:focusable="true"
-			android:drawSelectorOnTop="false" android:background="@drawable/app_selector"
-			android:id="@+id/forward_button" android:paddingTop="5dp" android:paddingBottom="5dp">
-			<TextView android:layout_width="wrap_content"
-				android:layout_height="wrap_content" android:paddingLeft="10dp"
-				android:paddingRight="10dp" android:textSize="22sp"
-				android:textStyle="bold" android:gravity="center_horizontal|center_vertical"
-				android:background="@drawable/bubble_small" android:textColor="@android:color/white"
-				android:text="@string/forward_arrow" android:singleLine="true"
-				 />
+			<LinearLayout android:orientation="vertical"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				android:id="@+id/app_item_1" android:clickable="true"
+				android:focusable="true" android:drawSelectorOnTop="false"
+				android:background="@drawable/app_selector" android:visibility="visible"
+				android:gravity="center_vertical|center_horizontal">
+
+				<ImageView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:src="@drawable/android_plus_target"
+					android:id="@+id/app_icon_1" />
+
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/app_title_1"
+					android:textSize="13sp" android:paddingLeft="3dp" android:gravity="center_vertical"
+					android:background="@drawable/bubble" android:textColor="@android:color/white"
+					android:singleLine="true" android:text="@string/waiting" />
+
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/app_description_1"
+					android:paddingLeft="3dp" android:textSize="12sp"
+					android:background="@drawable/bubble_small" android:textColor="@android:color/white"
+					android:gravity="center_vertical" android:text="4 mins ago"
+					android:singleLine="true" android:visibility="invisible" />
+
+			</LinearLayout>
+
+		</LinearLayout>
+		<LinearLayout android:orientation="vertical"
+			android:gravity="center_vertical|center_horizontal"
+			android:layout_width="fill_parent" android:layout_height="0px"
+			android:layout_weight="0.25" android:visibility="visible">
+
+			<LinearLayout android:orientation="vertical"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				android:id="@+id/app_item_2" android:clickable="true"
+				android:focusable="true" android:drawSelectorOnTop="false"
+				android:background="@drawable/app_selector" android:visibility="visible"
+				android:gravity="center_vertical|center_horizontal">
+
+				<ImageView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:src="@drawable/icon"
+					android:id="@+id/app_icon_2" />
+
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/app_title_2"
+					android:textSize="13sp" android:paddingLeft="3dp" android:text="App Title"
+					android:gravity="center_vertical" android:background="@drawable/bubble"
+					android:textColor="@android:color/white" android:singleLine="true" />
+
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/app_description_2"
+					android:paddingLeft="3dp" android:textSize="12sp"
+					android:background="@drawable/bubble_small" android:textColor="@android:color/white"
+					android:gravity="center_vertical" android:text="4 mins ago"
+					android:singleLine="true" />
+			</LinearLayout>
+		</LinearLayout>
+		<LinearLayout android:orientation="vertical"
+			android:gravity="center_vertical|center_horizontal"
+			android:layout_width="fill_parent" android:layout_height="0px"
+			android:layout_weight="0.25" android:visibility="visible">
+
+			<LinearLayout android:orientation="vertical"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				android:id="@+id/app_item_3" android:clickable="true"
+				android:focusable="true" android:drawSelectorOnTop="false"
+				android:background="@drawable/app_selector" android:visibility="visible"
+				android:gravity="center_vertical|center_horizontal">
+
+				<ImageView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:src="@drawable/icon"
+					android:id="@+id/app_icon_3" />
+
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/app_title_3"
+					android:textSize="13sp" android:paddingLeft="3dp" android:text="App Title"
+					android:gravity="center_vertical" android:background="@drawable/bubble"
+					android:textColor="@android:color/white" android:singleLine="true" />
+
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/app_description_3"
+					android:paddingLeft="3dp" android:textSize="12sp"
+					android:background="@drawable/bubble_small" android:textColor="@android:color/white"
+					android:gravity="center_vertical" android:text="4 mins ago"
+					android:singleLine="true" />
+			</LinearLayout>
 		</LinearLayout>
 
-
-	</LinearLayout>
-
-	<LinearLayout android:orientation="vertical"
-		android:gravity="center_vertical|center_horizontal"
-		android:layout_width="fill_parent" android:layout_height="0px"
-		android:layout_weight="0.25" android:id="@+id/app_item_1"
-		android:clickable="true" android:focusable="true"
-		android:drawSelectorOnTop="false" android:background="@drawable/app_selector"
-		android:visibility="visible">
-		
-		<ImageView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:src="@drawable/android_plus_target"
-			android:id="@+id/app_icon_1"/>
-
-		<TextView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:id="@+id/app_title_1"
-			android:textSize="13sp" android:paddingLeft="3dp"
-			android:gravity="center_vertical" android:background="@drawable/bubble"
-			android:textColor="@android:color/white" android:singleLine="true"  android:text="@string/waiting"/>
-			
-		<TextView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:id="@+id/app_description_1"
-			android:paddingLeft="3dp" android:textSize="12sp" android:background="@drawable/bubble_small"
-			android:textColor="@android:color/white" android:gravity="center_vertical"
-			android:text="4 mins ago" android:singleLine="true"
-			android:visibility="invisible"/>
-
-	</LinearLayout>
-	<LinearLayout android:orientation="vertical"
-		android:gravity="center_vertical|center_horizontal"
-		android:layout_width="fill_parent" android:layout_height="0px"
-		android:layout_weight="0.25" android:id="@+id/app_item_2"
-		android:clickable="true" android:focusable="true"
-		android:drawSelectorOnTop="false" android:background="@drawable/app_selector"
-		android:visibility="invisible">
-		
-		<ImageView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:src="@drawable/icon"
-			android:id="@+id/app_icon_2"/>
-
-		<TextView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:id="@+id/app_title_2"
-			android:textSize="13sp" android:paddingLeft="3dp" android:text="App Title"
-			android:gravity="center_vertical" android:background="@drawable/bubble"
-			android:textColor="@android:color/white" android:singleLine="true" />
-			
-		<TextView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:id="@+id/app_description_2"
-			android:paddingLeft="3dp" android:textSize="12sp" android:background="@drawable/bubble_small"
-			android:textColor="@android:color/white" android:gravity="center_vertical"
-			android:text="4 mins ago" android:singleLine="true"/>
-
-	</LinearLayout>
 		<LinearLayout android:orientation="vertical"
-		android:gravity="center_vertical|center_horizontal"
-		android:layout_width="fill_parent" android:layout_height="0px"
-		android:layout_weight="0.25" android:id="@+id/app_item_3"
-		android:clickable="true" android:focusable="true"
-		android:drawSelectorOnTop="false" android:background="@drawable/app_selector"
-		android:visibility="invisible">
-		
-		<ImageView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:src="@drawable/icon"
-			android:id="@+id/app_icon_3"/>
+			android:gravity="center_vertical|center_horizontal"
+			android:layout_width="fill_parent" android:layout_height="0px"
+			android:layout_weight="0.25" android:visibility="visible">
 
-		<TextView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:id="@+id/app_title_3"
-			android:textSize="13sp" android:paddingLeft="3dp" android:text="App Title"
-			android:gravity="center_vertical" android:background="@drawable/bubble"
-			android:textColor="@android:color/white" android:singleLine="true" />
-			
-		<TextView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:id="@+id/app_description_3"
-			android:paddingLeft="3dp" android:textSize="12sp" android:background="@drawable/bubble_small"
-			android:textColor="@android:color/white" android:gravity="center_vertical"
-			android:text="4 mins ago" android:singleLine="true"/>
+			<LinearLayout android:orientation="vertical"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				android:id="@+id/app_item_4" android:clickable="true"
+				android:focusable="true" android:drawSelectorOnTop="false"
+				android:background="@drawable/app_selector" android:visibility="visible"
+				android:gravity="center_vertical|center_horizontal">
 
+				<ImageView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:src="@drawable/icon"
+					android:id="@+id/app_icon_4" />
+
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/app_title_4"
+					android:textSize="13sp" android:paddingLeft="3dp" android:text="App Title"
+					android:gravity="center_vertical" android:background="@drawable/bubble"
+					android:textColor="@android:color/white" android:singleLine="true" />
+
+				<TextView android:layout_width="wrap_content"
+					android:layout_height="wrap_content" android:id="@+id/app_description_4"
+					android:paddingLeft="3dp" android:textSize="12sp"
+					android:background="@drawable/bubble_small" android:textColor="@android:color/white"
+					android:gravity="center_vertical" android:text="4 mins ago"
+					android:singleLine="true" />
+			</LinearLayout>
+		</LinearLayout>
 	</LinearLayout>
-	
-		<LinearLayout android:orientation="vertical"
-		android:gravity="center_vertical|center_horizontal"
-		android:layout_width="fill_parent" android:layout_height="0px"
-		android:layout_weight="0.25" android:id="@+id/app_item_4"
-		android:clickable="true" android:focusable="true"
-		android:drawSelectorOnTop="false" android:background="@drawable/app_selector"
-		android:visibility="invisible">
-		
-		<ImageView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:src="@drawable/icon"
-			android:id="@+id/app_icon_4"/>
-
-		<TextView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:id="@+id/app_title_4"
-			android:textSize="13sp" android:paddingLeft="3dp" android:text="App Title"
-			android:gravity="center_vertical" android:background="@drawable/bubble"
-			android:textColor="@android:color/white" android:singleLine="true" />
-			
-		<TextView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:id="@+id/app_description_4"
-			android:paddingLeft="3dp" android:textSize="12sp" android:background="@drawable/bubble_small"
-			android:textColor="@android:color/white" android:gravity="center_vertical"
-			android:text="4 mins ago" android:singleLine="true"/>
-
-	</LinearLayout>
-</LinearLayout>
 </FrameLayout>
