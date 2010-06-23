@@ -10,6 +10,7 @@ import android.app.IntentService;
 import android.content.Intent;
 
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
+import com.nolanlawson.apptracker.util.FlagUtil;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
 /**
@@ -29,6 +30,8 @@ public class AppTrackerService extends IntentService {
 
 	private static Pattern launcherPattern = Pattern
 			.compile("\\bcmp=([^/]++)/(\\.?\\S++)\\s");
+	
+	private static Pattern flagPattern = Pattern.compile("\\bflg=0x(\\d+)\\b");
 
 
 
@@ -80,25 +83,39 @@ public class AppTrackerService extends IntentService {
 
 				if (line.contains("Starting activity") 
 						&& line.contains("act=android.intent.action.MAIN")
-						&& line.contains("flg=0x1")  // indicates starting up a new activity, i.e via launcher, AppTracker, or Market notification
 						&& !line.contains("(has extras)") // if it has extras, we can't call it (e.g. com.android.phone)
 					    && !line.contains("android.intent.category.HOME")) { // ignore Home apps
 					log.d("log is %s", line);
 
-					Matcher matcher = launcherPattern.matcher(line);
-
-					if (matcher.find()) {
-						String packageName = matcher.group(1);
-						String process = matcher.group(2);
+					Matcher flagMatcher = flagPattern.matcher(line);
+					
+					if (flagMatcher.find()) {
+						String flagsAsString = flagMatcher.group(1);
+						int flags = Integer.parseInt(flagsAsString, 16);
 						
-						log.d("package name is: " + packageName);
-						log.d("process name is: " + process);
-						synchronized (AppHistoryDbHelper.class) {
-							dbHelper.incrementAndUpdate(packageName, process);
-						}
-						WidgetUpdater.updateWidget(this, dbHelper);
-					}
+						log.d("flags are: 0x%s",flagsAsString);
+						
+						// intents have to be "new tasks" and they have to have been launched by the user 
+						// (not like e.g. the incoming call screen)
+						if (FlagUtil.hasFlag(flags, Intent.FLAG_ACTIVITY_NEW_TASK)
+								&& !FlagUtil.hasFlag(flags, Intent.FLAG_ACTIVITY_NO_USER_ACTION)) {
+							
+							Matcher launcherMatcher = launcherPattern.matcher(line);
 
+							if (launcherMatcher.find()) {
+								String packageName = launcherMatcher.group(1);
+								String process = launcherMatcher.group(2);
+								
+								log.d("package name is: " + packageName);
+								log.d("process name is: " + process);
+								synchronized (AppHistoryDbHelper.class) {
+									dbHelper.incrementAndUpdate(packageName, process);
+								}
+								WidgetUpdater.updateWidget(this, dbHelper);
+							}				
+						}
+						
+					}
 				}
 			}
 

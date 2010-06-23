@@ -31,6 +31,7 @@ import com.nolanlawson.apptracker.db.AppHistoryEntry;
 import com.nolanlawson.apptracker.db.SortType;
 import com.nolanlawson.apptracker.helper.ActivityInfoHelper;
 import com.nolanlawson.apptracker.helper.ServiceHelper;
+import com.nolanlawson.apptracker.util.FlagUtil;
 import com.nolanlawson.apptracker.util.Pair;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
