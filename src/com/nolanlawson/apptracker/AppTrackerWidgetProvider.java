@@ -4,9 +4,10 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
+import android.widget.Toast;
 
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
+import com.nolanlawson.apptracker.helper.FreemiumHelper;
 import com.nolanlawson.apptracker.helper.PreferenceHelper;
 import com.nolanlawson.apptracker.helper.ServiceHelper;
 import com.nolanlawson.apptracker.util.UtilLogger;
@@ -62,19 +63,25 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 		// did the user click the button to update the widget?
 		if (ACTION_UPDATE_PAGE_FORWARD.equals(intent.getAction())
 				|| ACTION_UPDATE_PAGE_BACK.equals(intent.getAction())) {
-			
-			int newPageNumber = intent.getIntExtra(WidgetUpdater.NEW_PAGE_NUMBER, 0);
+
 			int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
 			
-			if (appWidgetId != -1) {
-			
+			// this is only enabled in the premium version
+			if (FreemiumHelper.isAppTrackerPremiumInstalled(context)) {
+
+				int newPageNumber = intent.getIntExtra(WidgetUpdater.NEW_PAGE_NUMBER, 0);
+
 				PreferenceHelper.setCurrentPageNumber(context, newPageNumber, appWidgetId);
 				
 				log.d("moving to new page for appWidgetId %d; pageNumber is now %d", appWidgetId, newPageNumber);
 				
-				updateWidget(context, appWidgetId);
-			
+								
+			} else {
+				
+				Toast.makeText(context, R.string.need_premium, Toast.LENGTH_SHORT).show();
 			}
+			
+			updateWidget(context, appWidgetId);
 			
 		}
 		

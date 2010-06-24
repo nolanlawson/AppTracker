@@ -52,5 +52,7 @@
     <string name="delete_all1">Delete all tracked data?</string>
     <string name="delete_all2">Are you really sure?  This cannot be undone!</string>
     <string name="data_deleted">Data deleted.</string>
+    <string name="free_version_text">Note: most settings are disabled in the free version.</string>
+    <string name="need_premium">You need the Premium version to do that.</string>
     
 </resources>

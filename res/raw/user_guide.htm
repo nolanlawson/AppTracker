@@ -5,27 +5,27 @@
 
 <p align=center><b>Overview</b></p>
 
-App Tracker is a tool for managing apps based on your usage history.  It maintains a running tally of which 
+App Tracker is a tool for organizing your apps based on usage history.  It maintains a running tally of which 
 apps you use the most and how recently you invoked them.  Using this, you can set up widgets that display your 
 most commonly used or recently used apps.
 
 <p align=center><b>Sorting</b></p>
 
-</p>App Tracker offers three ways to sort your data: Recent, Most Used, and Time Decay.   
+<p/>App Tracker offers three ways to sort your data: Recent, Most Used, and Time Decay.   
 Recent and Most Used are pretty intuitive, but Time Decay merits some explanation.    
 
-</p>Time Decay can be thought of as a balance between Recent and Most Used.  For instance, an app that you used 10 times a  
-month ago may not have as high of a score as an app you used 5 times yesterday.  
-As such, Time Decay can be pretty convenient for tracking what your "favorite" apps are at any given time. 
+<p/>Time Decay can be thought of as a balance between Recent and Most Used.  Basically, an app's score is initially based 
+on its number of hits, but its score starts to "decay" the longer you don't use it.  As such, Time Decay can be pretty 
+convenient for tracking which apps are your current favorites.
 
-</p>Using the Time Decay Constant setting, you can dial up or down how fast apps decay. 
-Lower values mean that apps scores decay more quickly - i.e. the scoring prefers recency to number of hits. 
+<p/>Using the Time Decay Constant setting, you can dial up or down how fast app scores decay. 
+Lower values mean they decay more quickly. 
 If you're curious about how it works, here is the update function that gets applied periodically throughout the day: 
 
-</p><font face="Courier New">update(s) = 
+<p/><font face="Courier New">update(s) = 
 </br>&nbsp;&nbsp;&nbsp;&nbsp;s*<i>e</i><sup>(t'-t)/(-c*86400000)</sup></font>
 
-</p>...where <font face="Courier New">update()</font> is the update function, <font face="Courier New">s</font> is the score, 
+<p/>...where <font face="Courier New">update()</font> is the update function, <font face="Courier New">s</font> is the score, 
 <font face="Courier New">t'</font> is the current time (in milliseconds), 
 <font face="Courier New">t</font> is the time of the last update, 
 <font face="Courier New">c</font> is the decay constant, and 86400000 is the number of milliseconds in a day.  
@@ -35,7 +35,7 @@ days ago will have its score decay to about 1/<i>e</i> (~0.3679).  So you can th
 
 <p align=center><b>Free vs. Premium Versions</b></p>
 
-</p>App Tracker Free is a fully-functional app and widget.  
+<p/>App Tracker Free is a fully-functional app and widget.  
 The premium version simply expands upon the free version by offering additional customization.  
 
 <p/>For instance, the premium version allows you to use the "&lt;" and "&gt;" buttons to page between results, 
@@ -56,7 +56,7 @@ hit Menu, Settings, and then Apps to Exclude.
 
 <p align=center><b>FAQs</b></p>
 
-</p><i>Why don't the icons align with the native icons?</i>
+<p/><i>Why don't the icons align with the native icons?</i>
 
 <p style="margin-left:10pt">If you look at the additional information that has to be 
 fit into the widget (like the navigation buttons and the app subtext), you'll see that 

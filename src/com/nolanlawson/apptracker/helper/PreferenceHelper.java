@@ -12,6 +12,11 @@ public class PreferenceHelper {
 	public static final int DEFAULT_TIME_DECAY_CONSTANT = 7;
 	
 	public static int getCurrentPageNumber(Context context, int appWidgetId) {
+		
+		if (!FreemiumHelper.isAppTrackerPremiumInstalled(context)) {
+			return 0;
+		}
+		
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		
 		int result = prefs.getInt(getCurrentPagePreferenceName(context, appWidgetId), 0);
@@ -47,12 +52,18 @@ public class PreferenceHelper {
 	
 	public static boolean getHideSubtextPreference(Context context, int appWidgetId) {
 		
+		if (!FreemiumHelper.isAppTrackerPremiumInstalled(context)) {
+			return false;
+		}
+		
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		
 		return prefs.getBoolean(getHideSubtextPreferenceName(context, appWidgetId), false);
 	}
 	
 	public static void setHideSubtextPreference(Context context, boolean bool, int appWidgetId) {
+
+		
 		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
 		
 		editor.putBoolean(getHideSubtextPreferenceName(context, appWidgetId), bool);
@@ -61,6 +72,11 @@ public class PreferenceHelper {
 	}
 	
 	public static boolean getHideAppTitlePreference(Context context, int appWidgetId) {
+		
+		
+		if (!FreemiumHelper.isAppTrackerPremiumInstalled(context)) {
+			return false;
+		}
 		
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		
@@ -77,6 +93,10 @@ public class PreferenceHelper {
 	
 	
 	public static boolean getLockPagePreference(Context context, int appWidgetId) {
+		
+		if (!FreemiumHelper.isAppTrackerPremiumInstalled(context)) {
+			return false;
+		}
 		
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		
@@ -108,9 +128,13 @@ public class PreferenceHelper {
 	
 	public static boolean getStretchToFillPreference(Context context, int appWidgetId) {
 		
+		if (!FreemiumHelper.isAppTrackerPremiumInstalled(context)) {
+			return false;
+		}
+		
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		
-		return prefs.getBoolean(getStretchToFillPreferenceName(context, appWidgetId), true);
+		return prefs.getBoolean(getStretchToFillPreferenceName(context, appWidgetId), false);
 	}
 	
 	public static void setStretchToFillPreference(Context context, boolean bool, int appWidgetId) {

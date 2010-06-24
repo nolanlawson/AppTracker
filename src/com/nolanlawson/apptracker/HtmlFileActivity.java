@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import com.nolanlawson.apptracker.helper.FreemiumHelper;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
 import android.app.Activity;
@@ -74,9 +75,13 @@ public class HtmlFileActivity extends Activity implements OnClickListener {
 		
 		if (aboutActivity) {
 		
-			htmlData = loadTextFile(R.raw.about_body);
+			if (FreemiumHelper.isAppTrackerPremiumInstalled(getApplicationContext())) {
+				htmlData = loadTextFile(R.raw.about_body_premium);
+			} else {
+				htmlData = loadTextFile(R.raw.about_body);
+			}
 		
-		} else { // user guide
+		} else { // user guide 
 			
 			htmlData = loadTextFile(R.raw.user_guide);
 		}

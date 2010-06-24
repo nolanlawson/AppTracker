@@ -14,8 +14,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.RemoteViews;
+import android.widget.TextView;
 
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
+import com.nolanlawson.apptracker.helper.FreemiumHelper;
 import com.nolanlawson.apptracker.helper.PreferenceHelper;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
@@ -31,6 +33,7 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 	private CheckBoxPreference lockPagePreference, hideSubtextPreference, hideAppTitlePreference, 
 			showBackgroundPreference, stretchToFillPreference;
 	private ListPreference sortTypePreference, pageNumberPreference;
+	private TextView freeVersionTextView;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +121,19 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 		//showBackgroundPreference = (CheckBoxPreference) findPreference(R.string.show_background_preference);
 		
 		stretchToFillPreference = (CheckBoxPreference) findPreference(R.string.stretch_to_fill_preference);
+		
+		freeVersionTextView = (TextView) findViewById(R.id.free_version_text_view);
+		
+		// most options are disabled in the free version
+		if (FreemiumHelper.isAppTrackerPremiumInstalled(getApplicationContext())) {
+			freeVersionTextView.setVisibility(View.GONE);
+		} else {
+			freeVersionTextView.setVisibility(View.VISIBLE);
+			stretchToFillPreference.setEnabled(false);
+			hideAppTitlePreference.setEnabled(false);
+			hideSubtextPreference.setEnabled(false);
+			lockPagePreference.setEnabled(false);
+		}
 	}
 	
 	private void setResult() {

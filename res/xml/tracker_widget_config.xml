@@ -35,7 +35,7 @@
 				
 	<CheckBoxPreference android:key="@string/stretch_to_fill_preference"
 		android:title="@string/stretch_to_fill_title" android:summary="@string/stretch_to_fill_summary"
-		android:persistent="false" android:defaultValue="true" android:enabled="false"/>
+		android:persistent="false" android:enabled="false"/>
 
 
 </PreferenceScreen>
