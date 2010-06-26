@@ -7,7 +7,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import android.app.IntentService;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
 import com.nolanlawson.apptracker.util.FlagUtil;
@@ -47,6 +50,18 @@ public class AppTrackerService extends IntentService {
 
 		dbHelper = new AppHistoryDbHelper(getApplicationContext());
 		
+		// update all widgets when the screen wakes up again - that's the case where
+		// the user unlocks their screen and sees the home screen, so we need
+		// instant updates
+		registerReceiver(new BroadcastReceiver() {
+			
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				log.d("Screen waking up; updating wigets");
+				WidgetUpdater.updateWidget(context, dbHelper);
+				
+			}
+		}, new IntentFilter(Intent.ACTION_SCREEN_ON));
 	}
 	
 	

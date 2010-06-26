@@ -21,6 +21,8 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 	public static String ACTION_UPDATE_PAGE_BACK = "com.nolanlawson.apptracker.action.PAGE_UPDATE_BACK";
 	public static final String URI_SCHEME = "app_tracker_widget";
 
+	
+	
 
 	@Override
 	public void onDeleted(Context context, int[] appWidgetIds) {
@@ -57,8 +59,6 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 		super.onReceive(context, intent);
 		log.d("onReceive(); intent is: %s",intent);
 		ServiceHelper.startBackgroundServiceIfNotAlreadyRunning(context);
-		
-
 		
 		// did the user click the button to update the widget?
 		if (ACTION_UPDATE_PAGE_FORWARD.equals(intent.getAction())
