@@ -83,39 +83,44 @@ public class AppTrackerService extends IntentService {
 
 				if (line.contains("Starting activity") 
 						&& line.contains("act=android.intent.action.MAIN")
-						&& !line.contains("(has extras)") // if it has extras, we can't call it (e.g. com.android.phone)
-					    && !line.contains("android.intent.category.HOME")) { // ignore Home apps
+						&& !line.contains("(has extras)")) { // if it has extras, we can't call it (e.g. com.android.phone)
 					log.d("log is %s", line);
-
-					Matcher flagMatcher = flagPattern.matcher(line);
 					
-					if (flagMatcher.find()) {
-						String flagsAsString = flagMatcher.group(1);
-						int flags = Integer.parseInt(flagsAsString, 16);
+					if (!line.contains("android.intent.category.HOME")) { // ignore home apps
+	
+						Matcher flagMatcher = flagPattern.matcher(line);
 						
-						log.d("flags are: 0x%s",flagsAsString);
-						
-						// intents have to be "new tasks" and they have to have been launched by the user 
-						// (not like e.g. the incoming call screen)
-						if (FlagUtil.hasFlag(flags, Intent.FLAG_ACTIVITY_NEW_TASK)
-								&& !FlagUtil.hasFlag(flags, Intent.FLAG_ACTIVITY_NO_USER_ACTION)) {
+						if (flagMatcher.find()) {
+							String flagsAsString = flagMatcher.group(1);
+							int flags = Integer.parseInt(flagsAsString, 16);
 							
-							Matcher launcherMatcher = launcherPattern.matcher(line);
-
-							if (launcherMatcher.find()) {
-								String packageName = launcherMatcher.group(1);
-								String process = launcherMatcher.group(2);
+							log.d("flags are: 0x%s",flagsAsString);
+							
+							// intents have to be "new tasks" and they have to have been launched by the user 
+							// (not like e.g. the incoming call screen)
+							if (FlagUtil.hasFlag(flags, Intent.FLAG_ACTIVITY_NEW_TASK)
+									&& !FlagUtil.hasFlag(flags, Intent.FLAG_ACTIVITY_NO_USER_ACTION)) {
 								
-								log.d("package name is: " + packageName);
-								log.d("process name is: " + process);
-								synchronized (AppHistoryDbHelper.class) {
-									dbHelper.incrementAndUpdate(packageName, process);
-								}
-								WidgetUpdater.updateWidget(this, dbHelper);
-							}				
+								Matcher launcherMatcher = launcherPattern.matcher(line);
+	
+								if (launcherMatcher.find()) {
+									String packageName = launcherMatcher.group(1);
+									String process = launcherMatcher.group(2);
+									
+									log.d("package name is: " + packageName);
+									log.d("process name is: " + process);
+									synchronized (AppHistoryDbHelper.class) {
+										dbHelper.incrementAndUpdate(packageName, process);
+									}
+								}				
+							}
+							
 						}
-						
 					}
+					// update the widget no matter what the activity is
+					// especially if it's the home activity, this is important to do
+					// so that the widgets stay up-to-date (e.g. with time estimates)
+					WidgetUpdater.updateWidget(this, dbHelper);
 				}
 			}
 
