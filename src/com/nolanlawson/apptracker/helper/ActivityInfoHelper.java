@@ -36,6 +36,9 @@ public class ActivityInfoHelper {
 			PackageManager packageManager, int pageNumber, int limit, SortType sortType,
 			boolean showExcludedApps) {
 		
+		log.d("getActivityInfos(), pageNumber: %d, limit: %d, sortType: %s, showExcludedApps: %s", 
+				pageNumber, limit, sortType, showExcludedApps);
+		
 		List<Pair<AppHistoryEntry,ActivityInfo>> activityInfos = new ArrayList<Pair<AppHistoryEntry,ActivityInfo>>();
 		
 		List<AppHistoryEntry> appHistories;
@@ -63,7 +66,7 @@ public class ActivityInfoHelper {
 			break;
 		}
 		
-		log.d("Received the following appHistories: %s", appHistories);
+		log.d("Received %d appHistories", appHistories.size());
 		
 		if (appHistories.isEmpty()) {
 			log.d("No app history entries yet; canceling update");

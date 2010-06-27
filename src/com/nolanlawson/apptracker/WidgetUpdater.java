@@ -9,7 +9,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -62,12 +61,11 @@ public class WidgetUpdater {
 	 * @param dbHelper
 	 */
 	public static void updateWidget(Context context, AppHistoryDbHelper dbHelper) {
-
-		log.d("updating widget for all app widget ids");
 		
 		ComponentName widget = new ComponentName(context, AppTrackerWidgetProvider.class);
 		AppWidgetManager manager = AppWidgetManager.getInstance(context);
 		int[] appWidgetIds = manager.getAppWidgetIds(widget);
+		log.d("updating widget for all app widget ids: %s", appWidgetIds);
 		for (int appWidgetId : appWidgetIds) {
 			RemoteViews updateViews = buildUpdate(context, dbHelper, appWidgetId);
 			if (updateViews == null) { // nothing to see yet
@@ -174,14 +172,13 @@ public class WidgetUpdater {
 	
 			updateViews.setViewVisibility(R.id.forward_button, noMoreAppResults ? View.INVISIBLE : View.VISIBLE);
 	
-			log.d("forward button page number: %d", pageNumber + 1);
+			log.d("page number is: %d", pageNumber);
 			updateViews.setOnClickPendingIntent(R.id.forward_button, 
 					getPendingIntentForForwardOrBackButton(context, true, pageNumber + 1, appWidgetId));
 			
 			// if no previous app results, disable back button
 			updateViews.setViewVisibility(R.id.back_button, pageNumber == 0 ? View.INVISIBLE : View.VISIBLE);
-			
-			log.d("back button page number: %d", pageNumber - 1);
+
 			updateViews.setOnClickPendingIntent(R.id.back_button, 
 					getPendingIntentForForwardOrBackButton(context, false, pageNumber - 1, appWidgetId));
 		}
