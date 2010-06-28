@@ -25,9 +25,6 @@ import com.nolanlawson.apptracker.util.UtilLogger;
  * 
  */
 public class AppTrackerService extends IntentService {
-
-	private AppHistoryDbHelper dbHelper;
-
 	
 	private static UtilLogger log = new UtilLogger(AppTrackerService.class);
 
@@ -47,9 +44,6 @@ public class AppTrackerService extends IntentService {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-
-		dbHelper = new AppHistoryDbHelper(getApplicationContext());
-		
 		// update all widgets when the screen wakes up again - that's the case where
 		// the user unlocks their screen and sees the home screen, so we need
 		// instant updates
@@ -57,8 +51,17 @@ public class AppTrackerService extends IntentService {
 			
 			@Override
 			public void onReceive(Context context, Intent intent) {
-				log.d("Screen waking up; updating wigets");
-				WidgetUpdater.updateWidget(context, dbHelper);
+				log.d("Screen waking up; updating widgets");
+				
+
+				AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(getApplicationContext());
+				try {
+					WidgetUpdater.updateWidget(context, dbHelper);
+				} finally {
+					dbHelper.close();
+				}
+				
+				
 				
 			}
 		}, new IntentFilter(Intent.ACTION_SCREEN_ON));
@@ -71,7 +74,6 @@ public class AppTrackerService extends IntentService {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		dbHelper.close();
 	}
 
 
@@ -101,41 +103,47 @@ public class AppTrackerService extends IntentService {
 						&& !line.contains("(has extras)")) { // if it has extras, we can't call it (e.g. com.android.phone)
 					log.d("log is %s", line);
 					
-					if (!line.contains("android.intent.category.HOME")) { // ignore home apps
-	
-						Matcher flagMatcher = flagPattern.matcher(line);
-						
-						if (flagMatcher.find()) {
-							String flagsAsString = flagMatcher.group(1);
-							int flags = Integer.parseInt(flagsAsString, 16);
+
+					AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(getApplicationContext());
+					try {					
+						if (!line.contains("android.intent.category.HOME")) { // ignore home apps
+		
+							Matcher flagMatcher = flagPattern.matcher(line);
 							
-							log.d("flags are: 0x%s",flagsAsString);
-							
-							// intents have to be "new tasks" and they have to have been launched by the user 
-							// (not like e.g. the incoming call screen)
-							if (FlagUtil.hasFlag(flags, Intent.FLAG_ACTIVITY_NEW_TASK)
-									&& !FlagUtil.hasFlag(flags, Intent.FLAG_ACTIVITY_NO_USER_ACTION)) {
+							if (flagMatcher.find()) {
+								String flagsAsString = flagMatcher.group(1);
+								int flags = Integer.parseInt(flagsAsString, 16);
 								
-								Matcher launcherMatcher = launcherPattern.matcher(line);
-	
-								if (launcherMatcher.find()) {
-									String packageName = launcherMatcher.group(1);
-									String process = launcherMatcher.group(2);
+								log.d("flags are: 0x%s",flagsAsString);
+								
+								// intents have to be "new tasks" and they have to have been launched by the user 
+								// (not like e.g. the incoming call screen)
+								if (FlagUtil.hasFlag(flags, Intent.FLAG_ACTIVITY_NEW_TASK)
+										&& !FlagUtil.hasFlag(flags, Intent.FLAG_ACTIVITY_NO_USER_ACTION)) {
 									
-									log.d("package name is: " + packageName);
-									log.d("process name is: " + process);
-									synchronized (AppHistoryDbHelper.class) {
-										dbHelper.incrementAndUpdate(packageName, process);
-									}
-								}				
+									Matcher launcherMatcher = launcherPattern.matcher(line);
+		
+									if (launcherMatcher.find()) {
+										String packageName = launcherMatcher.group(1);
+										String process = launcherMatcher.group(2);
+										
+										log.d("package name is: " + packageName);
+										log.d("process name is: " + process);
+										synchronized (AppHistoryDbHelper.class) {
+											dbHelper.incrementAndUpdate(packageName, process);
+										}
+									}				
+								}
+								
 							}
-							
 						}
+						// update the widget no matter what the activity is
+						// especially if it's the home activity, this is important to do
+						// so that the widgets stay up-to-date (e.g. with time estimates)
+						WidgetUpdater.updateWidget(this, dbHelper);
+					} finally {
+						dbHelper.close();
 					}
-					// update the widget no matter what the activity is
-					// especially if it's the home activity, this is important to do
-					// so that the widgets stay up-to-date (e.g. with time estimates)
-					WidgetUpdater.updateWidget(this, dbHelper);
 				}
 			}
 
