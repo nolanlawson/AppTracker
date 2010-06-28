@@ -80,7 +80,7 @@ public class AppTrackerService extends IntentService {
 
 	protected void onHandleIntent(Intent intent) {
 
-		log.d("Starting up LogReader now");
+		log.d("Starting up AppTrackerService now");
 
 		Process mLogcatProc = null;
 		BufferedReader reader = null;
