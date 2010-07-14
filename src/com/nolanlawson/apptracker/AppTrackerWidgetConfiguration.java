@@ -31,7 +31,7 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 	private Button okButton;
 	
 	private CheckBoxPreference lockPagePreference, hideSubtextPreference, hideAppTitlePreference, 
-			showBackgroundPreference, stretchToFillPreference;
+			stretchToFillPreference;
 	private ListPreference sortTypePreference, pageNumberPreference;
 	private TextView freeVersionTextView;
 	
@@ -129,9 +129,11 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 			freeVersionTextView.setVisibility(View.GONE);
 		} else {
 			freeVersionTextView.setVisibility(View.VISIBLE);
+			stretchToFillPreference.setChecked(true);
 			stretchToFillPreference.setEnabled(false);
 			hideAppTitlePreference.setEnabled(false);
 			hideSubtextPreference.setEnabled(false);
+			lockPagePreference.setChecked(true);
 			lockPagePreference.setEnabled(false);
 		}
 	}

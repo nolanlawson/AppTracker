@@ -47,6 +47,9 @@ public class PreferenceHelper {
 		editor.remove(getCurrentPagePreferenceName(context, appWidgetId));
 		editor.remove(getHideSubtextPreferenceName(context, appWidgetId));
 		editor.remove(getLockPagePreferenceName(context, appWidgetId));
+		editor.remove(getHideAppTitlePreferenceName(context, appWidgetId));
+		editor.remove(getStretchToFillPreferenceName(context, appWidgetId));
+		editor.remove(getSortTypePreferenceName(context, appWidgetId));
 		editor.commit();
 	}
 	
@@ -95,7 +98,7 @@ public class PreferenceHelper {
 	public static boolean getLockPagePreference(Context context, int appWidgetId) {
 		
 		if (!FreemiumHelper.isAppTrackerPremiumInstalled(context)) {
-			return false;
+			return true;
 		}
 		
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -129,7 +132,7 @@ public class PreferenceHelper {
 	public static boolean getStretchToFillPreference(Context context, int appWidgetId) {
 		
 		if (!FreemiumHelper.isAppTrackerPremiumInstalled(context)) {
-			return false;
+			return true;
 		}
 		
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -165,8 +168,14 @@ public class PreferenceHelper {
 		
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		
-		return prefs.getInt(context.getResources().getString(R.string.time_decay_constant_preference), 
+		int result =  prefs.getInt(context.getResources().getString(R.string.time_decay_constant_preference), 
 				DEFAULT_TIME_DECAY_CONSTANT);
+		
+		// can't return zero or we'll get a zero division error (i.e. infinity)
+		if (result > 0 && result <= 100) {
+			return result;
+		}
+		return DEFAULT_TIME_DECAY_CONSTANT;
 	}
 	
 	public static void setDecayConstantPreference(Context context, int decayConstant) {

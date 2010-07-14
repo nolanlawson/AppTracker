@@ -146,6 +146,8 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 				
 			}
 			db.setTransactionSuccessful();
+		} catch (Exception ex) {
+			log.e(ex, "Unexpected exception; unable to update all decay scores");
 		} finally {
 			db.endTransaction();
 		}
@@ -311,10 +313,14 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		
 		String whereClause = COLUMN_ID + "=" + appHistoryEntry.getId();
 		
-		//log.d("updating decay score for appHistoryEntry: %s", appHistoryEntry);
-		//log.d("where clause is: " + whereClause);
+		log.d("updating decay score for appHistoryEntryId: %d; oldScore is: %g, newScore is: %g", 
+				appHistoryEntry.getId(), lastScore, newDecayScore);
 		
-		db.update(TABLE_NAME, contentValues, whereClause, null);
+		if (newDecayScore < lastScore) {
+			db.update(TABLE_NAME, contentValues, whereClause, null);
+		} else {
+			log.d("old score is lower than new score; not updating");
+		}
 		
 	}
 
