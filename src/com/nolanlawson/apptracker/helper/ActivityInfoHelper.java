@@ -56,6 +56,13 @@ public class ActivityInfoHelper {
 					synchronized (AppHistoryDbHelper.class) {
 						// update the database to reflect that the app is uninstalled
 						dbHelper.setInstalled(appHistory.getId(), false);
+						
+						// in Android 1.5, we have to refresh or else we won't see the new, updated db info
+						/*if (android.os.Build.VERSION.SDK.equals("3")) {
+							dbHelper.close();
+							dbHelper = new AppHistoryDbHelper(context);
+						}*/
+						
 					}
 					activityInfos.clear();
 					// try to select from the database again, while skipping the uninstalled one

@@ -16,7 +16,12 @@ public class ServiceHelper {
 	
 	public static synchronized void startBackgroundServiceIfNotAlreadyRunning(
 			Context context) {
-		if (!ServiceHelper.checkIfAppTrackerServiceIsRunning(context)) {
+		
+		boolean alreadyRunning = ServiceHelper.checkIfAppTrackerServiceIsRunning(context);
+		
+		log.d("Is AppTrackerService already running: %s", alreadyRunning);
+		
+		if (!alreadyRunning) {
 
 			Intent intent = new Intent(context, AppTrackerService.class);
 			context.startService(intent);

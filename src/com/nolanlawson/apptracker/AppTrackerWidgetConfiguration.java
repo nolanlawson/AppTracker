@@ -172,7 +172,12 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 		
 		PreferenceHelper.setSortTypePreference(getApplicationContext(), sortType.toString(), appWidgetId);
 		
-		int pageNumber = Integer.parseInt(pageNumberPreference.getEntry().toString()) - 1;
+		log.d("pageNumberpref: " + pageNumberPreference);
+		log.d("pagenumberprefentry: " + pageNumberPreference.getEntry());
+		
+		CharSequence pageNumberEntry = pageNumberPreference.getEntry();
+		
+		int pageNumber = pageNumberEntry != null ? (Integer.parseInt(pageNumberEntry.toString()) - 1) : 0;
 		
 		PreferenceHelper.setCurrentPageNumber(getApplicationContext(), pageNumber, appWidgetId);
 		

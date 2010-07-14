@@ -29,9 +29,9 @@ public class AppTrackerService extends IntentService {
 	private static UtilLogger log = new UtilLogger(AppTrackerService.class);
 
 	private static Pattern launcherPattern = Pattern
-			.compile("\\bcmp=([^/]++)/(\\.?\\S++)\\s");
+			.compile("\\bco?mp=([^/]++)/(\\.?\\S++)\\s");
 	
-	private static Pattern flagPattern = Pattern.compile("\\bflg=0x(\\d+)\\b");
+	private static Pattern flagPattern = Pattern.compile("\\bfl(?:g|ags)=0x(\\d+)\\b");
 
 
 
@@ -44,6 +44,7 @@ public class AppTrackerService extends IntentService {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		log.d("onCreate()");
 		// update all widgets when the screen wakes up again - that's the case where
 		// the user unlocks their screen and sees the home screen, so we need
 		// instant updates
@@ -73,14 +74,15 @@ public class AppTrackerService extends IntentService {
 
 	@Override
 	public void onDestroy() {
+		log.d("onDestroy()");
 		super.onDestroy();
 	}
 
 
 
 	protected void onHandleIntent(Intent intent) {
-
-		log.d("Starting up AppTrackerService now");
+		
+		log.d("Starting up AppTrackerService now with intent: %s", intent);
 
 		Process logcatProcess = null;
 		BufferedReader reader = null;
@@ -97,9 +99,12 @@ public class AppTrackerService extends IntentService {
 			String line;
 
 			while ((line = reader.readLine()) != null) {
+				
+				line = "Starting activity: Intent { action=android.intent.action.MAIN categories={android.intent.category.LAUNCHER} flags=0x10200000 comp={com.nolanlawson.pokedex/com.nolanlawson.pokedex.PokedexActivity} }";
 
+				
 				if (line.contains("Starting activity") 
-						&& line.contains("act=android.intent.action.MAIN")
+						&& line.contains("=android.intent.action.MAIN")
 						&& !line.contains("(has extras)")) { // if it has extras, we can't call it (e.g. com.android.phone)
 					log.d("log is %s", line);
 					
