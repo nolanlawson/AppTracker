@@ -41,11 +41,16 @@ public class UpdateAppStatsService extends IntentService {
 	protected void onHandleIntent(Intent intent) {
 		
 		AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(getApplicationContext());
-		synchronized (AppHistoryDbHelper.class) {
-			dbHelper.updateAllDecayScores();
-		}
 		
-		WidgetUpdater.updateWidget(getApplicationContext(), dbHelper);
-		dbHelper.close();
+		try {
+			synchronized (AppHistoryDbHelper.class) {
+				dbHelper.updateAllDecayScores();
+			}
+			
+			WidgetUpdater.updateWidget(getApplicationContext(), dbHelper);
+		} finally {
+			dbHelper.close();
+		}
+			
 	}
 }

@@ -81,7 +81,7 @@ public class LoadedAppHistoryEntry {
 			@Override
 			public int compare(LoadedAppHistoryEntry object1,
 					LoadedAppHistoryEntry object2) {
-				return object1.getTitle().toString().compareTo(object2.getTitle().toString());
+				return object1.getTitle().toString().toLowerCase().compareTo(object2.getTitle().toString().toLowerCase());
 			}
 		};
 	}

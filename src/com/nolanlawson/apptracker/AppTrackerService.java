@@ -82,16 +82,16 @@ public class AppTrackerService extends IntentService {
 
 		log.d("Starting up AppTrackerService now");
 
-		Process mLogcatProc = null;
+		Process logcatProcess = null;
 		BufferedReader reader = null;
 		
 		try {
 			// logcat -d AndroidRuntime:E ActivityManager:V *:S
-			mLogcatProc = Runtime.getRuntime().exec(
+			logcatProcess = Runtime.getRuntime().exec(
 					new String[] { "logcat",
 							"AndroidRuntime:E ActivityManager:V *:S" });
 
-			reader = new BufferedReader(new InputStreamReader(mLogcatProc
+			reader = new BufferedReader(new InputStreamReader(logcatProcess
 					.getInputStream()));
 
 			String line;
@@ -143,6 +143,7 @@ public class AppTrackerService extends IntentService {
 						WidgetUpdater.updateWidget(this, dbHelper);
 					} finally {
 						dbHelper.close();
+						dbHelper = null;
 					}
 				}
 			}

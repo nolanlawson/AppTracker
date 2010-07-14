@@ -92,7 +92,7 @@
 				android:layout_width="fill_parent" android:layout_height="wrap_content"
 				android:id="@+id/app_item_2" android:clickable="true"
 				android:focusable="true" android:drawSelectorOnTop="false"
-				android:background="@drawable/app_selector" android:visibility="visible"
+				android:background="@drawable/app_selector" android:visibility="invisible"
 				android:gravity="center_vertical|center_horizontal">
 
 				<ImageView android:layout_width="wrap_content"
@@ -122,7 +122,7 @@
 				android:layout_width="fill_parent" android:layout_height="wrap_content"
 				android:id="@+id/app_item_3" android:clickable="true"
 				android:focusable="true" android:drawSelectorOnTop="false"
-				android:background="@drawable/app_selector" android:visibility="visible"
+				android:background="@drawable/app_selector" android:visibility="invisible"
 				android:gravity="center_vertical|center_horizontal">
 
 				<ImageView android:layout_width="wrap_content"
@@ -153,7 +153,7 @@
 				android:layout_width="fill_parent" android:layout_height="wrap_content"
 				android:id="@+id/app_item_4" android:clickable="true"
 				android:focusable="true" android:drawSelectorOnTop="false"
-				android:background="@drawable/app_selector" android:visibility="visible"
+				android:background="@drawable/app_selector" android:visibility="invisible"
 				android:gravity="center_vertical|center_horizontal">
 
 				<ImageView android:layout_width="wrap_content"
