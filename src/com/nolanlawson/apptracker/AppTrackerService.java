@@ -29,7 +29,7 @@ public class AppTrackerService extends IntentService {
 	private static UtilLogger log = new UtilLogger(AppTrackerService.class);
 
 	private static Pattern launcherPattern = Pattern
-			.compile("\\bco?mp=([^/]++)/(\\.?\\S++)\\s");
+			.compile("\\bco?mp=\\{?([^/]++)/([^ \t}]+)");
 	
 	private static Pattern flagPattern = Pattern.compile("\\bfl(?:g|ags)=0x(\\d+)\\b");
 

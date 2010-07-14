@@ -113,13 +113,12 @@ public class AppHistoryEntry {
 		if (process.startsWith(".")) {
 			// beginning period is the most common case - this means that the process's path is
 			// simply appended to the package name
-
 			fullProcessName = packageName + process;
-			
 		} else {
 			// strange case where the full path is specified (e.g. the Maps app)
 			fullProcessName = process;
 		}
+		
 		return new ComponentName(packageName, fullProcessName);
 	}
 	

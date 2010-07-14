@@ -1,12 +1,14 @@
 package com.nolanlawson.apptracker.helper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 
@@ -90,7 +92,16 @@ public class ActivityInfoHelper {
 			AppHistoryEntry appHistoryEntry) {
 		ActivityInfo activityInfo = null;
 		ComponentName componentName = appHistoryEntry.toComponentName();
+		
 		try {
+			/*PackageInfo packInfo = packageManager.getPackageInfo(componentName.getPackageName(), 0);
+			
+			log.d("packInfo: " + packInfo);
+			
+			ActivityInfo[] activityInfos = packInfo.activities;
+			
+			log.d("activityInfos: " + Arrays.toString(activityInfos));*/
+			
 			activityInfo = packageManager.getActivityInfo(componentName, 0);
 		} catch (NameNotFoundException e) {
 			log.e(e, "package no longer installed: %s and %s", appHistoryEntry, componentName);
