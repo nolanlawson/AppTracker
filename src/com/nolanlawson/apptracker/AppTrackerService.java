@@ -99,10 +99,7 @@ public class AppTrackerService extends IntentService {
 			String line;
 
 			while ((line = reader.readLine()) != null) {
-				
-				line = "Starting activity: Intent { action=android.intent.action.MAIN categories={android.intent.category.LAUNCHER} flags=0x10200000 comp={com.nolanlawson.pokedex/com.nolanlawson.pokedex.PokedexActivity} }";
-
-				
+								
 				if (line.contains("Starting activity") 
 						&& line.contains("=android.intent.action.MAIN")
 						&& !line.contains("(has extras)")) { // if it has extras, we can't call it (e.g. com.android.phone)

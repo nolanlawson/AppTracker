@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import android.content.ComponentName;
 import android.content.Context;
-import android.content.pm.ActivityInfo;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -89,10 +89,11 @@ public class ActivityInfoHelper {
 			PackageManager packageManager, 
 			AppHistoryEntry appHistoryEntry) {
 		ActivityInfo activityInfo = null;
+		ComponentName componentName = appHistoryEntry.toComponentName();
 		try {
-			activityInfo = packageManager.getActivityInfo(appHistoryEntry.toComponentName(), 0);
+			activityInfo = packageManager.getActivityInfo(componentName, 0);
 		} catch (NameNotFoundException e) {
-			log.e(e, "package no longer installed: %s", appHistoryEntry);
+			log.e(e, "package no longer installed: %s and %s", appHistoryEntry, componentName);
 		}
 		
 		return activityInfo;
