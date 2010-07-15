@@ -149,34 +149,6 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	}
 
 	/**
-	 * Go through each decay score and reduce them by a small amount given the current time
-	 * and the last time we updated
-	 */
-	public void updateAllDecayScores() {
-		
-		List<AppHistoryEntry> appHistoryEntries = findAllAppHistoryEntries();
-		
-		log.d("Updating all decay scores for %d entries", appHistoryEntries.size());
-		
-		long currentTime = System.currentTimeMillis();
-		
-		SQLiteDatabase db = getWritableDatabase();
-		db.beginTransaction();
-		try {
-			for (AppHistoryEntry appHistoryEntry : appHistoryEntries) {
-				updateDecayScore(db, appHistoryEntry, currentTime);
-				
-			}
-			db.setTransactionSuccessful();
-		} catch (Exception ex) {
-			log.e(ex, "Unexpected exception; unable to update all decay scores");
-		} finally {
-			db.endTransaction();
-		}
-
-	}
-
-	/**
 	 * Increment the count of the specified package and process
 	 * and update its timestamp to be the most recent, or insert if it
 	 * doesn't exist
@@ -277,7 +249,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		return stringBuilder.toString();
 	}
 	
-	private List<AppHistoryEntry> findAllAppHistoryEntries() {
+	public List<AppHistoryEntry> findAllAppHistoryEntries() {
 		
 		Cursor cursor = getWritableDatabase().query(TABLE_NAME, COLUMNS, null, null, null, null, null);
 		
@@ -319,7 +291,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		return result;
 	}
 
-	private void updateDecayScore(SQLiteDatabase db, AppHistoryEntry appHistoryEntry, long currentTime) {
+	public void updateDecayScore(AppHistoryEntry appHistoryEntry, long currentTime) {
 		// existing entry; update decay score
 		long lastUpdate = appHistoryEntry.getLastUpdate();
 		double lastScore = appHistoryEntry.getDecayScore();
@@ -339,7 +311,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 				appHistoryEntry.getId(), lastScore, newDecayScore);
 		
 		if (newDecayScore < lastScore) {
-			db.update(TABLE_NAME, contentValues, whereClause, null);
+			getWritableDatabase().update(TABLE_NAME, contentValues, whereClause, null);
 		} else {
 			log.d("old score is lower than new score; not updating");
 		}
