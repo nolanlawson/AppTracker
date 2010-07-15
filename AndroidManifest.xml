@@ -50,7 +50,12 @@
 				<action android:name="com.nolanlawson.apptracker.action.PAGE_UPDATE_BACK" />
 				<data android:scheme="app_tracker_widget" />
 			</intent-filter>
-
+			
+			<intent-filter>
+				<action android:name="com.nolanlawson.apptracker.action.RESTART_SERVICE" />
+				<data android:scheme="app_tracker_widget" />
+			</intent-filter>
+			
 			<meta-data android:name="android.appwidget.provider"
 				android:resource="@xml/tracker_widget_info" />
 		</receiver>

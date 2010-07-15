@@ -3,14 +3,20 @@ package com.nolanlawson.apptracker;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Date;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.app.AlarmManager;
 import android.app.IntentService;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
 import com.nolanlawson.apptracker.util.FlagUtil;
@@ -33,39 +39,42 @@ public class AppTrackerService extends IntentService {
 	
 	private static Pattern flagPattern = Pattern.compile("\\bfl(?:g|ags)=0x(\\d+)\\b");
 
+	private BroadcastReceiver receiver = new BroadcastReceiver() {
+		
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			log.d("Screen waking up; updating widgets");
+			
+
+			AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(getApplicationContext());
+			try {
+				WidgetUpdater.updateWidget(context, dbHelper);
+			} finally {
+				dbHelper.close();
+			}
+			
+		}
+	};
 
 
 	public AppTrackerService() {
 		super("AppTrackerService");
 	}
 	
-	
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		log.d("onCreate()");
+		
+		// this does nothing in Eclair and up, but for 1.5 and 1.6 it will ensure
+		// that the service does not get killed as most background services are killed
+		this.setForeground(true);
+		
 		// update all widgets when the screen wakes up again - that's the case where
 		// the user unlocks their screen and sees the home screen, so we need
 		// instant updates
-		registerReceiver(new BroadcastReceiver() {
-			
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				log.d("Screen waking up; updating widgets");
-				
-
-				AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(getApplicationContext());
-				try {
-					WidgetUpdater.updateWidget(context, dbHelper);
-				} finally {
-					dbHelper.close();
-				}
-				
-				
-				
-			}
-		}, new IntentFilter(Intent.ACTION_SCREEN_ON));
+		registerReceiver(receiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
 	}
 	
 	
@@ -76,7 +85,10 @@ public class AppTrackerService extends IntentService {
 	public void onDestroy() {
 		log.d("onDestroy()");
 		super.onDestroy();
+		unregisterReceiver(receiver);
+		restartAppTrackerService();
 	}
+
 
 
 
@@ -97,7 +109,7 @@ public class AppTrackerService extends IntentService {
 					.getInputStream()));
 
 			String line;
-
+			
 			while ((line = reader.readLine()) != null) {
 								
 				if (line.contains("Starting activity") 
@@ -134,15 +146,17 @@ public class AppTrackerService extends IntentService {
 										synchronized (AppHistoryDbHelper.class) {
 											dbHelper.incrementAndUpdate(packageName, process);
 										}
+										WidgetUpdater.updateWidget(this, dbHelper);
 									}				
 								}
 								
 							}
+						} else { // home activity
+							// update the widget if it's the home activity, 
+							// so that the widgets stay up-to-date when the home screen is invoked
+							WidgetUpdater.updateWidget(this, dbHelper);							
 						}
-						// update the widget no matter what the activity is
-						// especially if it's the home activity, this is important to do
-						// so that the widgets stay up-to-date (e.g. with time estimates)
-						WidgetUpdater.updateWidget(this, dbHelper);
+
 					} finally {
 						dbHelper.close();
 						dbHelper = null;
@@ -170,4 +184,29 @@ public class AppTrackerService extends IntentService {
 		}
 	}
 
+
+	private void restartAppTrackerService() {
+				
+		log.d("Attempting to restart appTrackerService because it was killed.");
+		
+        Intent restartServiceIntent = new Intent();
+        restartServiceIntent.setAction(AppTrackerWidgetProvider.ACTION_RESTART_SERVICE);
+        
+        // have to make this unique for God knows what reason
+        restartServiceIntent.setData(Uri.withAppendedPath(Uri.parse(AppTrackerWidgetProvider.URI_SCHEME + "://widget/restart/"), 
+        		Long.toHexString(new Random().nextLong())));
+        
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this,
+                    0 /* no requestCode */, restartServiceIntent, PendingIntent.FLAG_ONE_SHOT);
+        
+        AlarmManager alarms = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        
+        long timeToExecute = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(60); // start 60 seconds from now
+        
+        alarms.set(AlarmManager.RTC, timeToExecute, pendingIntent);
+        
+        log.d("AppTrackerService will restart at %s", new Date(timeToExecute));
+        
+	}
+	
 }

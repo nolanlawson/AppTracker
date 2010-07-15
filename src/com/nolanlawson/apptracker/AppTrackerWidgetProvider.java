@@ -19,6 +19,7 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 
 	public static String ACTION_UPDATE_PAGE_FORWARD = "com.nolanlawson.apptracker.action.PAGE_UPDATE_FORWARD";
 	public static String ACTION_UPDATE_PAGE_BACK = "com.nolanlawson.apptracker.action.PAGE_UPDATE_BACK";
+	public static String ACTION_RESTART_SERVICE = "com.nolanlawson.apptracker.action.RESTART_SERVICE";
 	public static final String URI_SCHEME = "app_tracker_widget";
 
 	
@@ -74,6 +75,8 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 			
 			updateWidget(context, appWidgetId);
 			
+		} else if (ACTION_RESTART_SERVICE.equals(intent.getAction())) {
+			log.d("Simply restarted the service, because it was killed");
 		}
 		
 		
