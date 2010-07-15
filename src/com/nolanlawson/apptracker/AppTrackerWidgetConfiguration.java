@@ -87,7 +87,10 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 		
 		sortTypePreference = (ListPreference) findPreference(R.string.sort_type_preference);
 		
-		int numAppHistories = dbHelper.findCountOfInstalledAppHistoryEntries();
+		int numAppHistories;
+		synchronized (AppHistoryDbHelper.class) {
+			numAppHistories = dbHelper.findCountOfInstalledAppHistoryEntries();
+		}
 		
 		log.d("num app histories: %d", numAppHistories);
 		
