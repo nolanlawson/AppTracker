@@ -39,6 +39,8 @@ public class AppTrackerService extends IntentService {
 	
 	private static Pattern flagPattern = Pattern.compile("\\bfl(?:g|ags)=0x(\\d+)\\b");
 
+	private boolean kill = false;
+	
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
 		
 		@Override
@@ -87,6 +89,7 @@ public class AppTrackerService extends IntentService {
 		super.onDestroy();
 		unregisterReceiver(receiver);
 		restartAppTrackerService();
+		kill = true;
 	}
 
 
@@ -112,6 +115,10 @@ public class AppTrackerService extends IntentService {
 			
 			while ((line = reader.readLine()) != null) {
 								
+				if (kill) {
+					log.d("manually killed AppTrackerService");
+					break;
+				}
 				if (line.contains("Starting activity") 
 						&& line.contains("=android.intent.action.MAIN")
 						&& !line.contains("(has extras)")) { // if it has extras, we can't call it (e.g. com.android.phone)
