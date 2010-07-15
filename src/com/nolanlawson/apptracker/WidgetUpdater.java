@@ -167,9 +167,11 @@ public class WidgetUpdater {
 		} else {
 		
 			// if no more app results, disable forward button
-			// TODO: optimize this
-			boolean noMoreAppResults = dbHelper.findInstalledAppHistoryEntries(sortType, APPS_PER_PAGE, (pageNumber + 1) * APPS_PER_PAGE, false).isEmpty();
-	
+			
+			boolean noMoreAppResults;
+			synchronized (AppHistoryDbHelper.class) {
+				noMoreAppResults = dbHelper.findCountOfInstalledAppHistoryEntries(sortType, APPS_PER_PAGE, (pageNumber + 1) * APPS_PER_PAGE, false) == 0;
+			}
 			updateViews.setViewVisibility(R.id.forward_button, noMoreAppResults ? View.INVISIBLE : View.VISIBLE);
 	
 			log.d("page number is: %d", pageNumber);

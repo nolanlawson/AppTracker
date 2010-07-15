@@ -46,9 +46,11 @@ public class ActivityInfoHelper {
 		List<AppHistoryEntry> appHistories;
 		
 		mainloop: while (true) {
-		
-			appHistories = dbHelper.findInstalledAppHistoryEntries(sortType, limit, 
-					pageNumber * limit, showExcludedApps);
+			
+			synchronized (AppHistoryDbHelper.class) {
+				appHistories = dbHelper.findInstalledAppHistoryEntries(sortType, limit, 
+						pageNumber * limit, showExcludedApps);
+			}
 			
 			for (AppHistoryEntry appHistory : appHistories) {
 				
@@ -59,11 +61,6 @@ public class ActivityInfoHelper {
 						// update the database to reflect that the app is uninstalled
 						dbHelper.setInstalled(appHistory.getId(), false);
 						
-						// in Android 1.5, we have to refresh or else we won't see the new, updated db info
-						/*if (android.os.Build.VERSION.SDK.equals("3")) {
-							dbHelper.close();
-							dbHelper = new AppHistoryDbHelper(context);
-						}*/
 						
 					}
 					activityInfos.clear();

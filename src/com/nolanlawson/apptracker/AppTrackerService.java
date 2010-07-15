@@ -69,10 +69,6 @@ public class AppTrackerService extends IntentService {
 		super.onCreate();
 		log.d("onCreate()");
 		
-		// this does nothing in Eclair and up, but for 1.5 and 1.6 it will ensure
-		// that the service does not get killed as most background services are killed
-		//this.setForeground(true);
-		
 		// update all widgets when the screen wakes up again - that's the case where
 		// the user unlocks their screen and sees the home screen, so we need
 		// instant updates

@@ -125,6 +125,28 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		return result;
 		
 	}
+	
+	public int findCountOfInstalledAppHistoryEntries(SortType sortType, int limit, int offset,
+			boolean showExcludedApps) {
+		
+		String orderByClause = createOrderByClause(sortType);
+		String whereClause = createObligatoryWhereClause(showExcludedApps);
+		
+		String sql = "select " + COLUMN_ID
+				+ " from " + TABLE_NAME
+				+ " where " + whereClause
+				+ orderByClause
+				+ " limit " + limit + " offset " + offset;
+		
+		Cursor cursor = getWritableDatabase().rawQuery(sql, null);
+		
+		int result = cursor.getCount();
+		
+		cursor.close();
+		
+		return result;
+		
+	}
 
 	/**
 	 * Go through each decay score and reduce them by a small amount given the current time
