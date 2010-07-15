@@ -60,8 +60,6 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
         super.onCreate(savedInstanceState);
         log.d("onCreate()");
         
-        ServiceHelper.startBackgroundServiceIfNotAlreadyRunning(getApplicationContext());
-
         Intent intent = getIntent();
     	
         if (intent != null && intent.getAction().equals(ACTION_EXCLUDE_APPS)) {
@@ -86,6 +84,8 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
     	super.onResume();
     	log.d("onResume()");
     	
+    	ServiceHelper.startBackgroundServiceIfNotAlreadyRunning(getApplicationContext());
+    	
 		setUpList();
 		
 		setAppropriateButtonAsPressed();
@@ -93,7 +93,7 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
 		if (excludeAppsMode) {
 			// we're in "exclude apps" mode, so set this up appropriately
 			setUpAsExcludeAppsMode();
-		}  	
+		}
 
     }
 
