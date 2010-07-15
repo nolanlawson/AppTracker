@@ -1,5 +1,5 @@
-Who needs home screen icons? This widget automatically updates a list of your favorite apps, with three sortings to choose from: Recent, Most Used, and Time Decay.
+Who needs home screen icons? This widget displays your 4 most recent or most used apps, right on your home screen! No more need to fumble around when you accidentally close an app.
 
-"Recent" is your full app history. "Most Used" is your top apps. "Time Decay" is a balance of the two.
+Also includes a standalone app that lets you see your complete app usage history.
 
-Buy the premium version to access grayed-out options!
+Note: App Tracker starts tracking when you first invoke it.

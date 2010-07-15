@@ -1,5 +1,5 @@
-App Tracker is a widget that automatically tracks your recent and most used apps.
+App Tracker is a productivity widget that gives you a window to your app usage history.
 
-Page through your recent app history, or fill up a 4x4 screen with your top apps! Lots of combinations in the premium version.
+With the premium version, you can page beyond the first 4 apps, or even fill up a 4x4 screen with your top 16! Lots of combinations.
 
-The premium version is simply a license for App Tracker Free.  You'll still need the free version installed.
+Note: this is simply a license for App Tracker Free. You'll still need the free version installed.
