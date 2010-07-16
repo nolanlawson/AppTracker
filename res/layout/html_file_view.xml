@@ -1,27 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	android:orientation="vertical" android:gravity="center_horizontal"
+	android:padding="10dp">
 
-	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
-	android:layout_width="fill_parent"
-		android:layout_height="fill_parent" android:orientation="vertical"
-		android:gravity="center_horizontal"
-		android:padding="10dp">
-
-		<ProgressBar android:id="@+id/aboutProgressBar"
-		        android:layout_width="wrap_content" 
-		        android:layout_height="wrap_content"   
-		        android:indeterminate="true"
-		        />
-		
-		<WebView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:id="@+id/aboutTextWebView"
-			android:layout_weight="1.0" />
-			
+	<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="fill_parent" android:layout_height="0px" android:layout_weight="1.0">
 		<LinearLayout android:layout_width="fill_parent"
-			android:layout_height="wrap_content" android:orientation="horizontal"
-			android:gravity="center_horizontal" android:paddingTop="10dp">
-			<Button android:text="@android:string/ok" android:id="@+id/okButton"
-				android:layout_width="wrap_content" android:layout_height="wrap_content"
-				android:minWidth="75dp" />
-		</LinearLayout>
-	</LinearLayout>
+			android:layout_height="fill_parent" android:orientation="vertical"
+			android:gravity="center_horizontal">
 
+			<ProgressBar android:id="@+id/aboutProgressBar"
+				android:layout_width="wrap_content" android:layout_height="wrap_content"
+				android:indeterminate="true" />
+			<ImageView android:id="@+id/holmes_icon_image" android:src="@drawable/holmes_icon_hdpi"
+				android:layout_width="wrap_content" android:layout_height="wrap_content"
+				android:paddingBottom="10dp" />
+			<WebView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:id="@+id/aboutTextWebView"
+				android:layout_weight="1.0" />
+
+
+		</LinearLayout>
+
+	</ScrollView>
+	
+	<LinearLayout android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:orientation="horizontal"
+		android:gravity="center_horizontal" android:paddingTop="10dp">
+		<Button android:text="@android:string/ok" android:id="@+id/okButton"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:minWidth="75dp" />
+	</LinearLayout>
+</LinearLayout>

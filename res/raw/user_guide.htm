@@ -14,7 +14,7 @@ most commonly used or recently used apps.
 <p/>App Tracker Free is a fully-functional app and widget.  
 The premium version simply expands upon the free version by offering additional customization.  
 
-<p/>For instance, the premium version allows you to use the "&lt;" and "&gt;" buttons to page between results, 
+<p/>For instance, the premium version gives you navigational "&lt;" and "&gt;" buttons to page between results, 
 so you can see more than just 4 apps.  This means that you could even fill up a 4x4 
 homescreen with 4 App Trackers, allowing you to see your 16 top apps! 
 
@@ -36,12 +36,12 @@ hit Menu, Settings, and then Apps to Exclude.
 Recent and Most Used are pretty intuitive, but Time Decay merits some explanation.    
 
 <p/>Time Decay can be thought of as a balance between Recent and Most Used.  Basically, an app's score is initially based 
-on its number of hits, but its score starts to "decay" the longer you don't use it.  As such, Time Decay can be pretty 
-convenient for tracking which apps are your current favorites.
+on its number of hits, but its score starts to "decay" the longer you don't use it. You can think of it as a kind of 
+"Billboard Top 100" view.
 
 <p/>Using the Time Decay Constant setting, you can dial up or down how fast app scores decay. 
 Lower values mean they decay more quickly. 
-If you're curious about how it works, here is the update function that gets applied periodically throughout the day: 
+If you're curious about how it works, here is the update function that gets periodically applied to the scores: 
 
 <p/><font face="Courier New">update(s) = 
 </br>&nbsp;&nbsp;&nbsp;&nbsp;s*<i>e</i><sup>(t'-t)/(-c*86400000)</sup></font>
@@ -52,7 +52,8 @@ If you're curious about how it works, here is the update function that gets appl
 <font face="Courier New">c</font> is the decay constant, and 86400000 is the number of milliseconds in a day.  
 
 <p/>The default decay constant is 7, meaning that an app that was accessed 7 
-days ago will have its score decay to about 1/<i>e</i> (~0.3679).  So you can think of the default view as a "week" view.
+days ago will have its score decay to about 1/<i>e</i> (~0.3679).  So the 
+default view is a sort of "flavor of the week" view.
 
 <p align=center><b>FAQs</b></p>
 

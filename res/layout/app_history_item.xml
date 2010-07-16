@@ -4,7 +4,7 @@
 
 	<ImageView android:id="@+id/app_history_list_icon"
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:src="@drawable/android_plus_target" />
+		android:src="@drawable/holmes_icon" />
 
 	<LinearLayout android:layout_width="0px" android:layout_weight="1.0"
 		android:layout_height="wrap_content" android:orientation="vertical">

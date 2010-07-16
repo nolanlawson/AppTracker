@@ -11,7 +11,7 @@
 
 	<ImageView android:id="@+id/app_history_list_icon"
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:src="@drawable/android_plus_target" android:visibility="invisible"/>
+		android:src="@drawable/holmes_icon" android:visibility="invisible"/>
 
 	<LinearLayout android:layout_width="wrap_content"
 		android:layout_height="fill_parent" android:orientation="vertical"

@@ -22,6 +22,7 @@
 				android:clickable="true" android:focusable="true"
 				android:drawSelectorOnTop="false" android:background="@drawable/app_selector"
 				android:id="@+id/back_button" android:paddingTop="5dp"
+				android:visibility="invisible"
 				android:paddingBottom="5dp">
 
 				<TextView android:layout_width="wrap_content"
@@ -40,6 +41,7 @@
 				android:clickable="true" android:focusable="true"
 				android:drawSelectorOnTop="false" android:background="@drawable/app_selector"
 				android:id="@+id/forward_button" android:paddingTop="5dp"
+				android:visibility="invisible"
 				android:paddingBottom="5dp">
 				<TextView android:layout_width="wrap_content"
 					android:layout_height="wrap_content" android:paddingLeft="10dp"
@@ -64,7 +66,7 @@
 				android:gravity="center_vertical|center_horizontal">
 
 				<ImageView android:layout_width="wrap_content"
-					android:layout_height="wrap_content" android:src="@drawable/android_plus_target"
+					android:layout_height="wrap_content" android:src="@drawable/holmes_icon"
 					android:id="@+id/app_icon_1" />
 
 				<TextView android:layout_width="wrap_content"

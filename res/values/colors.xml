@@ -1,3 +1,4 @@
 <resources>
 	<color name="bubble_dark_background">#B2191919</color>
+	<color name="dark_gray">#FF333333</color>
 </resources>

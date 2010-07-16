@@ -45,6 +45,7 @@
     <string name="user_guide">User Guide</string>
     <string name="refresh">Refresh</string>
     <string name="about">About</string>
+    <string name="about_app_tracker">About App Tracker</string>
     <string name="loading">Loading...</string>
     <string name="bad_decay_constant_toast">Please enter a whole number between 1 and 100</string>
     <string name="app_exclude_text">Exclude?</string>
@@ -52,7 +53,8 @@
     <string name="delete_all1">Delete all tracked data?</string>
     <string name="delete_all2">Are you really sure?  This cannot be undone!</string>
     <string name="data_deleted">Data deleted.</string>
-    <string name="free_version_text">Note: you need the Premium version to access grayed-out options.</string>
+    <string name="free_version_text">Note: buy the premium version to unlock grayed-out options.</string>
     <string name="need_premium">You need the Premium version to do that.</string>
+    <string name="app_tracker_config">App Tracker Configuration</string>
     
 </resources>

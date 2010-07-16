@@ -5,21 +5,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import com.nolanlawson.apptracker.helper.FreemiumHelper;
-import com.nolanlawson.apptracker.util.UtilLogger;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
+
+import com.nolanlawson.apptracker.helper.FreemiumHelper;
+import com.nolanlawson.apptracker.util.UtilLogger;
 
 public class HtmlFileActivity extends Activity implements OnClickListener {
 	
@@ -31,6 +31,7 @@ public class HtmlFileActivity extends Activity implements OnClickListener {
 	private Button okButton;
 	private WebView aboutWebView;
 	private ProgressBar progressBar;
+	private ImageView iconImageView;
 	private Handler handler = new Handler();
 	
 	private boolean aboutActivity = false;
@@ -45,12 +46,17 @@ public class HtmlFileActivity extends Activity implements OnClickListener {
 		
 		if (ACTION_ABOUT.equals(intent.getAction())) {
 			aboutActivity = true;
-			setTitle(R.string.about);
+			setTitle(R.string.about_app_tracker);
 		} else {
 			setTitle(R.string.user_guide);
 		}
 		
 		setContentView(R.layout.html_file_view);
+		
+
+		iconImageView = (ImageView) findViewById(R.id.holmes_icon_image);
+		
+		
 		
 		okButton = (Button) findViewById(R.id.okButton);
 		okButton.setOnClickListener(this);
@@ -58,6 +64,7 @@ public class HtmlFileActivity extends Activity implements OnClickListener {
 		aboutWebView = (WebView) findViewById(R.id.aboutTextWebView);
 
 		aboutWebView.setVisibility(View.GONE);
+		iconImageView.setVisibility(View.GONE);
 		
 		progressBar = (ProgressBar) findViewById(R.id.aboutProgressBar);
 
@@ -81,6 +88,7 @@ public class HtmlFileActivity extends Activity implements OnClickListener {
 				htmlData = loadTextFile(R.raw.about_body);
 			}
 		
+			
 		} else { // user guide 
 			
 			htmlData = loadTextFile(R.raw.user_guide);
@@ -156,6 +164,8 @@ public class HtmlFileActivity extends Activity implements OnClickListener {
 				public void run() {
 					progressBar.setVisibility(View.GONE);
 					aboutWebView.setVisibility(View.VISIBLE);
+					iconImageView.setVisibility(aboutActivity ? View.VISIBLE : View.GONE);
+					
 					
 				}});
 			super.onPageFinished(view, url);

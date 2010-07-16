@@ -33,7 +33,7 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 	private CheckBoxPreference lockPagePreference, hideSubtextPreference, hideAppTitlePreference, 
 			stretchToFillPreference;
 	private ListPreference sortTypePreference, pageNumberPreference;
-	private TextView freeVersionTextView;
+	private View freeVersionTextView;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -125,7 +125,7 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 		
 		stretchToFillPreference = (CheckBoxPreference) findPreference(R.string.stretch_to_fill_preference);
 		
-		freeVersionTextView = (TextView) findViewById(R.id.free_version_text_view);
+		freeVersionTextView = findViewById(R.id.free_version_notification_view);
 		
 		// most options are disabled in the free version
 		if (FreemiumHelper.isAppTrackerPremiumInstalled(getApplicationContext())) {
