@@ -262,10 +262,6 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	}
 	private String createOrderByClause(SortType sortType) {
 		
-		if (sortType == null) {
-			return " "; // no sorting
-		}
-		
 		StringBuilder stringBuilder = new StringBuilder(" order by ");
 
 		switch (sortType) {

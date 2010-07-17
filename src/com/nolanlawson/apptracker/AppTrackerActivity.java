@@ -288,7 +288,7 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
 					PackageManager packageManager = getPackageManager();
 					
 					List<Pair<AppHistoryEntry, ActivityInfo>> pairs = 
-						ActivityInfoHelper.getActivityInfos(context, dbHelper, packageManager,0, Integer.MAX_VALUE, null, excludeAppsMode);
+						ActivityInfoHelper.getActivityInfos(context, dbHelper, packageManager,0, Integer.MAX_VALUE, SortType.Recent, excludeAppsMode);
 					
 					List<LoadedAppHistoryEntry> entryList = new ArrayList<LoadedAppHistoryEntry>();
 					
