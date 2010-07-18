@@ -84,22 +84,24 @@ public class AppTrackerService extends IntentService {
 	public void onCreate() {
 		super.onCreate();
 		log.d("onCreate()");
-		
-		// update all widgets when the screen wakes up again - that's the case where
+
+		// update all widgets when the screen wakes up again - that's the case
+		// where
 		// the user unlocks their screen and sees the home screen, so we need
 		// instant updates
 		registerReceiver(receiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
-		
-       mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-        try {
-            mStartForeground = getClass().getMethod("startForeground",
-                    mStartForegroundSignature);
-            mStopForeground = getClass().getMethod("stopForeground",
-                    mStopForegroundSignature);
-        } catch (NoSuchMethodException e) {
-            // Running on an older platform.
-            mStartForeground = mStopForeground = null;
-        }
+
+		mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		try {
+			mStartForeground = getClass().getMethod("startForeground",
+					mStartForegroundSignature);
+			mStopForeground = getClass().getMethod("stopForeground",
+					mStopForegroundSignature);
+		} catch (NoSuchMethodException e) {
+			// Running on an older platform.
+			log.d(e,"running on older platform; couldn't find startForeground method");
+			mStartForeground = mStopForeground = null;
+		}
 
 	}
 
@@ -130,11 +132,15 @@ public class AppTrackerService extends IntentService {
     // method will not be called.
     @Override
     public void onStart(Intent intent, int startId) {
+    	log.d("onStart()");
+    	super.onStart(intent, startId);
         handleCommand(intent);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+    	log.d("onStartCommand()");
+    	super.onStartCommand(intent, flags, startId);
         handleCommand(intent);
         // We want this service to continue running until it is explicitly
         // stopped, so return sticky.
@@ -173,7 +179,7 @@ public class AppTrackerService extends IntentService {
 	 * This is a wrapper around the new startForeground method, using the older
 	 * APIs if it is not available.
 	 */
-	void startForegroundCompat(int id, Notification notification) {
+	private void startForegroundCompat(int id, Notification notification) {
 	    // If we have the new startForeground API, then use it.
 	    if (mStartForeground != null) {
 	        mStartForegroundArgs[0] = Integer.valueOf(id);
@@ -199,7 +205,7 @@ public class AppTrackerService extends IntentService {
 	 * This is a wrapper around the new stopForeground method, using the older
 	 * APIs if it is not available.
 	 */
-	void stopForegroundCompat(int id) {
+	private void stopForegroundCompat(int id) {
 	    // If we have the new stopForeground API, then use it.
 	    if (mStopForeground != null) {
 	        mStopForegroundArgs[0] = Boolean.TRUE;
@@ -222,6 +228,7 @@ public class AppTrackerService extends IntentService {
 	}
 
 	protected void onHandleIntent(Intent intent) {
+		log.d("onHandleIntent()");
 		handleIntent(intent);
 	}
 	
