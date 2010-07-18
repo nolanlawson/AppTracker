@@ -3,6 +3,7 @@ package com.nolanlawson.apptracker;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -39,6 +40,8 @@ public class AppTrackerService extends IntentService {
 	
 	private static Pattern flagPattern = Pattern.compile("\\bfl(?:g|ags)=0x(\\d+)\\b");
 
+	//private SimpleDateFormat dateFormat = new SimpleDateFormat("07-17 23:34:08.241");
+	
 	private boolean kill = false;
 	
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -107,10 +110,10 @@ public class AppTrackerService extends IntentService {
 		BufferedReader reader = null;
 		
 		try {
-			// logcat -d AndroidRuntime:E ActivityManager:V *:S
+			// filter logcat only for ActivityManager messages of Info or higher
 			logcatProcess = Runtime.getRuntime().exec(
 					new String[] { "logcat",
-							"AndroidRuntime:E ActivityManager:V *:S" });
+							"ActivityManager:I *:S" }); // -v time
 
 			reader = new BufferedReader(new InputStreamReader(logcatProcess
 					.getInputStream()));
