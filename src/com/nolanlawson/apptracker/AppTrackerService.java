@@ -3,6 +3,8 @@ package com.nolanlawson.apptracker;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -11,6 +13,8 @@ import java.util.regex.Pattern;
 
 import android.app.AlarmManager;
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -31,6 +35,11 @@ import com.nolanlawson.apptracker.util.UtilLogger;
  * 
  */
 public class AppTrackerService extends IntentService {
+
+	private static final Class<?>[] mStartForegroundSignature = new Class[] {
+	    int.class, Notification.class};
+	private static final Class<?>[] mStopForegroundSignature = new Class[] {
+	    boolean.class};
 	
 	private static UtilLogger log = new UtilLogger(AppTrackerService.class);
 
@@ -40,6 +49,13 @@ public class AppTrackerService extends IntentService {
 	private static Pattern flagPattern = Pattern.compile("\\bfl(?:g|ags)=0x(\\d+)\\b");
 	
 	private boolean kill = false;
+
+	private NotificationManager mNM;
+	private Method mStartForeground;
+	private Method mStopForeground;
+	private Object[] mStartForegroundArgs = new Object[2];
+	private Object[] mStopForegroundArgs = new Object[1];
+
 	
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
 		
@@ -73,10 +89,19 @@ public class AppTrackerService extends IntentService {
 		// the user unlocks their screen and sees the home screen, so we need
 		// instant updates
 		registerReceiver(receiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
-	}
-	
-	
+		
+       mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        try {
+            mStartForeground = getClass().getMethod("startForeground",
+                    mStartForegroundSignature);
+            mStopForeground = getClass().getMethod("stopForeground",
+                    mStopForegroundSignature);
+        } catch (NoSuchMethodException e) {
+            // Running on an older platform.
+            mStartForeground = mStopForeground = null;
+        }
 
+	}
 
 
 	@Override
@@ -87,6 +112,9 @@ public class AppTrackerService extends IntentService {
 		// always restart the service if killed
 		restartAppTrackerService();
 		kill = true;
+        // Make sure our notification is gone.
+        stopForegroundCompat(R.string.foreground_service_started);
+
 	}
 	
 	@Override
@@ -97,9 +125,107 @@ public class AppTrackerService extends IntentService {
 		// conditions are detected
 		restartAppTrackerService();
 	}
+    // This is the old onStart method that will be called on the pre-2.0
+    // platform.  On 2.0 or later we override onStartCommand() so this
+    // method will not be called.
+    @Override
+    public void onStart(Intent intent, int startId) {
+        handleCommand(intent);
+    }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        handleCommand(intent);
+        // We want this service to continue running until it is explicitly
+        // stopped, so return sticky.
+        return START_STICKY;
+    }
+
+	private void handleCommand(Intent intent) {
+        // In this sample, we'll use the same text for the ticker and the expanded notification
+        CharSequence text = getText(R.string.foreground_service_started);
+
+        // Set the icon, scrolling text and timestamp
+        Notification notification = new Notification(android.R.drawable.ic_notification_clear_all, text,
+                System.currentTimeMillis());
+
+        Intent appTrackerActivityIntent = new Intent(this, AppTrackerActivity.class);
+        appTrackerActivityIntent.setAction(Intent.ACTION_MAIN);
+        appTrackerActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        
+        // The PendingIntent to launch our activity if the user selects this notification
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+        		appTrackerActivityIntent, 0);
+
+        // Set the info for the views that show in the notification panel.
+        notification.setLatestEventInfo(this, getText(R.string.local_service_label),
+                       text, contentIntent);
+
+        startForegroundCompat(R.string.foreground_service_started, notification);
+        
+        handleIntent(intent);
+
+		
+	}
+
+
+	/**
+	 * This is a wrapper around the new startForeground method, using the older
+	 * APIs if it is not available.
+	 */
+	void startForegroundCompat(int id, Notification notification) {
+	    // If we have the new startForeground API, then use it.
+	    if (mStartForeground != null) {
+	        mStartForegroundArgs[0] = Integer.valueOf(id);
+	        mStartForegroundArgs[1] = notification;
+	        try {
+	            mStartForeground.invoke(this, mStartForegroundArgs);
+	        } catch (InvocationTargetException e) {
+	            // Should not happen.
+	            log.d(e, "Unable to invoke startForeground");
+	        } catch (IllegalAccessException e) {
+	            // Should not happen.
+	            log.d(e, "Unable to invoke startForeground");
+	        }
+	        return;
+	    }
+
+	    // Fall back on the old API.
+	    setForeground(true);
+	    mNM.notify(id, notification);
+	}
+
+	/**
+	 * This is a wrapper around the new stopForeground method, using the older
+	 * APIs if it is not available.
+	 */
+	void stopForegroundCompat(int id) {
+	    // If we have the new stopForeground API, then use it.
+	    if (mStopForeground != null) {
+	        mStopForegroundArgs[0] = Boolean.TRUE;
+	        try {
+	            mStopForeground.invoke(this, mStopForegroundArgs);
+	        } catch (InvocationTargetException e) {
+	            // Should not happen.
+	            log.d(e, "Unable to invoke stopForeground");
+	        } catch (IllegalAccessException e) {
+	            // Should not happen.
+	            log.d(e, "Unable to invoke stopForeground");
+	        }
+	        return;
+	    }
+
+	    // Fall back on the old API.  Note to cancel BEFORE changing the
+	    // foreground state, since we could be killed at that point.
+	    mNM.cancel(id);
+	    setForeground(false);
+	}
 
 	protected void onHandleIntent(Intent intent) {
+		handleIntent(intent);
+	}
+	
+	private void handleIntent(Intent intent) {
 		
 		log.d("Starting up AppTrackerService now with intent: %s", intent);
 
