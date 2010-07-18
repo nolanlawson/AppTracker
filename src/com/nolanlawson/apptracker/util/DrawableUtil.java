@@ -9,10 +9,15 @@ import android.graphics.drawable.Drawable;
 
 public class DrawableUtil {
 	
-	public static Bitmap convertIconToBitmap(Context context, Drawable drawable) {
+	private static int sIconSize = -1;
 	
-		int iconSize = context.getResources().getDimensionPixelSize(android.R.dimen.app_icon_size);
-		return toBitmap(drawable, iconSize, iconSize);
+	public static Bitmap convertIconToBitmap(Context context, Drawable drawable) {
+		
+		if (sIconSize == -1) {
+			sIconSize = context.getResources().getDimensionPixelSize(android.R.dimen.app_icon_size);
+		}
+		
+		return toBitmap(drawable, sIconSize, sIconSize);
 	}
 	
 	public static Bitmap toBitmap(Drawable drawable, int width, int height) {
