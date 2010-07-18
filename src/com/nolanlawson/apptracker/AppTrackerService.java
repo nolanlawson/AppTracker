@@ -163,7 +163,7 @@ public class AppTrackerService extends IntentService {
 
         startForegroundCompat(R.string.foreground_service_started, notification);
         
-        handleIntent(intent);
+        //handleIntent(intent);
 
 		
 	}
