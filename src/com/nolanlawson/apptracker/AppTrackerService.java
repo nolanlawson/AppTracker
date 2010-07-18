@@ -3,7 +3,6 @@ package com.nolanlawson.apptracker;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -39,8 +38,6 @@ public class AppTrackerService extends IntentService {
 			.compile("\\bco?mp=\\{?([^/]++)/([^ \t}]+)");
 	
 	private static Pattern flagPattern = Pattern.compile("\\bfl(?:g|ags)=0x(\\d+)\\b");
-
-	//private SimpleDateFormat dateFormat = new SimpleDateFormat("07-17 23:34:08.241");
 	
 	private boolean kill = false;
 	
@@ -110,14 +107,21 @@ public class AppTrackerService extends IntentService {
 		BufferedReader reader = null;
 		
 		try {
+			
+			int numLines = getNumberOfExistingLogLines();
+			
+			log.d("number of existing lines in logcat log is %d", numLines);
+			
+			int currentLine = 0;
+			
 			// filter logcat only for ActivityManager messages of Info or higher
 			logcatProcess = Runtime.getRuntime().exec(
 					new String[] { "logcat",
-							"ActivityManager:I *:S" }); // -v time
+							"ActivityManager:I", "*:S" });
 
 			reader = new BufferedReader(new InputStreamReader(logcatProcess
 					.getInputStream()));
-
+			
 			String line;
 			
 			while ((line = reader.readLine()) != null) {
@@ -125,6 +129,10 @@ public class AppTrackerService extends IntentService {
 				if (kill) {
 					log.d("manually killed AppTrackerService");
 					break;
+				}
+				if (++currentLine <= numLines) {
+					log.d("skipping line #" + currentLine);
+					continue;
 				}
 				if (line.contains("Starting activity") 
 						&& line.contains("=android.intent.action.MAIN")
@@ -192,9 +200,51 @@ public class AppTrackerService extends IntentService {
 					log.e(e, "unexpected exception");
 				}
 			}
+			
+			if (logcatProcess != null) {
+				logcatProcess.destroy();
+			}
 
 			log.d("AppTrackerService died for some reason");
 
+		}
+	}
+
+	private int getNumberOfExistingLogLines() throws IOException {
+		
+		// figure out how many lines are already in the logcat log
+		// to do this, just use the -d (for "dump") command in logcat
+		
+		Process logcatProcess = Runtime.getRuntime().exec(
+				new String[] { "logcat",
+						"-d", "ActivityManager:I", "*:S" });
+
+		BufferedReader reader = new BufferedReader(new InputStreamReader(logcatProcess
+				.getInputStream()));
+		try {
+			int lines = 0;
+			
+			while (reader.readLine() != null) {
+				lines++;
+			}
+			
+			reader.close();
+			logcatProcess.destroy();
+			
+			return lines;
+		} finally {
+			
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					log.e(e, "unexpected exception");
+				}
+			}
+			
+			if (logcatProcess != null) {
+				logcatProcess.destroy();
+			}
 		}
 	}
 
