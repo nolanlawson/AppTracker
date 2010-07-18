@@ -131,7 +131,7 @@ public class AppTrackerService extends IntentService {
 					break;
 				}
 				if (++currentLine <= numLines) {
-					log.d("skipping line #" + currentLine);
+					log.d("skipping line %d", currentLine);
 					continue;
 				}
 				if (line.contains("Starting activity") 
@@ -205,7 +205,7 @@ public class AppTrackerService extends IntentService {
 				logcatProcess.destroy();
 			}
 
-			log.d("AppTrackerService died for some reason");
+			log.i("AppTrackerService died");
 
 		}
 	}
@@ -269,7 +269,7 @@ public class AppTrackerService extends IntentService {
         
         alarms.set(AlarmManager.RTC, timeToExecute, pendingIntent);
         
-        log.d("AppTrackerService will restart at %s", new Date(timeToExecute));
+        log.i("AppTrackerService will restart at %s", new Date(timeToExecute));
         
 	}
 	
