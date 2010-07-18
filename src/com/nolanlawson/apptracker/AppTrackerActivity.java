@@ -62,7 +62,7 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
         
         Intent intent = getIntent();
     	
-        if (intent != null && intent.getAction().equals(ACTION_EXCLUDE_APPS)) {
+        if (intent != null && intent.getAction() != null && intent.getAction().equals(ACTION_EXCLUDE_APPS)) {
         	excludeAppsMode = true;
         	setTitle(R.string.apps_to_exclude_title);
         }
