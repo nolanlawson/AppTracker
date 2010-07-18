@@ -70,5 +70,6 @@
 
 	<uses-sdk android:minSdkVersion="3" android:targetSdkVersion="4" />
 	<uses-permission android:name="android.permission.READ_LOGS" />
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
 </manifest> 
