@@ -78,20 +78,22 @@ public class HtmlFileActivity extends Activity implements OnClickListener {
 	
 	public void initializeWebView() {
 		
-		String htmlData;
+		StringBuilder htmlData = new StringBuilder();
 		
 		if (aboutActivity) {
 		
 			if (FreemiumHelper.isAppTrackerPremiumInstalled(getApplicationContext())) {
-				htmlData = loadTextFile(R.raw.about_body_premium);
+				htmlData.append(loadTextFile(R.raw.about_body_1_premium));
 			} else {
-				htmlData = loadTextFile(R.raw.about_body);
+				htmlData.append(loadTextFile(R.raw.about_body_1_free));
 			}
+			
+			htmlData.append(loadTextFile(R.raw.about_body_2));
 		
 			
 		} else { // user guide 
 			
-			htmlData = loadTextFile(R.raw.user_guide);
+			htmlData = new StringBuilder(loadTextFile(R.raw.user_guide));
 		}
 					
 		aboutWebView.loadData(htmlData.toString(), "text/html", "utf-8");

@@ -16,6 +16,7 @@ import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
 import com.nolanlawson.apptracker.db.AppHistoryEntry;
 import com.nolanlawson.apptracker.db.SortType;
 import com.nolanlawson.apptracker.util.Pair;
+import com.nolanlawson.apptracker.util.StopWatch;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
 public class ActivityInfoHelper {
@@ -47,10 +48,14 @@ public class ActivityInfoHelper {
 		
 		mainloop: while (true) {
 			
+			StopWatch stopWatch = new StopWatch("findInstalledAppHistoryEntries()");
+			
 			synchronized (AppHistoryDbHelper.class) {
 				appHistories = dbHelper.findInstalledAppHistoryEntries(sortType, limit, 
 						pageNumber * limit, showExcludedApps);
 			}
+			
+			stopWatch.log(log);
 			
 			for (AppHistoryEntry appHistory : appHistories) {
 				
@@ -87,17 +92,11 @@ public class ActivityInfoHelper {
 	private static ActivityInfo getActivityInfo(
 			PackageManager packageManager, 
 			AppHistoryEntry appHistoryEntry) {
+		
 		ActivityInfo activityInfo = null;
 		ComponentName componentName = appHistoryEntry.toComponentName();
 		
 		try {
-			/*PackageInfo packInfo = packageManager.getPackageInfo(componentName.getPackageName(), 0);
-			
-			log.d("packInfo: " + packInfo);
-			
-			ActivityInfo[] activityInfos = packInfo.activities;
-			
-			log.d("activityInfos: " + Arrays.toString(activityInfos));*/
 			
 			activityInfo = packageManager.getActivityInfo(componentName, 0);
 		} catch (NameNotFoundException e) {

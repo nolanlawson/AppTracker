@@ -4,10 +4,8 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
-import android.widget.Toast;
 
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
-import com.nolanlawson.apptracker.helper.FreemiumHelper;
 import com.nolanlawson.apptracker.helper.PreferenceHelper;
 import com.nolanlawson.apptracker.helper.ServiceHelper;
 import com.nolanlawson.apptracker.util.UtilLogger;
@@ -88,6 +86,7 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 			int[] appWidgetIds) {
 		super.onUpdate(context, appWidgetManager, appWidgetIds);
 		log.d("onUpdate() for appWidgetIds %s", appWidgetIds);
+		log.d("appWidgetIds are %s", appWidgetIds);
 		ServiceHelper.startBackgroundServiceIfNotAlreadyRunning(context);
 
 		doPeriodicUpdate(context);

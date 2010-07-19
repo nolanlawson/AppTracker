@@ -216,5 +216,13 @@ public class PreferenceHelper {
 	private static String concat(Context context, int resId, int appWidgetId) {
 		return context.getResources().getString(resId) + "_" + appWidgetId;
 	}
+
+	public static boolean checkIfAppExists(Context context, int appWidgetId) {
+		
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		
+		return prefs.contains(getSortTypePreferenceName(context, appWidgetId));
+		
+	}
 	
 }

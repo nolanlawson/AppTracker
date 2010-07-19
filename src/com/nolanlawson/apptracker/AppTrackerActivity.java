@@ -142,6 +142,7 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
 		
+		
 		LoadedAppHistoryEntry appHistoryEntry = adapter.getItem(position);
 		
 		if (excludeAppsMode) {

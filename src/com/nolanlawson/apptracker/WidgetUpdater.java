@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
+import android.appwidget.AppWidgetProviderInfo;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +26,7 @@ import com.nolanlawson.apptracker.helper.ResourceIdHelper;
 import com.nolanlawson.apptracker.helper.SubtextHelper;
 import com.nolanlawson.apptracker.util.DrawableUtil;
 import com.nolanlawson.apptracker.util.Pair;
+import com.nolanlawson.apptracker.util.StopWatch;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
 public class WidgetUpdater {
@@ -67,6 +69,17 @@ public class WidgetUpdater {
 		int[] appWidgetIds = manager.getAppWidgetIds(widget);
 		log.d("updating widget for all app widget ids: %s", appWidgetIds);
 		for (int appWidgetId : appWidgetIds) {
+			
+			// perform this check because there is a bug in Android where, if you
+			// exit from the configuration screen, Android will never forget that
+			// appWidgetId and it will remain as a "stale" appWidgetId
+			boolean exists = PreferenceHelper.checkIfAppExists(context, appWidgetId);
+			
+			if (!exists) {
+				log.d("skipping stale appWidgetId %d", appWidgetId);
+				continue;
+			}
+			
 			RemoteViews updateViews = buildUpdate(context, dbHelper, appWidgetId);
 			if (updateViews == null) { // nothing to see yet
 				continue;
@@ -78,6 +91,8 @@ public class WidgetUpdater {
 	
 	private static RemoteViews buildUpdate(Context context, AppHistoryDbHelper dbHelper, int appWidgetId) {
 		
+		StopWatch stopWatch1 = new StopWatch("buildUpdate()");
+		
 		RemoteViews updateViews = new RemoteViews(context.getPackageName(), R.layout.tracker_widget);
 		
 		
@@ -87,13 +102,20 @@ public class WidgetUpdater {
 		
 		PackageManager packageManager = context.getPackageManager();
 		
+		StopWatch stopWatch2 = new StopWatch("getActivityInfos()");
+		
 		List<Pair<AppHistoryEntry,ActivityInfo>> activityInfos = ActivityInfoHelper.getActivityInfos(
 				context, dbHelper, packageManager, pageNumber, APPS_PER_PAGE, sortType, false);
 		
+		stopWatch2.log(log);
+		
 		if (activityInfos.isEmpty()) {
 			// nothing to show for now; just return
+			stopWatch1.log(log);
 			return null;
 		}
+		
+		StopWatch stopWatch4 = new StopWatch("the forloop");
 		
 		List<CharSequence> labels = new ArrayList<CharSequence>();
 		
@@ -131,7 +153,11 @@ public class WidgetUpdater {
 			}
 		}
 		
+		stopWatch4.log(log);
+		
 		log.d("Labels are: %s", labels);
+		
+		StopWatch stopWatch3 = new StopWatch("a bunch of set() functions");
 		
 		setAppTitleVisibility(context, appWidgetId, updateViews);
 		setSubtextVisibility(context, appWidgetId, updateViews);
@@ -139,6 +165,11 @@ public class WidgetUpdater {
 		
 		
 		setBackAndForwardButtons(context, appWidgetId, updateViews, pageNumber, dbHelper, sortType);
+		
+		stopWatch3.log(log);
+		
+		stopWatch1.log(log);
+		
 		return updateViews;
 		
 	}
