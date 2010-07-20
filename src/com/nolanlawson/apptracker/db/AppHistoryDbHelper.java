@@ -24,7 +24,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	// schema constants
 	
 	private static final String DB_NAME = "app_history.db";
-	private static final int DB_VERSION = 1;
+	private static final int DB_VERSION = 2;
 	
 	// table constants
 	private static final String TABLE_NAME = "AppHistoryEntries";
@@ -38,10 +38,13 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	private static final String COLUMN_LAST_ACCESS = "lastAccess";
 	private static final String COLUMN_DECAY_SCORE = "decayScore";
 	private static final String COLUMN_LAST_UPDATE = "lastUpdate";
+	private static final String COLUMN_LABEL = "label";
+	private static final String COLUMN_ICON_BLOB = "iconBlob";
 	
 	private static final String[] COLUMNS = 
 			{COLUMN_ID, COLUMN_PACKAGE, COLUMN_PROCESS, COLUMN_INSTALLED, COLUMN_EXCLUDED, 
-			 COLUMN_COUNT, COLUMN_LAST_ACCESS, COLUMN_DECAY_SCORE, COLUMN_LAST_UPDATE};
+			 COLUMN_COUNT, COLUMN_LAST_ACCESS, COLUMN_DECAY_SCORE, COLUMN_LAST_UPDATE,
+			 COLUMN_LABEL, COLUMN_ICON_BLOB};
 	
 	private Context context;
 	
@@ -65,7 +68,9 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		COLUMN_COUNT + " int not null, " +
 		COLUMN_LAST_ACCESS + " int not null, " +
 		COLUMN_DECAY_SCORE + " double not null, " +
-		COLUMN_LAST_UPDATE + " int not null" +
+		COLUMN_LAST_UPDATE + " int not null, " +
+		COLUMN_LABEL + " text, " +
+		COLUMN_ICON_BLOB + " blob " +
 		");";
 		
 		db.execSQL(sql);
@@ -75,6 +80,12 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
+		if (oldVersion == 1 && newVersion == 2) {
+			db.execSQL("alter table " + TABLE_NAME + 
+					" add column " + COLUMN_LABEL + " text ;");
+			db.execSQL("alter table " + TABLE_NAME + 
+					" add column " + COLUMN_ICON_BLOB + " blob ;");
+		}
 
 	}
 	
@@ -286,7 +297,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 			AppHistoryEntry appHistoryEntry = AppHistoryEntry.newAppHistoryEntry(
 					cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getInt(3) == 1,
 					cursor.getInt(4) == 1, cursor.getInt(5), new Date(cursor.getLong(6)), cursor.getDouble(7),
-					cursor.getLong(8));
+					cursor.getLong(8), cursor.getString(9), cursor.getBlob(10));
 			result.add(appHistoryEntry);
 		}
 		
@@ -319,7 +330,31 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		}
 		
 	}
+	
+	public void setIconBlob(int appHistoryEntryId, byte[] iconBlob) {
+		
+		String whereClause = COLUMN_ID +"=" + appHistoryEntryId;
+		
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(COLUMN_ICON_BLOB, iconBlob);
+		
+		
+		getWritableDatabase().update(TABLE_NAME, contentValues, whereClause, null);
+	}
+	
+	public void setLabel(int appHistoryEntryId, String label) {
+		
+		String whereClause = COLUMN_ID +"=" + appHistoryEntryId;
+		
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(COLUMN_LABEL, label);
+		
+		
+		getWritableDatabase().update(TABLE_NAME, contentValues, whereClause, null);
+	}
 
+	
+	
 	private void insertNewAppHistoryEntry(String packageName, String process, long currentTime) {
 		
 		ContentValues contentValues = new ContentValues();
