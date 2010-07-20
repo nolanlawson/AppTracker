@@ -193,8 +193,6 @@ public class PreferenceHelper {
 		boolean result =  prefs.getBoolean(context.getResources().getString(R.string.enable_icon_caching_preference), 
 				true);
 		
-		Log.d("FOO","enabled? " + result);
-		
 		return result;
 	}	
 	
