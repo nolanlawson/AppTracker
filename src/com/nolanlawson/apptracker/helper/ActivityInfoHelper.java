@@ -81,21 +81,25 @@ public class ActivityInfoHelper {
 			Drawable iconDrawable = activityInfo.loadIcon(packageManager);
 			iconBitmap = convertIconToBitmap(context, iconDrawable);	
 			
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			iconBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+			// only cache if the user wants us to cache the icon
+			if (PreferenceHelper.getEnableIconCachingPreference(context)) {
 			
-			byte[] bytes = out.toByteArray();
-			
-			AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);
-			
-			try {
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				iconBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
 				
-				synchronized (AppHistoryDbHelper.class) {
-					dbHelper.setIconBlob(appHistoryEntry.getId(), bytes);
+				byte[] bytes = out.toByteArray();
+				
+				AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);
+				
+				try {
+					
+					synchronized (AppHistoryDbHelper.class) {
+						dbHelper.setIconBlob(appHistoryEntry.getId(), bytes);
+					}
+					
+				} finally {
+					dbHelper.close();
 				}
-				
-			} finally {
-				dbHelper.close();
 			}
 			
 		} else {

@@ -1,10 +1,13 @@
 package com.nolanlawson.apptracker;
 
 import android.app.AlertDialog.Builder;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -20,6 +23,7 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 	private static UtilLogger log = new UtilLogger(SettingsActivity.class);
 	
 	private EditTextPreference decayConstantPreference;
+	private CheckBoxPreference enableIconCachingPreference;
 	private Preference appsToExcludePreference, resetDataPreference;
 	
 	@Override
@@ -45,14 +49,21 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 	private void initializePreferences() {
 		
 		decayConstantPreference = (EditTextPreference) findPreference(R.string.time_decay_constant_preference);
-		decayConstantPreference.setOnPreferenceChangeListener(this);
+		decayConstantPreference.setText(Integer.toString(PreferenceHelper.getDecayConstantPreference(getApplicationContext())));
 		
 		appsToExcludePreference = findPreference(R.string.apps_to_exclude_preference);
 		
 		resetDataPreference = findPreference(R.string.reset_data_preference);
 		
+		enableIconCachingPreference = (CheckBoxPreference) findPreference(R.string.enable_icon_caching_preference);
+		
 		for (Preference preference : new Preference[]{appsToExcludePreference, resetDataPreference}) {
 			preference.setOnPreferenceClickListener(this);
+		}
+		
+		for (Preference preference : new Preference[]{decayConstantPreference, enableIconCachingPreference}) {
+			preference.setOnPreferenceChangeListener(this);
+			
 		}
 		
 	}
@@ -72,17 +83,55 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 	@Override
 	public boolean onPreferenceChange(Preference preference, Object newValue) {
 
+		if (preference.getKey().equals(getResources().getString(R.string.time_decay_constant_preference))) {
 
-		try {
-			int valueAsInt = Integer.parseInt((String)newValue);
-			if (valueAsInt < 1 || valueAsInt > 100) {
-				throw new RuntimeException("value must be between 1 and 100");
+			try {
+				int valueAsInt = Integer.parseInt((String)newValue);
+				if (valueAsInt < 1 || valueAsInt > 100) {
+					throw new RuntimeException("value must be between 1 and 100");
+				}
+				PreferenceHelper.setDecayConstantPreference(getApplicationContext(), valueAsInt);
+			} catch (Exception ex) {
+				log.e(ex, "Couldn't parse number or bad number: %s", newValue);
+				Toast.makeText(getApplicationContext(), R.string.bad_decay_constant_toast, Toast.LENGTH_LONG).show();
+				return false;
 			}
-			PreferenceHelper.setDecayConstantPreference(getApplicationContext(), valueAsInt);
-		} catch (Exception ex) {
-			log.e(ex, "Couldn't parse number or bad number: %s", newValue);
-			Toast.makeText(getApplicationContext(), R.string.bad_decay_constant_toast, Toast.LENGTH_LONG).show();
-			return false;
+		
+		} else { // cache icon pref
+			
+			boolean enableIconCaching = (Boolean) newValue;
+			
+			PreferenceHelper.setEnableIconCachingPreference(getApplicationContext(), enableIconCaching);
+			
+			if (!enableIconCaching) {
+				
+				final Context context = getApplicationContext();
+				
+				// clear the cache, per the user's request
+				new AsyncTask<Void, Void, Void>(){
+
+					@Override
+					protected Void doInBackground(Void... params) {
+						
+						AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);
+						
+						try {
+						
+							synchronized (AppHistoryDbHelper.class) {
+								dbHelper.clearAllIcons();
+							}
+							
+						} finally {
+							dbHelper.close();
+						}
+							
+						
+						return null;
+					}}.execute((Void)null);
+			}
+			
+			
+			
 		}
 		
 		return true;
