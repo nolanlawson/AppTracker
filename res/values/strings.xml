@@ -56,5 +56,6 @@
     <string name="free_version_text">Note: buy the premium version to unlock grayed-out options.</string>
     <string name="need_premium">You need the Premium version to do that.</string>
     <string name="app_tracker_config">App Tracker Configuration</string>
+    <string name="done">Done</string>
     
 </resources>
