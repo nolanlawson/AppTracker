@@ -353,6 +353,18 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		getWritableDatabase().update(TABLE_NAME, contentValues, whereClause, null);
 	}
 
+	public void clearIconAndLabel(String packageName) {
+		
+		String whereClause = COLUMN_PACKAGE +"=?";
+		
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(COLUMN_LABEL, (String)null);
+		contentValues.put(COLUMN_ICON_BLOB, (byte[])null);
+		
+		String[] whereArgs = new String[] { packageName };
+		
+		getWritableDatabase().update(TABLE_NAME, contentValues, whereClause, whereArgs);		
+	}
 	
 	
 	private void insertNewAppHistoryEntry(String packageName, String process, long currentTime) {
