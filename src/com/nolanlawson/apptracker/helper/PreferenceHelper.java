@@ -3,6 +3,7 @@ package com.nolanlawson.apptracker.helper;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.nolanlawson.apptracker.R;
 
@@ -186,6 +187,20 @@ public class PreferenceHelper {
 		editor.commit();
 		
 	}		
+	public static boolean getEnableIconCachingPreference(Context context) {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		
+		boolean result =  prefs.getBoolean(context.getResources().getString(R.string.enable_icon_caching_preference), 
+				true);
+		
+		return result;
+	}	
+	
+	public static void setEnableIconCachingPreference(Context context, boolean bool) {
+		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+		editor.putBoolean(context.getResources().getString(R.string.enable_icon_caching_preference), bool);
+		editor.commit();
+	}
 	
 	private static String getCurrentPagePreferenceName(Context context, int appWidgetId) {
 		return concat(context, R.string.page_number_preference, appWidgetId);

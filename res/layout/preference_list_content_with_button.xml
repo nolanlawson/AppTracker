@@ -31,7 +31,7 @@
 		<Button android:layout_width="wrap_content"
 			android:paddingLeft="40dp" android:paddingRight="40dp"
 			android:id="@+id/config_ok_button" android:layout_height="wrap_content"
-			android:text="@android:string/ok" />
+			android:text="@string/done" />
 
 	</LinearLayout>
 

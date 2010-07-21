@@ -11,6 +11,11 @@
 		android:defaultValue="7"
 		android:persistent="false" />
 
+	<CheckBoxPreference android:key="@string/enable_icon_caching_preference"
+		android:title="@string/enable_icon_caching_title" android:summary="@string/enable_icon_caching_summary"
+		android:defaultValue="true"
+		android:persistent="true"/>
+
 	<Preference android:key="@string/reset_data_preference"
 		android:title="@string/reset_data_title" android:summary="@string/reset_data_summary"
 		android:persistent="false"/>

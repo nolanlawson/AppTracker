@@ -1,5 +1,6 @@
 package com.nolanlawson.apptracker.helper;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -11,6 +12,12 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Rect;
+import android.graphics.Bitmap.Config;
+import android.graphics.drawable.Drawable;
 
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
 import com.nolanlawson.apptracker.db.AppHistoryEntry;
@@ -22,6 +29,92 @@ import com.nolanlawson.apptracker.util.UtilLogger;
 public class ActivityInfoHelper {
 
 	private static UtilLogger log = new UtilLogger(ActivityInfoHelper.class);
+
+	private static int sIconSize = -1;
+	
+	public static String loadLabelFromAppHistoryEntry(Context context, AppHistoryEntry appHistoryEntry, 
+			ActivityInfo activityInfo, PackageManager packageManager) {
+		
+		StopWatch stopWatch = new StopWatch("loadLabelFromAppHistoryEntry()");
+		
+		String label;
+		
+		if (appHistoryEntry.getLabel() == null) {
+			// not loaded yet; load now
+			
+			CharSequence labelAsCharSequence = activityInfo.loadLabel(packageManager);
+			label = labelAsCharSequence.toString();
+			
+			AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);
+			
+			try {
+				
+				synchronized (AppHistoryDbHelper.class) {
+					dbHelper.setLabel(appHistoryEntry.getId(), label);
+				}
+				
+			} finally {
+				dbHelper.close();
+			}			
+			
+		} else {
+			// already loaded
+			label = appHistoryEntry.getLabel();
+		}
+		
+		stopWatch.log(log);
+		
+		return label;
+		
+	}
+	
+	public static Bitmap loadIconFromAppHistoryEntry(Context context, AppHistoryEntry appHistoryEntry, 
+			ActivityInfo activityInfo, PackageManager packageManager) {
+		
+		StopWatch stopWatch = new StopWatch("loadIconFromAppHistoryEntry()");
+		
+		Bitmap iconBitmap;
+		
+		if (appHistoryEntry.getIconBlob() == null) {
+		
+			// icon has not been loaded into db yet; load now
+			Drawable iconDrawable = activityInfo.loadIcon(packageManager);
+			iconBitmap = convertIconToBitmap(context, iconDrawable);	
+			
+			// only cache if the user wants us to cache the icon
+			if (PreferenceHelper.getEnableIconCachingPreference(context)) {
+			
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				iconBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+				
+				byte[] bytes = out.toByteArray();
+				
+				AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);
+				
+				try {
+					
+					synchronized (AppHistoryDbHelper.class) {
+						dbHelper.setIconBlob(appHistoryEntry.getId(), bytes);
+					}
+					
+				} finally {
+					dbHelper.close();
+				}
+			}
+			
+		} else {
+			// icon already loaded; just get it from the database
+            byte[] blob = appHistoryEntry.getIconBlob();
+            iconBitmap = BitmapFactory.decodeByteArray(blob, 0, blob.length);
+		
+		}
+		
+		stopWatch.log(log);
+		
+		return iconBitmap;
+		
+	}
+
 	
 	/**
 	 * Get the package infos for each app history entry fetched from the db, and check
@@ -105,5 +198,23 @@ public class ActivityInfoHelper {
 		
 		return activityInfo;
 	}
+	
+	private static Bitmap convertIconToBitmap(Context context, Drawable drawable) {
+		
+		if (sIconSize == -1) {
+			sIconSize = context.getResources().getDimensionPixelSize(android.R.dimen.app_icon_size);
+		}
+		
+		return toBitmap(drawable, sIconSize, sIconSize);
+	}
+	
+	private static Bitmap toBitmap(Drawable drawable, int width, int height) {
+		
+		Bitmap bmp = Bitmap.createBitmap(width, height, Config.ARGB_8888);
+		Canvas c = new Canvas(bmp);
+		drawable.setBounds(new Rect(0,0,width,height));
+		drawable.draw(c);
 
+		return bmp;
+	}
 }

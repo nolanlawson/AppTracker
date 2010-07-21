@@ -75,10 +75,28 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 			
 		} else if (ACTION_RESTART_SERVICE.equals(intent.getAction())) {
 			log.d("Simply restarted the service, because it was killed");
+		} else if (Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())
+				|| Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())) {
+			
+			if (intent.getData() != null) {
+				
+				String packageName = intent.getData().getEncodedSchemeSpecificPart();
+				
+				log.d("Package was changed; need to clear labels and icon for: %s", packageName);
+				
+				AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);
+				
+				try {
+					
+					dbHelper.clearIconAndLabel(packageName);
+					
+				} finally {
+					dbHelper.close();
+				}
+			}
+			
 		}
 		
-		
-
 	}
 
 	@Override

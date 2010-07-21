@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.nolanlawson.apptracker" android:versionCode="2"
-	android:versionName="1.0.1">
+	package="com.nolanlawson.apptracker" android:versionCode="3"
+	android:versionName="1.0.2">
 	
 	<application android:icon="@drawable/holmes_icon" android:label="@string/app_name">
 		<activity android:name=".AppTrackerActivity" android:label="@string/app_name"
@@ -54,6 +54,16 @@
 			<intent-filter>
 				<action android:name="com.nolanlawson.apptracker.action.RESTART_SERVICE" />
 				<data android:scheme="app_tracker_widget" />
+			</intent-filter>
+			
+			<intent-filter>
+				<action android:name="android.intent.action.PACKAGE_REPLACED"/>
+				<data android:scheme="package"/>
+			</intent-filter>
+			
+			<intent-filter>
+				<action android:name="android.intent.action.PACKAGE_ADDED"/>
+				<data android:scheme="package"/>
 			</intent-filter>
 			
 			<meta-data android:name="android.appwidget.provider"

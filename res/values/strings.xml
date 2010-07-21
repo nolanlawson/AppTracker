@@ -36,7 +36,10 @@
     <string name="apps_to_exclude_summary">Choose which apps to omit from the list</string>   
     <string name="time_decay_constant_preference">time_decay_constant</string>
     <string name="time_decay_constant_title">Time Decay Constant</string>
-    <string name="time_decay_constant_summary">Lower values mean app scores decay faster (default: 7)</string>   
+    <string name="time_decay_constant_summary">Lower values mean app scores decay faster (default: 7)</string>  
+    <string name="enable_icon_caching_preference">enable_icon_caching</string>
+    <string name="enable_icon_caching_title">Cache App Icons</string>
+    <string name="enable_icon_caching_summary">Uncheck this only if App Tracker is taking up too much space</string>   
     <string name="reset_data_preference">reset_data_preference</string>
     <string name="reset_data_title">Reset Data</string>
     <string name="reset_data_summary">Delete all saved data and start fresh</string>          
@@ -58,5 +61,6 @@
     <string name="app_tracker_config">App Tracker Configuration</string>
     <string name="foreground_service_started">Touch to start App Tracker</string>
     <string name="local_service_label">App Tracker Service running</string>
+    <string name="done">Done</string>
     
 </resources>

@@ -6,11 +6,10 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 
 import com.nolanlawson.apptracker.db.AppHistoryEntry;
 import com.nolanlawson.apptracker.db.SortType;
-import com.nolanlawson.apptracker.util.DrawableUtil;
+import com.nolanlawson.apptracker.helper.ActivityInfoHelper;
 
 /**
  * representation of an AppHistoryEntry whose data has already been loaded (e.g. icon and label)
@@ -65,10 +64,13 @@ public class LoadedAppHistoryEntry {
 		LoadedAppHistoryEntry loadedAppHistoryEntry = new LoadedAppHistoryEntry();
 		loadedAppHistoryEntry.setAppHistoryEntry(appHistoryEntry);
 		
-		loadedAppHistoryEntry.setTitle(activityInfo.loadLabel(packageManager));
+		String label = ActivityInfoHelper.loadLabelFromAppHistoryEntry(context, appHistoryEntry, 
+				activityInfo, packageManager);
 		
-		Drawable iconDrawable = activityInfo.loadIcon(packageManager);
-		Bitmap iconBitmap = DrawableUtil.convertIconToBitmap(context, iconDrawable);
+		loadedAppHistoryEntry.setTitle(label);
+		
+		Bitmap iconBitmap = ActivityInfoHelper.loadIconFromAppHistoryEntry(context, appHistoryEntry, 
+				activityInfo, packageManager);
 		
 		loadedAppHistoryEntry.setIconBitmap(iconBitmap);
 		

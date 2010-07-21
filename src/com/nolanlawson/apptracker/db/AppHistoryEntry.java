@@ -1,5 +1,6 @@
 package com.nolanlawson.apptracker.db;
 
+import java.util.Arrays;
 import java.util.Date;
 
 import android.content.ComponentName;
@@ -16,6 +17,8 @@ public class AppHistoryEntry {
 	private Date lastAccessed;
 	private double decayScore;
 	private long lastUpdate;
+	private String label;
+	private byte[] iconBlob;
 	
 	public int getId() {
 		return id;
@@ -69,18 +72,27 @@ public class AppHistoryEntry {
 	public void setLastUpdate(long lastUpdate) {
 		this.lastUpdate = lastUpdate;
 	}
-	
-	
 	public boolean isInstalled() {
 		return installed;
 	}
 	public void setInstalled(boolean installed) {
 		this.installed = installed;
 	}
-	
+	public String getLabel() {
+		return label;
+	}
+	public void setLabel(String label) {
+		this.label = label;
+	}
+	public byte[] getIconBlob() {
+		return iconBlob;
+	}
+	public void setIconBlob(byte[] iconBlob) {
+		this.iconBlob = iconBlob;
+	}
 	public static AppHistoryEntry newAppHistoryEntry(
 			int id, String packageName, String process, boolean installed, boolean excluded, int count, 
-			Date lastAccessed, double decayScore, long lastUpdate) {
+			Date lastAccessed, double decayScore, long lastUpdate, String label, byte[] iconBlob) {
 		
 		AppHistoryEntry appHistoryEntry = new AppHistoryEntry();
 		appHistoryEntry.setId(id);
@@ -92,20 +104,23 @@ public class AppHistoryEntry {
 		appHistoryEntry.setLastAccessed(lastAccessed);
 		appHistoryEntry.setDecayScore(decayScore);
 		appHistoryEntry.setLastUpdate(lastUpdate);
+		appHistoryEntry.setLabel(label);
+		appHistoryEntry.setIconBlob(iconBlob);
 		
 		return appHistoryEntry;
 		
 		
 	}
 
-	
+
 	@Override
 	public String toString() {
 		return "AppHistoryEntry [count=" + count + ", decayScore=" + decayScore
-				+ ", excluded=" + excluded + ", id=" + id + ", installed="
-				+ installed + ", lastAccessed=" + lastAccessed
-				+ ", lastUpdate=" + lastUpdate + ", packageName=" + packageName
-				+ ", process=" + process + "]";
+				+ ", excluded=" + excluded + ", iconBlob="
+				+ Arrays.toString(iconBlob) + ", id=" + id + ", installed="
+				+ installed + ", label=" + label + ", lastAccessed="
+				+ lastAccessed + ", lastUpdate=" + lastUpdate
+				+ ", packageName=" + packageName + ", process=" + process + "]";
 	}
 	public ComponentName toComponentName() {
 		String fullProcessName;

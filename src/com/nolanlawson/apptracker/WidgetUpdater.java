@@ -5,14 +5,12 @@ import java.util.List;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
-import android.appwidget.AppWidgetProviderInfo;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -24,7 +22,6 @@ import com.nolanlawson.apptracker.helper.ActivityInfoHelper;
 import com.nolanlawson.apptracker.helper.PreferenceHelper;
 import com.nolanlawson.apptracker.helper.ResourceIdHelper;
 import com.nolanlawson.apptracker.helper.SubtextHelper;
-import com.nolanlawson.apptracker.util.DrawableUtil;
 import com.nolanlawson.apptracker.util.Pair;
 import com.nolanlawson.apptracker.util.StopWatch;
 import com.nolanlawson.apptracker.util.UtilLogger;
@@ -127,17 +124,22 @@ public class WidgetUpdater {
 				AppHistoryEntry appHistoryEntry = pair.getFirst();
 				ActivityInfo activityInfo = pair.getSecond();
 				
-				CharSequence label = activityInfo.loadLabel(packageManager);
+				String label = ActivityInfoHelper.loadLabelFromAppHistoryEntry(context, appHistoryEntry, 
+						activityInfo, packageManager);
 				
-				Drawable iconDrawable = activityInfo.loadIcon(packageManager);
-				Bitmap iconBitmap = DrawableUtil.convertIconToBitmap(context, iconDrawable);
+				Bitmap iconBitmap = ActivityInfoHelper.loadIconFromAppHistoryEntry(context, appHistoryEntry, 
+						activityInfo, packageManager);
+				
 				
 				String subtextText = SubtextHelper.createSubtext(context, sortType, appHistoryEntry);
+				
 				
 				updateViews.setTextViewText(ResourceIdHelper.getAppTitleId(i), label);
 				updateViews.setTextViewText(ResourceIdHelper.getAppDescriptionId(i), subtextText);
 				updateViews.setImageViewBitmap(ResourceIdHelper.getAppIconId(i), iconBitmap);
 				updateViews.setViewVisibility(ResourceIdHelper.getRelativeLayoutId(i), View.VISIBLE);
+				
+				
 				
 				Intent intent = appHistoryEntry.toIntent();
 
