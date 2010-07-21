@@ -39,7 +39,7 @@
     <string name="time_decay_constant_summary">Lower values mean app scores decay faster (default: 7)</string>  
     <string name="enable_icon_caching_preference">enable_icon_caching</string>
     <string name="enable_icon_caching_title">Cache App Icons</string>
-    <string name="enable_icon_caching_summary">Uncheck this if App Tracker is taking up too much space</string>   
+    <string name="enable_icon_caching_summary">Uncheck this only if App Tracker is taking up too much space</string>   
     <string name="reset_data_preference">reset_data_preference</string>
     <string name="reset_data_title">Reset Data</string>
     <string name="reset_data_summary">Delete all saved data and start fresh</string>          
