@@ -21,8 +21,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
+import com.nolanlawson.apptracker.helper.PreferenceHelper;
 import com.nolanlawson.apptracker.util.FlagUtil;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
@@ -114,8 +116,11 @@ public class AppTrackerService extends IntentService {
 		// always restart the service if killed
 		restartAppTrackerService();
 		kill = true;
-        // Make sure our notification is gone.
-        stopForegroundCompat(R.string.foreground_service_started);
+		
+		if (PreferenceHelper.getShowNotificationPreference(getApplicationContext())) {
+			// Make sure our notification is gone.
+			stopForegroundCompat(R.string.foreground_service_started);
+		}
 
 	}
 	
@@ -167,7 +172,9 @@ public class AppTrackerService extends IntentService {
         notification.setLatestEventInfo(this, getText(R.string.local_service_label),
                        text, contentIntent);
 
-        startForegroundCompat(R.string.foreground_service_started, notification);
+        if (PreferenceHelper.getShowNotificationPreference(getApplicationContext())) {
+        	startForegroundCompat(R.string.foreground_service_started, notification);
+        }
         
         //handleIntent(intent);
 

@@ -17,13 +17,14 @@ import android.widget.Toast;
 
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
 import com.nolanlawson.apptracker.helper.PreferenceHelper;
+import com.nolanlawson.apptracker.helper.ServiceHelper;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
 public class SettingsActivity extends PreferenceActivity implements OnPreferenceChangeListener, OnPreferenceClickListener {
 	private static UtilLogger log = new UtilLogger(SettingsActivity.class);
 	
 	private EditTextPreference decayConstantPreference;
-	private CheckBoxPreference enableIconCachingPreference;
+	private CheckBoxPreference enableIconCachingPreference, showNotificationPreference;
 	private Preference appsToExcludePreference, resetDataPreference;
 	
 	@Override
@@ -56,12 +57,13 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 		resetDataPreference = findPreference(R.string.reset_data_preference);
 		
 		enableIconCachingPreference = (CheckBoxPreference) findPreference(R.string.enable_icon_caching_preference);
+		showNotificationPreference = (CheckBoxPreference) findPreference(R.string.show_notification_preference);
 		
 		for (Preference preference : new Preference[]{appsToExcludePreference, resetDataPreference}) {
 			preference.setOnPreferenceClickListener(this);
 		}
 		
-		for (Preference preference : new Preference[]{decayConstantPreference, enableIconCachingPreference}) {
+		for (Preference preference : new Preference[]{decayConstantPreference, enableIconCachingPreference, showNotificationPreference}) {
 			preference.setOnPreferenceChangeListener(this);
 			
 		}
@@ -96,7 +98,21 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 				Toast.makeText(getApplicationContext(), R.string.bad_decay_constant_toast, Toast.LENGTH_LONG).show();
 				return false;
 			}
-		
+		} else if (preference.getKey().equals(getResources().getString(R.string.show_notification_preference))) {
+			
+			// restart the service and change the value
+			
+			Context context = getApplicationContext();
+			
+			ServiceHelper.stopBackgroundServiceIfRunning(context);
+			
+			boolean showNotification = (Boolean) newValue;
+			
+			PreferenceHelper.setShowNotificationPreference(context, showNotification);	
+			
+			ServiceHelper.startBackgroundServiceIfNotAlreadyRunning(context);
+			
+			
 		} else { // cache icon pref
 			
 			boolean enableIconCaching = (Boolean) newValue;

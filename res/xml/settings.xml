@@ -15,7 +15,12 @@
 		android:title="@string/enable_icon_caching_title" android:summary="@string/enable_icon_caching_summary"
 		android:defaultValue="true"
 		android:persistent="true"/>
-
+	
+	<CheckBoxPreference android:key="@string/show_notification_preference"
+		android:title="@string/show_notification_title" android:summary="@string/show_notification_summary"
+		android:defaultValue="true"
+		android:persistent="true"/>
+		
 	<Preference android:key="@string/reset_data_preference"
 		android:title="@string/reset_data_title" android:summary="@string/reset_data_summary"
 		android:persistent="false"/>

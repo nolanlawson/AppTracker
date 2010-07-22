@@ -14,6 +14,18 @@ public class ServiceHelper {
 
 	private static UtilLogger log = new UtilLogger(ServiceHelper.class);
 	
+	public static synchronized void stopBackgroundServiceIfRunning(Context context) {
+		boolean alreadyRunning = ServiceHelper.checkIfAppTrackerServiceIsRunning(context);
+		
+		log.d("Is AppTrackerService is running: %s", alreadyRunning);
+		
+		if (alreadyRunning) {
+			Intent intent = new Intent(context, AppTrackerService.class);
+			context.stopService(intent);
+		}
+		
+	}
+	
 	public static synchronized void startBackgroundServiceIfNotAlreadyRunning(
 			Context context) {
 		
