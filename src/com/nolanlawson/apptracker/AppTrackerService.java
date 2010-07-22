@@ -152,7 +152,7 @@ public class AppTrackerService extends IntentService {
         CharSequence text = getText(R.string.foreground_service_started);
 
         // Set the icon, scrolling text and timestamp
-        Notification notification = new Notification(android.R.drawable.ic_notification_clear_all, text,
+        Notification notification = new Notification(R.drawable.service_notification_1, text,
                 System.currentTimeMillis());
 
         Intent appTrackerActivityIntent = new Intent(this, AppTrackerActivity.class);

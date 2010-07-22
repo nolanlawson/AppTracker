@@ -60,7 +60,7 @@
     <string name="need_premium">You need the Premium version to do that.</string>
     <string name="app_tracker_config">App Tracker Configuration</string>
     <string name="foreground_service_started">Touch to start App Tracker</string>
-    <string name="local_service_label">App Tracker Service running</string>
+    <string name="local_service_label">Tracking in progress</string>
     <string name="done">Done</string>
     
 </resources>
