@@ -217,6 +217,21 @@ public class PreferenceHelper {
 		editor.commit();
 	}
 	
+	public static boolean getFirstRunPreference(Context context) {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		
+		boolean result =  prefs.getBoolean(context.getResources().getString(R.string.first_run_preference), 
+				true);
+		
+		return result;
+	}	
+	
+	public static void setFirstRunPreference(Context context, boolean bool) {
+		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+		editor.putBoolean(context.getResources().getString(R.string.first_run_preference), bool);
+		editor.commit();
+	}
+	
 	private static String getCurrentPagePreferenceName(Context context, int appWidgetId) {
 		return concat(context, R.string.page_number_preference, appWidgetId);
 	}
