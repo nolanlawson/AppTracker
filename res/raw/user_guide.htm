@@ -63,6 +63,18 @@ default view is a sort of "flavor of the week" view.
 
 <p align=center><b>FAQs</b></p>
 
+<p/><i>What's with the notification icon?</i>
+
+<p style="margin-left:10pt">App Tracker uses a lightweight background process to monitor 
+your app usage. However, Android is often hostile to background processes, 
+unless they have an associated notification.  So if you disable the 
+notification icon, Android might sometimes kill the process without giving it a chance to 
+recover.</p>
+
+<p style="margin-left:10pt">This situation mostly applies to older phones with limited resources, though. So if you 
+have a high-end Android device (Droid, EVO, Nexus One, etc.), then you can probably get away with 
+disabling the notification icon. But if you're not sure, I recommend leaving it on.</p>
+
 <p/><i>Why don't the icons align with the native icons?</i>
 
 <p style="margin-left:10pt">If you look at the additional information that has to be 
@@ -73,18 +85,6 @@ there's no way to make the icons line up with the native ones.</p>
 to hide that information, it can't work consistently across all Android phones.  Different Android 
 phones have different Launcher apps (e.g. Google vs. HTC, HelixLauncher vs. Cyanogen), so there's 
 no way (AFAIK) to make a widget that will exactly fit all of them.</p>
-
-<p/><i>What's with the "Tracking in progress" notification?</i>
-
-<p style="margin-left:10pt">App Tracker uses a lightweight background process to monitor 
-app usage activity. However, the Android system is often hostile to background processes, 
-unless they have an associated notification.  So if you disable the 
-notification icon, Android might sometimes kill the process without giving it a chance to 
-recover. This leads to unwanted behavior, like the widget not being updated when you launch an app.</p>
-
-<p style="margin-left:10pt">However, this situation mostly applies to older phones with limited resources. If you 
-have a high-end Android device (Droid, EVO, Nexus One, etc.), then you can probably get away with 
-disabling the notification icon. But if you're not sure, then I recommend leaving it on.</p>
 
 </font>
 </body>

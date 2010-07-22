@@ -42,7 +42,7 @@
     <string name="enable_icon_caching_summary">Uncheck this only if App Tracker is taking up too much space</string>   
     <string name="show_notification_preference">show_notification_icon</string>
     <string name="show_notification_title">Show Notification Icon</string>
-    <string name="show_notification_summary">It is recommended that you keep this checked. (See the User Guide for more info.)</string>  
+    <string name="show_notification_summary">Recommended: ON. (See the User Guide for more info.)</string>  
     <string name="reset_data_preference">reset_data_preference</string>
     <string name="reset_data_title">Reset Data</string>
     <string name="reset_data_summary">Delete all saved data and start fresh</string>          
