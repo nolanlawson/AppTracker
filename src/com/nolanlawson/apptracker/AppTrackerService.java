@@ -119,7 +119,7 @@ public class AppTrackerService extends IntentService {
 		
 		if (PreferenceHelper.getShowNotificationPreference(getApplicationContext())) {
 			// Make sure our notification is gone.
-			stopForegroundCompat(R.string.foreground_service_started);
+			stopForegroundCompat(R.string.notification_title);
 		}
 
 	}
@@ -153,12 +153,13 @@ public class AppTrackerService extends IntentService {
     }
 
 	private void handleCommand(Intent intent) {
-        // In this sample, we'll use the same text for the ticker and the expanded notification
-        CharSequence text = getText(R.string.foreground_service_started);
+        
+        CharSequence tickerText = getText(R.string.notification_ticker);
 
         // Set the icon, scrolling text and timestamp
-        Notification notification = new Notification(R.drawable.service_notification_1, text,
+        Notification notification = new Notification(R.drawable.service_notification_1, tickerText,
                 System.currentTimeMillis());
+        
 
         Intent appTrackerActivityIntent = new Intent(this, AppTrackerActivity.class);
         appTrackerActivityIntent.setAction(Intent.ACTION_MAIN);
@@ -169,11 +170,11 @@ public class AppTrackerService extends IntentService {
         		appTrackerActivityIntent, 0);
 
         // Set the info for the views that show in the notification panel.
-        notification.setLatestEventInfo(this, getText(R.string.local_service_label),
-                       text, contentIntent);
+        notification.setLatestEventInfo(this, getText(R.string.notification_title),
+                       getText(R.string.notification_subtext), contentIntent);
 
         if (PreferenceHelper.getShowNotificationPreference(getApplicationContext())) {
-        	startForegroundCompat(R.string.foreground_service_started, notification);
+        	startForegroundCompat(R.string.notification_title, notification);
         }
         
         //handleIntent(intent);
