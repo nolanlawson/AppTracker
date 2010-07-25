@@ -81,8 +81,6 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
 		adapter = new LoadedAppHistoryAdapter(
 				this, R.layout.app_history_item, new ArrayList<LoadedAppHistoryEntry>(), sortType, excludeAppsMode);
 		
-		showFirstRunDialog();
-
 
     }
 
@@ -101,6 +99,8 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
 			// we're in "exclude apps" mode, so set this up appropriately
 			setUpAsExcludeAppsMode();
 		}
+		
+		showFirstRunDialog();
 
     }
 

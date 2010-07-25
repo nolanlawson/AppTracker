@@ -7,7 +7,9 @@
 		android:title="@string/apps_to_exclude_title" android:summary="@string/apps_to_exclude_summary"
 		android:persistent="false" />
 
-
+	<Preference android:key="@string/reset_intros_preference"
+		android:title="@string/reset_intros_title" android:summary="@string/reset_intros_summary"
+		android:persistent="false"/>	
 		
 	<Preference android:key="@string/reset_data_preference"
 		android:title="@string/reset_data_title" android:summary="@string/reset_data_summary"

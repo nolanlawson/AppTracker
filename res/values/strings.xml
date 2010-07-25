@@ -46,6 +46,10 @@
     <string name="reset_data_preference">reset_data_preference</string>
     <string name="reset_data_title">Reset Data</string>
     <string name="reset_data_summary">Delete all saved data and start fresh</string>          
+    <string name="reset_intros_preference">reset_intros_preference</string>
+    <string name="reset_intros_title">Reset Introduction</string>
+    <string name="reset_intros_summary">Show introductory message again</string>   
+    <string name="reset_intros_message">Introductory message will be shown again.</string>
     <string name="settings">Settings</string>
     <string name="full_app_list">Full App List</string>
     <string name="user_guide">User Guide</string>
