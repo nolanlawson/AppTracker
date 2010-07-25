@@ -66,6 +66,8 @@
     <string name="notification_title">App tracking in progress</string>
     <string name="notification_ticker">App tracking started</string>
     <string name="done">Done</string>
+    <string name="basic">Basic</string>
+    <string name="advanced">Advanced</string>
     <string name="first_run_preference">first_run</string>
     <string name="first_run_title">Welcome to App Tracker!</string>
     <string name="first_run_message">\
