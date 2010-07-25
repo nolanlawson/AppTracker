@@ -75,7 +75,7 @@
     <string name="first_run_preference">first_run</string>
     <string name="first_run_title">Welcome to App Tracker!</string>
     <string name="first_run_message">\
-To disable the notification icon, go to Menu → Settings.\n\n\
+To disable the notification, go to Menu → Settings.\n\n\
 For changelog and version info, go to Menu → About.\n\n\
 For a full user guide, go to Menu → User Guide.\n\n\
 Enjoy!\
