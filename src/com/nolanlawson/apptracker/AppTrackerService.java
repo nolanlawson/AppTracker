@@ -21,7 +21,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
 import com.nolanlawson.apptracker.helper.PreferenceHelper;
@@ -91,9 +90,14 @@ public class AppTrackerService extends IntentService {
 		// where
 		// the user unlocks their screen and sees the home screen, so we need
 		// instant updates
+		log.d("hello0");
 		registerReceiver(receiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
 
+		log.d("hello1");
+		
 		mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		
+		log.d("hello2");
 		try {
 			mStartForeground = getClass().getMethod("startForeground",
 					mStartForegroundSignature);
@@ -133,24 +137,31 @@ public class AppTrackerService extends IntentService {
 		restartAppTrackerService();
 	}
     // This is the old onStart method that will be called on the pre-2.0
-    // platform.  On 2.0 or later we override onStartCommand() so this
-    // method will not be called.
+    // platform.
     @Override
     public void onStart(Intent intent, int startId) {
     	log.d("onStart()");
     	super.onStart(intent, startId);
         handleCommand(intent);
     }
-
-    @Override
+/* couldn't get this to work
     public int onStartCommand(Intent intent, int flags, int startId) {
     	log.d("onStartCommand()");
+    	try {
+    		Method superMethod = getClass().getSuperclass().getMethod("onStartCommand", Intent.class, int.class, int.class);
+    		superMethod.se
+    		superMethod.invoke(super, intent, flags, startId);
+    	} catch (Exception e) {
+    		log.e(e, "couldn't invoke super method", mStartForegroundArgs);
+    	}
+    	
     	super.onStartCommand(intent, flags, startId);
+    	
         handleCommand(intent);
         // We want this service to continue running until it is explicitly
         // stopped, so return sticky.
         return START_STICKY;
-    }
+    }*/
 
 	private void handleCommand(Intent intent) {
         
