@@ -40,9 +40,16 @@
     <string name="enable_icon_caching_preference">enable_icon_caching</string>
     <string name="enable_icon_caching_title">Cache App Icons</string>
     <string name="enable_icon_caching_summary">Uncheck this only if App Tracker is taking up too much space</string>   
+    <string name="show_notification_preference">show_notification_icon</string>
+    <string name="show_notification_title">Show Notification</string>
+    <string name="show_notification_summary">Recommended: ON. (See the User Guide for more info.)</string>  
     <string name="reset_data_preference">reset_data_preference</string>
     <string name="reset_data_title">Reset Data</string>
     <string name="reset_data_summary">Delete all saved data and start fresh</string>          
+    <string name="reset_intros_preference">reset_intros_preference</string>
+    <string name="reset_intros_title">Reset Introduction</string>
+    <string name="reset_intros_summary">Show introductory message again</string>   
+    <string name="reset_intros_message">Introductory message will be shown again.</string>
     <string name="settings">Settings</string>
     <string name="full_app_list">Full App List</string>
     <string name="user_guide">User Guide</string>
@@ -59,6 +66,19 @@
     <string name="free_version_text">Note: buy the premium version to unlock grayed-out options.</string>
     <string name="need_premium">You need the Premium version to do that.</string>
     <string name="app_tracker_config">App Tracker Configuration</string>
+    <string name="notification_subtext">Touch to start App Tracker</string>
+    <string name="notification_title">App tracking in progress</string>
+    <string name="notification_ticker">App tracking started</string>
     <string name="done">Done</string>
+    <string name="basic">Basic</string>
+    <string name="advanced">Advanced</string>
+    <string name="first_run_preference">first_run</string>
+    <string name="first_run_title">Welcome to App Tracker!</string>
+    <string name="first_run_message">\
+To disable the notification, go to Menu → Settings.\n\n\
+For changelog and version info, go to Menu → About.\n\n\
+For a full user guide, go to Menu → User Guide.\n\n\
+Enjoy!\
+</string>
     
 </resources>

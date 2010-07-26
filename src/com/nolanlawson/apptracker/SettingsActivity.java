@@ -17,14 +17,15 @@ import android.widget.Toast;
 
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
 import com.nolanlawson.apptracker.helper.PreferenceHelper;
+import com.nolanlawson.apptracker.helper.ServiceHelper;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
 public class SettingsActivity extends PreferenceActivity implements OnPreferenceChangeListener, OnPreferenceClickListener {
 	private static UtilLogger log = new UtilLogger(SettingsActivity.class);
 	
 	private EditTextPreference decayConstantPreference;
-	private CheckBoxPreference enableIconCachingPreference;
-	private Preference appsToExcludePreference, resetDataPreference;
+	private CheckBoxPreference enableIconCachingPreference, showNotificationPreference;
+	private Preference appsToExcludePreference, resetDataPreference, resetIntrosPreference;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -54,14 +55,16 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 		appsToExcludePreference = findPreference(R.string.apps_to_exclude_preference);
 		
 		resetDataPreference = findPreference(R.string.reset_data_preference);
+		resetIntrosPreference = findPreference(R.string.reset_intros_preference);
 		
 		enableIconCachingPreference = (CheckBoxPreference) findPreference(R.string.enable_icon_caching_preference);
+		showNotificationPreference = (CheckBoxPreference) findPreference(R.string.show_notification_preference);
 		
-		for (Preference preference : new Preference[]{appsToExcludePreference, resetDataPreference}) {
+		for (Preference preference : new Preference[]{appsToExcludePreference, resetDataPreference, resetIntrosPreference}) {
 			preference.setOnPreferenceClickListener(this);
 		}
 		
-		for (Preference preference : new Preference[]{decayConstantPreference, enableIconCachingPreference}) {
+		for (Preference preference : new Preference[]{decayConstantPreference, enableIconCachingPreference, showNotificationPreference}) {
 			preference.setOnPreferenceChangeListener(this);
 			
 		}
@@ -96,7 +99,21 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 				Toast.makeText(getApplicationContext(), R.string.bad_decay_constant_toast, Toast.LENGTH_LONG).show();
 				return false;
 			}
-		
+		} else if (preference.getKey().equals(getResources().getString(R.string.show_notification_preference))) {
+			
+			// restart the service and change the value
+			
+			Context context = getApplicationContext();
+			
+			ServiceHelper.stopBackgroundServiceIfRunning(context);
+			
+			boolean showNotification = (Boolean) newValue;
+			
+			PreferenceHelper.setShowNotificationPreference(context, showNotification);	
+			
+			ServiceHelper.startBackgroundServiceIfNotAlreadyRunning(context);
+			
+			
 		} else { // cache icon pref
 			
 			boolean enableIconCaching = (Boolean) newValue;
@@ -145,6 +162,10 @@ public class SettingsActivity extends PreferenceActivity implements OnPreference
 			Intent excludeIntent = new Intent(this, AppTrackerActivity.class);
 			excludeIntent.setAction(AppTrackerActivity.ACTION_EXCLUDE_APPS);
 			startActivity(excludeIntent);
+		} else if (preference.getKey().equals(getResources().getString(R.string.reset_intros_preference))) {// reset introduction
+			
+			PreferenceHelper.setFirstRunPreference(getApplicationContext(), true);
+			Toast.makeText(getApplicationContext(), R.string.reset_intros_message, Toast.LENGTH_SHORT).show();
 			
 		} else { // reset preference
 			doResetDialog();

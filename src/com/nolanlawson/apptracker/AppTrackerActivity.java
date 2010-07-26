@@ -3,14 +3,20 @@ package com.nolanlawson.apptracker;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.app.AlertDialog.Builder;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,8 +36,8 @@ import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
 import com.nolanlawson.apptracker.db.AppHistoryEntry;
 import com.nolanlawson.apptracker.db.SortType;
 import com.nolanlawson.apptracker.helper.ActivityInfoHelper;
+import com.nolanlawson.apptracker.helper.PreferenceHelper;
 import com.nolanlawson.apptracker.helper.ServiceHelper;
-import com.nolanlawson.apptracker.util.FlagUtil;
 import com.nolanlawson.apptracker.util.Pair;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
@@ -76,10 +82,9 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
 				this, R.layout.app_history_item, new ArrayList<LoadedAppHistoryEntry>(), sortType, excludeAppsMode);
 		
 
-
     }
 
-    @Override
+	@Override
     protected void onResume() {
     	super.onResume();
     	log.d("onResume()");
@@ -94,6 +99,8 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
 			// we're in "exclude apps" mode, so set this up appropriately
 			setUpAsExcludeAppsMode();
 		}
+		
+		showFirstRunDialog();
 
     }
 
@@ -234,6 +241,30 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
 		}
 	}
 	
+	private void showFirstRunDialog() {
+
+
+
+		boolean isFirstRun = PreferenceHelper.getFirstRunPreference(getApplicationContext());
+		if (isFirstRun) {
+			
+			AlertDialog.Builder builder = new Builder(this);
+			builder.setMessage(R.string.first_run_message);
+			builder.setCancelable(false);
+			builder.setIcon(R.drawable.holmes_icon);
+			builder.setTitle(R.string.first_run_title);
+			builder.setPositiveButton(android.R.string.ok,
+					new DialogInterface.OnClickListener() {
+
+						public void onClick(DialogInterface dialog, int which) {
+							PreferenceHelper.setFirstRunPreference(getApplicationContext(), false);
+						}
+					});
+			builder.create().show();
+			
+		}
+
+	}	
 	private void setAppropriateButtonAsPressed() {
 		switch (sortType) {
 		case Recent:
