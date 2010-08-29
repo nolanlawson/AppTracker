@@ -35,7 +35,7 @@ public class ActivityInfoHelper {
 	public static String loadLabelFromAppHistoryEntry(Context context, AppHistoryEntry appHistoryEntry, 
 			ActivityInfo activityInfo, PackageManager packageManager) {
 		
-		StopWatch stopWatch = new StopWatch("loadLabelFromAppHistoryEntry()");
+		//StopWatch stopWatch = new StopWatch("loadLabelFromAppHistoryEntry()");
 		
 		String label;
 		
@@ -62,7 +62,7 @@ public class ActivityInfoHelper {
 			label = appHistoryEntry.getLabel();
 		}
 		
-		stopWatch.log(log);
+		//stopWatch.log(log);
 		
 		return label;
 		
@@ -71,7 +71,7 @@ public class ActivityInfoHelper {
 	public static Bitmap loadIconFromAppHistoryEntry(Context context, AppHistoryEntry appHistoryEntry, 
 			ActivityInfo activityInfo, PackageManager packageManager) {
 		
-		StopWatch stopWatch = new StopWatch("loadIconFromAppHistoryEntry()");
+		//StopWatch stopWatch = new StopWatch("loadIconFromAppHistoryEntry()");
 		
 		Bitmap iconBitmap;
 		
@@ -109,7 +109,7 @@ public class ActivityInfoHelper {
 		
 		}
 		
-		stopWatch.log(log);
+		//stopWatch.log(log);
 		
 		return iconBitmap;
 		

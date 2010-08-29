@@ -24,7 +24,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	// schema constants
 	
 	private static final String DB_NAME = "app_history.db";
-	private static final int DB_VERSION = 2;
+	private static final int DB_VERSION = 3;
 	
 	// table constants
 	private static final String TABLE_NAME = "AppHistoryEntries";
@@ -74,21 +74,45 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		");";
 		
 		db.execSQL(sql);
+		createVersionThreeIndices(db);
 
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
-		if (oldVersion == 1 && newVersion == 2) {
+		if (oldVersion == 1) {
 			db.execSQL("alter table " + TABLE_NAME + 
 					" add column " + COLUMN_LABEL + " text ;");
 			db.execSQL("alter table " + TABLE_NAME + 
 					" add column " + COLUMN_ICON_BLOB + " blob ;");
 		}
-
+		
+		if (oldVersion <= 2) {
+			createVersionThreeIndices(db);
+		}
 	}
 	
+	private void createVersionThreeIndices(SQLiteDatabase db) {
+		
+		db.execSQL(String.format(
+				"CREATE INDEX IF NOT EXISTS index_package_process on %s (%s,%s);",
+				TABLE_NAME,
+				COLUMN_PACKAGE,
+				COLUMN_PROCESS));
+		
+		db.execSQL(String.format(
+				"CREATE INDEX IF NOT EXISTS index_installed_excluded on %s (%s,%s);",
+				TABLE_NAME,
+				COLUMN_INSTALLED,
+				COLUMN_EXCLUDED));
+		
+		db.execSQL(String.format(
+				"CREATE INDEX IF NOT EXISTS index_decayscore on %s (%s);",
+				TABLE_NAME,
+				COLUMN_DECAY_SCORE));		
+	}
+
 	public void deleteAll() {
 		
 		getWritableDatabase().execSQL("delete from " + TABLE_NAME);
@@ -263,6 +287,20 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	public List<AppHistoryEntry> findAllAppHistoryEntries() {
 		
 		Cursor cursor = getWritableDatabase().query(TABLE_NAME, COLUMNS, null, null, null, null, null);
+		
+		List<AppHistoryEntry> result = fromCursor(cursor);
+		
+		cursor.close();
+		
+		return result;
+		
+	}
+	
+	public List<AppHistoryEntry> findAllAppHistoryEntriesWithDecayScoreGreaterThan(double greaterThan) {
+		
+		String whereClause = COLUMN_DECAY_SCORE + " > " + greaterThan;
+		
+		Cursor cursor = getWritableDatabase().query(TABLE_NAME, COLUMNS, whereClause, null, null, null, null);
 		
 		List<AppHistoryEntry> result = fromCursor(cursor);
 		

@@ -65,7 +65,7 @@ public class UpdateAppStatsService extends IntentService {
 		List<AppHistoryEntry> appHistoryEntries;
 		
 		synchronized (AppHistoryDbHelper.class) {
-			appHistoryEntries = dbHelper.findAllAppHistoryEntries();
+			appHistoryEntries = dbHelper.findAllAppHistoryEntriesWithDecayScoreGreaterThan(0.0);
 		}
 
 		log.d("Updating all decay scores for %d entries", appHistoryEntries.size());

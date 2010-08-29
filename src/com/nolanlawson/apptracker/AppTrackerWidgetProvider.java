@@ -109,6 +109,10 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 
 		doPeriodicUpdate(context);
 
+		AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);		
+		WidgetUpdater.updateWidget(context, dbHelper);
+		dbHelper.close();
+
 	}
 
 	private static void updateWidget(final Context context, final int appWidgetId) {
@@ -131,7 +135,7 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 
 			Intent intent = new Intent(context, UpdateAppStatsService.class);
 			context.startService(intent);
-		}		
+		}	
 		
 	}
 

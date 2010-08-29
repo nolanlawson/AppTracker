@@ -283,7 +283,7 @@ public class AppTrackerService extends IntentService {
 					break;
 				}
 				if (++currentLine <= numLines) {
-					log.d("skipping line %d", currentLine);
+					//log.d("skipping line %d", currentLine);
 					continue;
 				}
 				if (line.contains("Starting activity") 
