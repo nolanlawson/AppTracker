@@ -88,7 +88,9 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 				
 				try {
 					
-					dbHelper.clearIconAndLabel(packageName);
+					synchronized (AppHistoryDbHelper.class) {
+						dbHelper.clearIconAndLabel(packageName);
+					}
 					
 				} finally {
 					dbHelper.close();

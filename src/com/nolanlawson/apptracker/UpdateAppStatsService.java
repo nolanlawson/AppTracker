@@ -1,15 +1,14 @@
 package com.nolanlawson.apptracker;
 
 import java.util.List;
-import java.util.regex.Pattern;
-
-import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
-import com.nolanlawson.apptracker.db.AppHistoryEntry;
-import com.nolanlawson.apptracker.util.UtilLogger;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
+
+import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
+import com.nolanlawson.apptracker.db.AppHistoryEntry;
+import com.nolanlawson.apptracker.db.AppHistoryEntrySummary;
+import com.nolanlawson.apptracker.util.UtilLogger;
 
 /**
  * Update the decay scores of each app history.
@@ -62,10 +61,10 @@ public class UpdateAppStatsService extends IntentService {
 	 */
 	private void updateAllDecayScores(AppHistoryDbHelper dbHelper) {
 		
-		List<AppHistoryEntry> appHistoryEntries;
+		List<AppHistoryEntrySummary> appHistoryEntries;
 		
 		synchronized (AppHistoryDbHelper.class) {
-			appHistoryEntries = dbHelper.findAllAppHistoryEntriesWithDecayScoreGreaterThan(0.0);
+			appHistoryEntries = dbHelper.findAllAppHistoryEntrySummariesWithDecayScoreGreaterThan(0.0);
 		}
 
 		log.d("Updating all decay scores for %d entries", appHistoryEntries.size());
@@ -73,7 +72,7 @@ public class UpdateAppStatsService extends IntentService {
 		long currentTime = System.currentTimeMillis();
 
 		try {
-			for (AppHistoryEntry appHistoryEntry : appHistoryEntries) {
+			for (AppHistoryEntrySummary appHistoryEntry : appHistoryEntries) {
 				
 				synchronized (AppHistoryDbHelper.class) {
 					dbHelper.updateDecayScore(appHistoryEntry, currentTime);

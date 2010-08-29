@@ -1,7 +1,6 @@
 package com.nolanlawson.apptracker.db;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -45,6 +44,10 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 			{COLUMN_ID, COLUMN_PACKAGE, COLUMN_PROCESS, COLUMN_INSTALLED, COLUMN_EXCLUDED, 
 			 COLUMN_COUNT, COLUMN_LAST_ACCESS, COLUMN_DECAY_SCORE, COLUMN_LAST_UPDATE,
 			 COLUMN_LABEL, COLUMN_ICON_BLOB};
+	
+	private static final String[] SUMMARY_COLUMNS =
+		{COLUMN_ID, COLUMN_INSTALLED, COLUMN_EXCLUDED, 
+		 COLUMN_COUNT, COLUMN_LAST_ACCESS, COLUMN_DECAY_SCORE, COLUMN_LAST_UPDATE};
 	
 	private Context context;
 	
@@ -296,13 +299,14 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		
 	}
 	
-	public List<AppHistoryEntry> findAllAppHistoryEntriesWithDecayScoreGreaterThan(double greaterThan) {
+	public List<AppHistoryEntrySummary> findAllAppHistoryEntrySummariesWithDecayScoreGreaterThan(
+			double greaterThan) {
 		
 		String whereClause = COLUMN_DECAY_SCORE + " > " + greaterThan;
 		
-		Cursor cursor = getWritableDatabase().query(TABLE_NAME, COLUMNS, whereClause, null, null, null, null);
+		Cursor cursor = getWritableDatabase().query(TABLE_NAME, SUMMARY_COLUMNS, whereClause, null, null, null, null);
 		
-		List<AppHistoryEntry> result = fromCursor(cursor);
+		List<AppHistoryEntrySummary> result = fromCursorToSummaries(cursor);
 		
 		cursor.close();
 		
@@ -329,7 +333,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	
 	private List<AppHistoryEntry> fromCursor(Cursor cursor) {
 		
-		List<AppHistoryEntry> result = new ArrayList<AppHistoryEntry>();
+		List<AppHistoryEntry> result = new ArrayList<AppHistoryEntry>(cursor.getCount());
 		
 		while (cursor.moveToNext()) {
 			AppHistoryEntry appHistoryEntry = AppHistoryEntry.newAppHistoryEntry(
@@ -342,7 +346,25 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		return result;
 	}
 
-	public void updateDecayScore(AppHistoryEntry appHistoryEntry, long currentTime) {
+	private List<AppHistoryEntrySummary> fromCursorToSummaries(Cursor cursor) {
+		
+		List<AppHistoryEntrySummary> result = new ArrayList<AppHistoryEntrySummary>(cursor.getCount());
+		
+		while (cursor.moveToNext()) {
+			
+			AppHistoryEntrySummary appHistoryEntrySummary = AppHistoryEntrySummary.newAppHistoryEntrySummary(
+					cursor.getInt(0), cursor.getInt(1) == 1,
+					cursor.getInt(2) == 1, cursor.getInt(3), 
+					new Date(cursor.getLong(4)), cursor.getDouble(5),
+					cursor.getLong(6));
+			result.add(appHistoryEntrySummary);
+		}
+		
+		return result;
+	}
+
+
+	public void updateDecayScore(AppHistoryEntrySummary appHistoryEntry, long currentTime) {
 		// existing entry; update decay score
 		long lastUpdate = appHistoryEntry.getLastUpdate();
 		double lastScore = appHistoryEntry.getDecayScore();
