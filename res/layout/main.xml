@@ -3,8 +3,6 @@
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
 	android:orientation="vertical">
 
-	<include layout="@layout/apps_to_exclude_header" android:id="@+id/apps_to_exclude_header_layout" />
-
 	<LinearLayout android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:orientation="horizontal"
 		android:gravity="center_horizontal" android:padding="3dp"
@@ -14,6 +12,8 @@
 			android:layout_height="wrap_content" />
 
 	</LinearLayout>
+
+	<include layout="@layout/apps_header" android:id="@+id/apps_header_layout" />
 
 	<ListView android:id="@android:id/list" android:layout_width="fill_parent"
 		android:layout_height="0px" android:layout_weight="1.0"

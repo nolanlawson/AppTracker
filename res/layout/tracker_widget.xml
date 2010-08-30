@@ -73,14 +73,16 @@
 					android:layout_height="wrap_content" android:id="@+id/app_title_1"
 					android:textSize="13sp" android:paddingLeft="3dp" android:gravity="center_vertical"
 					android:background="@drawable/bubble" android:textColor="@android:color/white"
-					android:singleLine="true" android:text="@string/waiting" />
+					android:singleLine="true" android:text="@string/waiting" 
+					android:ellipsize="marquee"/>
 
 				<TextView android:layout_width="wrap_content"
 					android:layout_height="wrap_content" android:id="@+id/app_description_1"
 					android:paddingLeft="3dp" android:textSize="12sp"
 					android:background="@drawable/bubble_small" android:textColor="@android:color/white"
 					android:gravity="center_vertical" android:text="4 mins ago"
-					android:singleLine="true" android:visibility="invisible" />
+					android:singleLine="true" android:visibility="invisible" 
+					android:ellipsize="marquee"/>
 
 			</LinearLayout>
 
@@ -105,14 +107,16 @@
 					android:layout_height="wrap_content" android:id="@+id/app_title_2"
 					android:textSize="13sp" android:paddingLeft="3dp" android:text="App Title"
 					android:gravity="center_vertical" android:background="@drawable/bubble"
-					android:textColor="@android:color/white" android:singleLine="true" />
+					android:textColor="@android:color/white" android:singleLine="true" 
+					android:ellipsize="marquee"/>
 
 				<TextView android:layout_width="wrap_content"
 					android:layout_height="wrap_content" android:id="@+id/app_description_2"
 					android:paddingLeft="3dp" android:textSize="12sp"
 					android:background="@drawable/bubble_small" android:textColor="@android:color/white"
 					android:gravity="center_vertical" android:text="4 mins ago"
-					android:singleLine="true" />
+					android:singleLine="true" 
+					android:ellipsize="marquee"/>
 			</LinearLayout>
 		</LinearLayout>
 		<LinearLayout android:orientation="vertical"
@@ -135,14 +139,16 @@
 					android:layout_height="wrap_content" android:id="@+id/app_title_3"
 					android:textSize="13sp" android:paddingLeft="3dp" android:text="App Title"
 					android:gravity="center_vertical" android:background="@drawable/bubble"
-					android:textColor="@android:color/white" android:singleLine="true" />
+					android:textColor="@android:color/white" android:singleLine="true" 
+					android:ellipsize="marquee"/>
 
 				<TextView android:layout_width="wrap_content"
 					android:layout_height="wrap_content" android:id="@+id/app_description_3"
 					android:paddingLeft="3dp" android:textSize="12sp"
 					android:background="@drawable/bubble_small" android:textColor="@android:color/white"
 					android:gravity="center_vertical" android:text="4 mins ago"
-					android:singleLine="true" />
+					android:singleLine="true" 
+					android:ellipsize="marquee"/>
 			</LinearLayout>
 		</LinearLayout>
 
@@ -166,14 +172,16 @@
 					android:layout_height="wrap_content" android:id="@+id/app_title_4"
 					android:textSize="13sp" android:paddingLeft="3dp" android:text="App Title"
 					android:gravity="center_vertical" android:background="@drawable/bubble"
-					android:textColor="@android:color/white" android:singleLine="true" />
+					android:textColor="@android:color/white" android:singleLine="true" 
+					android:ellipsize="marquee"/>
 
 				<TextView android:layout_width="wrap_content"
 					android:layout_height="wrap_content" android:id="@+id/app_description_4"
 					android:paddingLeft="3dp" android:textSize="12sp"
 					android:background="@drawable/bubble_small" android:textColor="@android:color/white"
 					android:gravity="center_vertical" android:text="4 mins ago"
-					android:singleLine="true" />
+					android:singleLine="true" 
+					android:ellipsize="marquee"/>
 			</LinearLayout>
 		</LinearLayout>
 	</LinearLayout>

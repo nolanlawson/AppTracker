@@ -57,7 +57,7 @@
     <string name="apps_to_exclude_summary">Choose which apps to omit from the list</string>   
     <string name="time_decay_constant_preference">time_decay_constant</string>
     <string name="time_decay_constant_title">Time Decay Constant</string>
-    <string name="time_decay_constant_summary">Lower values mean app scores decay faster (default: 7)</string>  
+    <string name="time_decay_constant_summary">Lower values mean app scores decay faster in Flavor of the Week view (default: 7)</string>  
     <string name="enable_icon_caching_preference">enable_icon_caching</string>
     <string name="enable_icon_caching_title">Cache App Icons</string>
     <string name="enable_icon_caching_summary">Uncheck this only if App Tracker is taking up too much space</string>   
@@ -87,7 +87,7 @@
     <string name="free_version_text">Note: buy the premium version to unlock grayed-out options.</string>
     <string name="need_premium">You need the Premium version to do that.</string>
     <string name="app_tracker_config">App Tracker Configuration</string>
-    <string name="notification_subtext">Touch to start App Tracker</string>
+    <string name="notification_subtext">Select to start App Tracker.</string>
     <string name="notification_title">App tracking in progress</string>
     <string name="notification_ticker">App tracking started</string>
     <string name="done">Done</string>

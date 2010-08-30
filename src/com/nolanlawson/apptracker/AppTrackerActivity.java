@@ -20,11 +20,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.nolanlawson.apptracker.data.LoadedAppHistoryAdapter;
 import com.nolanlawson.apptracker.data.LoadedAppHistoryEntry;
@@ -48,8 +50,9 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener 
 	
 	private boolean listLoading = false;
 	
-	private LinearLayout buttonsLinearLayout, appsToExcludeHeaderLinearLayout;
+	private LinearLayout buttonsLinearLayout, headerLinearLayout;
 	private Button mainButton;
+	private TextView headerDescriptionTextView;
 	
 	private LoadedAppHistoryAdapter adapter;
 	private SortType sortType = SortType.Recent;
@@ -94,6 +97,7 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener 
 			setUpAsExcludeAppsMode();
 		}
 		
+		
 		showFirstRunDialog();
 
     }
@@ -133,6 +137,8 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener 
 			// we're in "exclude apps" mode, so set this up appropriately
 			setUpAsExcludeAppsMode();
 		}
+		
+		changeButtonAndHeaderData();
 	
 		
 	}
@@ -213,20 +219,21 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener 
     private void setUpAsExcludeAppsMode() {
     	
 		buttonsLinearLayout.setVisibility(View.GONE);
-		appsToExcludeHeaderLinearLayout.setVisibility(View.VISIBLE);
 		
 			
 	}
     
 	private void setUpWidgets(boolean listAlreadyLoaded) {
 		
-		appsToExcludeHeaderLinearLayout = (LinearLayout) findViewById(R.id.apps_to_exclude_header_layout);
+		headerLinearLayout = (LinearLayout) findViewById(R.id.apps_header_layout);
 		
 		buttonsLinearLayout = (LinearLayout) findViewById(R.id.main_buttons_linear_layout);
 		
 		mainButton = (Button) findViewById(R.id.main_button);
 		mainButton.setOnClickListener(this);
-		changeButtonData();
+		
+		headerDescriptionTextView = (TextView) headerLinearLayout.findViewById(R.id.app_history_list_description);
+		changeButtonAndHeaderData();
 		
 	}
 	
@@ -360,18 +367,31 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener 
 		adapter.sort(excludeAppsMode ? LoadedAppHistoryEntry.orderByLabel() : LoadedAppHistoryEntry.orderBy(sortType));
 		adapter.notifyDataSetInvalidated();
 		
-		changeButtonData();
+		changeButtonAndHeaderData();
 		
 	}
 
-	private void changeButtonData() {
+	private void changeButtonAndHeaderData() {
 
 		String[] printableSortTypes = getResources().getStringArray(R.array.sort_type_display_list);
 		
 		Drawable drawable = getResources().getDrawable(SortType.getDrawableIcon(sortType));
 		drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
-		mainButton.setCompoundDrawables(drawable, null, null, null);
+		WindowManager windowManager = getWindowManager();
+		boolean portrait = windowManager.getDefaultDisplay().getWidth() < windowManager.getDefaultDisplay().getHeight();
+		if (portrait) {
+			mainButton.setCompoundDrawables(drawable, null, null, null);
+		} else { // landscape
+			mainButton.setCompoundDrawables(null, drawable, null, null);
+		}
 		mainButton.setText(printableSortTypes[sortType.ordinal()]);
+		
+		if (excludeAppsMode) {
+			headerDescriptionTextView.setText(R.string.app_exclude_text);
+		} else {
+			String[] descriptions = getResources().getStringArray(R.array.sort_type_descriptions);
+			headerDescriptionTextView.setText(descriptions[sortType.ordinal()]);
+		}
 		
 	}
 

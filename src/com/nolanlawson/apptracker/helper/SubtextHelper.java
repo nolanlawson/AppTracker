@@ -15,7 +15,7 @@ public class SubtextHelper {
 	private static final String DATE_FORMATTER_STRING = "0.00";
 	
 	public static String createSubtext(Context context, SortType sortType,
-			AppHistoryEntry appHistoryEntry) {
+			AppHistoryEntry appHistoryEntry, boolean abbreviated) {
 		
 		//TODO: make this localizable
 		switch (sortType) {
@@ -25,7 +25,9 @@ public class SubtextHelper {
 		case LeastUsed:
 			int count = appHistoryEntry.getCount();
 			
-			if (count == 1) {
+			if (abbreviated) {
+				return Integer.toString(count);
+			} else if (count == 1) {
 				return count +" hit";
 			} else {
 				return count +" hits";
@@ -33,7 +35,7 @@ public class SubtextHelper {
 		case TimeDecay:
 			DecimalFormat decimalFormat = new DecimalFormat(DATE_FORMATTER_STRING);
 			String formattedDecayScore = decimalFormat.format(appHistoryEntry.getDecayScore());
-			return "Score: " + formattedDecayScore;
+			return abbreviated ? formattedDecayScore : "Score: " + formattedDecayScore;
 		case Alphabetic:
 			return "";
 		case RecentlyInstalled:

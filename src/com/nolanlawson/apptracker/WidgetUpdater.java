@@ -131,7 +131,7 @@ public class WidgetUpdater {
 						activityInfo, packageManager);
 				
 				
-				String subtextText = SubtextHelper.createSubtext(context, sortType, appHistoryEntry);
+				String subtextText = SubtextHelper.createSubtext(context, sortType, appHistoryEntry, false);
 				
 				
 				updateViews.setTextViewText(ResourceIdHelper.getAppTitleId(i), label);
