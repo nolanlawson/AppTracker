@@ -154,7 +154,7 @@ public class PreferenceHelper {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		
 		return prefs.getString(getSortTypePreferenceName(context, appWidgetId), 
-				context.getResources().getString(R.string.sort_type_recent));
+				context.getResources().getString(R.string.sort_type_recently_used));
 	}
 	
 	public static void setSortTypePreference(Context context, String sortType, int appWidgetId) {

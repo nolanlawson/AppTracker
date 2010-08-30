@@ -1,5 +1,7 @@
 package com.nolanlawson.apptracker;
 
+import java.util.Arrays;
+
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.net.Uri;
@@ -14,7 +16,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.RemoteViews;
-import android.widget.TextView;
 
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
 import com.nolanlawson.apptracker.helper.FreemiumHelper;
@@ -86,7 +87,8 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 	private void initializePreferences() {
 		
 		sortTypePreference = (ListPreference) findPreference(R.string.sort_type_preference);
-		
+		sortTypePreference.setSummary(String.format(getText(R.string.sort_type_summary).toString(),sortTypePreference.getEntry()));
+		sortTypePreference.setOnPreferenceChangeListener(this);
 		int numAppHistories;
 		synchronized (AppHistoryDbHelper.class) {
 			numAppHistories = dbHelper.findCountOfInstalledAppHistoryEntries();
@@ -171,7 +173,7 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 		log.d("Saving configurations...");
 		
 		
-		CharSequence sortType = sortTypePreference.getEntry();
+		CharSequence sortType = sortTypePreference.getValue();
 		
 		PreferenceHelper.setSortTypePreference(getApplicationContext(), sortType.toString(), appWidgetId);
 		
@@ -218,6 +220,61 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 	@Override
 	public boolean onPreferenceChange(Preference preference, Object newValue) {
 
+		if (preference.getKey().equals(getText(R.string.sort_type_preference))) {
+			updateSortTypePreference(preference, newValue);
+			
+		} else {
+			updateNonSortTypePreference(preference, newValue);
+		}
+		
+		return true;
+	}
+
+	private void updateSortTypePreference(Preference preference, Object newValue) {
+		
+		// if the sorting is alphabetic, then the subtext has to be disabled no matter what, because
+		// there is no subtext
+		
+		if (newValue.equals(getText(R.string.sort_type_alphabetic))) {
+			hideSubtextPreference.setChecked(true);
+			hideSubtextPreference.setSummary(R.string.hide_subtext_disabled_for_alphabetic);
+			
+			if (FreemiumHelper.isAppTrackerPremiumInstalled(getApplicationContext())) {
+				hideSubtextPreference.setEnabled(false);
+			}
+			
+		} else {
+			
+			if (sortTypePreference.getValue().equals(getText(R.string.sort_type_alphabetic))) {
+				// reset if we're switching back from sort type alphabetic
+				hideSubtextPreference.setChecked(false);
+				hideSubtextPreference.setSummary(R.string.hide_subtext_summary);
+			}
+			
+			if (FreemiumHelper.isAppTrackerPremiumInstalled(getApplicationContext())) {
+		
+				hideSubtextPreference.setEnabled(true);
+			}
+		}
+		
+		stretchToFillPreference.setEnabled(hideAppTitlePreference.isChecked() 
+				|| lockPagePreference.isChecked()
+				|| hideSubtextPreference.isChecked());
+		
+		// show the printable sort type rather than the internal one
+		CharSequence[] entries = sortTypePreference.getEntries();
+		CharSequence[] entryValues = sortTypePreference.getEntryValues();
+		CharSequence newValueAsEntry = entries[Arrays.asList(entryValues).indexOf(newValue)];
+		
+		sortTypePreference.setSummary(String.format(getText(R.string.sort_type_summary).toString(),newValueAsEntry));
+		
+	}
+
+	private void updateNonSortTypePreference(Preference preference,
+			Object newValue) {
+
+		
+		
 		String lockPagePreferenceKey = getResources().getString(R.string.lock_page_preference);
 		String hideAppTitlePreferenceKey = getResources().getString(R.string.hide_app_title_preference);
 		String hideSubtextPreferenceKey = getResources().getString(R.string.hide_subtext_preference);
@@ -245,9 +302,6 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 		
 		stretchToFillPreference.setEnabled(enableStretchToFill);
 		
-		return true;
 	}
-	
-	
 		
 }

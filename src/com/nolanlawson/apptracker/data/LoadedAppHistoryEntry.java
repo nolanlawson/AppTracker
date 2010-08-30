@@ -1,6 +1,7 @@
 package com.nolanlawson.apptracker.data;
 
 import java.util.Comparator;
+import java.util.Date;
 
 import android.content.Context;
 import android.content.pm.ActivityInfo;
@@ -121,10 +122,55 @@ public class LoadedAppHistoryEntry {
 							object1.getAppHistoryEntry().getDecayScore());
 				}
 			};			
+		
+		case Alphabetic:
+			return new Comparator<LoadedAppHistoryEntry>() {
+
+				@Override
+				public int compare(LoadedAppHistoryEntry object1,
+						LoadedAppHistoryEntry object2) {
+					return object1.getTitle().toString().toLowerCase().compareTo(object2.getTitle().toString().toLowerCase());
+				}
+			};			
+		case LeastUsed:
+			return new Comparator<LoadedAppHistoryEntry>() {
+
+				@Override
+				public int compare(LoadedAppHistoryEntry object1,
+						LoadedAppHistoryEntry object2) {
+					return object1.getAppHistoryEntry().getCount() - object2.getAppHistoryEntry().getCount();
+				}
+			};		
+		case RecentlyInstalled:
+			return new Comparator<LoadedAppHistoryEntry>() {
+
+				@Override
+				public int compare(LoadedAppHistoryEntry object1,
+						LoadedAppHistoryEntry object2) {
+					return compareDates(object2.getAppHistoryEntry().getInstallDate(), object1.getAppHistoryEntry().getInstallDate());
+				}
+			};			
+		case RecentlyUpdated:
+			return new Comparator<LoadedAppHistoryEntry>() {
+
+				@Override
+				public int compare(LoadedAppHistoryEntry object1,
+						LoadedAppHistoryEntry object2) {
+					return compareDates(object2.getAppHistoryEntry().getUpdateDate(), object1.getAppHistoryEntry().getUpdateDate());
+				}
+			};			
 		}
 		throw new IllegalArgumentException("this should never be " +
 				"reached unless we don't know this sortType: " + sortType);
 		
+	}
+	
+	private static int compareDates(Date first, Date second) {
+		
+		long firstTime = first != null ? first.getTime() : 0;
+		long secondTime = second != null ? second.getTime() : 0;
+		
+		return new Long(firstTime - secondTime).intValue();
 	}
 	
 	

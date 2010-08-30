@@ -7,10 +7,29 @@
     <string name="forward_arrow">&gt;</string>
     <string name="sort_type_preference">app_tracker_type</string>
     <string name="sort_type_title">Sorting</string>
-    <string name="sort_type_summary">Recent, Most Used, or Time Decay</string>
-    <string name="sort_type_recent">Recent</string>
+    
+    <string name="hide_subtext_disabled_for_alphabetic">Alphabetic sorting has no subtext</string>
+    
+    <string name="sort_type_summary">How to order the app icons (%s)</string>
+    
+    <string name="sort_type_recently_used">Recent</string>
     <string name="sort_type_most_used">Most Used</string>
     <string name="sort_type_time_decay">Time Decay</string>
+    <string name="sort_type_recently_installed">Recently Installed</string>
+    <string name="sort_type_recently_updated">Recently Updated</string>
+    <string name="sort_type_least_used">Least Used</string>
+    <string name="sort_type_alphabetic">Alphabetic</string>
+
+    <string name="sort_type_display_recently_used">Recently Used</string>
+    <string name="sort_type_display_most_used">Most Used</string>
+    <string name="sort_type_display_time_decay">Flavor of the Week</string>
+    <string name="sort_type_display_recently_installed">Recently Installed</string>
+    <string name="sort_type_display_recently_updated">Recently Updated</string>
+    <string name="sort_type_display_least_used">Rarely Used</string>
+    <string name="sort_type_display_alphabetic">Alphabetic</string>
+    
+    
+    
     <string name="page_number_preference">page_number</string>
     <string name="page_number_title">Page to Lock</string>
     <string name="page_number_summary">Page of results to show when locked</string>

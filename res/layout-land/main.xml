@@ -3,25 +3,6 @@
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
 	android:orientation="horizontal">
 
-
-	<LinearLayout android:layout_width="wrap_content"
-		android:layout_height="fill_parent" android:orientation="vertical"
-		android:padding="5dp" android:id="@+id/buttons_layout">
-
-		<Button android:layout_height="0px" android:layout_weight="0.33"
-			android:layout_width="fill_parent" android:text="@string/sort_type_recent"
-			android:drawableTop="@drawable/ic_menu_clock" android:id="@+id/recent_button" />
-
-		<Button android:layout_height="0px" android:layout_weight="0.33"
-			android:layout_width="fill_parent" android:text="@string/sort_type_most_used"
-			android:drawableTop="@drawable/ic_menu_star" android:id="@+id/most_used_button" />
-
-		<Button android:layout_height="0px" android:layout_weight="0.33"
-			android:layout_width="fill_parent" android:text="@string/sort_type_time_decay"
-			android:drawableTop="@drawable/ic_menu_recent_history" android:id="@+id/time_decay_button" />
-
-	</LinearLayout>
-
 	<LinearLayout android:layout_width="0px"
 			android:layout_weight="1.0" android:layout_height="fill_parent" android:orientation="vertical">
 		<include layout="@layout/apps_to_exclude_header" android:id="@+id/apps_to_exclude_header_layout"

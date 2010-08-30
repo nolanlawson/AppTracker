@@ -76,26 +76,26 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 		} else if (ACTION_RESTART_SERVICE.equals(intent.getAction())) {
 			log.d("Simply restarted the service, because it was killed");
 		} else if (Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())
-				|| Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())) {
+				|| Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())
+				|| Intent.ACTION_PACKAGE_INSTALL.equals(intent.getAction())
+				|| Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())) {
 			
 			if (intent.getData() != null) {
 				
 				String packageName = intent.getData().getEncodedSchemeSpecificPart();
 				
-				log.d("Package was changed; need to clear labels and icon for: %s", packageName);
+				clearIconAndLabel(context, packageName);
 				
-				AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);
-				
-				try {
-					
-					synchronized (AppHistoryDbHelper.class) {
-						dbHelper.clearIconAndLabel(packageName);
-					}
-					
-				} finally {
-					dbHelper.close();
+				if (Intent.ACTION_PACKAGE_INSTALL.equals(intent.getAction())) {
+					packageInstallEvent(context, packageName);
+				} else if (Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())) {
+					packageReplaceEvent(context, packageName);
 				}
 			}
+			
+		} else if (Intent.ACTION_PACKAGE_INSTALL.equals(intent.getAction())){
+			
+
 			
 		}
 		
@@ -115,6 +115,50 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 		WidgetUpdater.updateWidget(context, dbHelper);
 		dbHelper.close();
 
+	}
+
+	private void packageReplaceEvent(Context context, String packageName) {
+		
+		// package has been reinstalled
+		
+		AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);
+		
+		synchronized (AppHistoryDbHelper.class) {
+			dbHelper.updateUpdateDate(packageName, System.currentTimeMillis());
+		}
+		
+		dbHelper.close();		
+	}
+
+	private void packageInstallEvent(Context context, String packageName) {
+		
+		// new package installed!  make a note of this date
+	
+		AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);
+		
+		synchronized (AppHistoryDbHelper.class) {
+			dbHelper.updateInstallDate(packageName, System.currentTimeMillis());
+		}
+		
+		dbHelper.close();
+		
+	}
+
+	private void clearIconAndLabel(Context context, String packageName) {
+		log.d("Package was changed; need to clear labels and icon for: %s", packageName);
+		
+		AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);
+		
+		try {
+			
+			synchronized (AppHistoryDbHelper.class) {
+				dbHelper.clearIconAndLabel(packageName);
+			}
+			
+		} finally {
+			dbHelper.close();
+		}
+		
 	}
 
 	private static void updateWidget(final Context context, final int appWidgetId) {

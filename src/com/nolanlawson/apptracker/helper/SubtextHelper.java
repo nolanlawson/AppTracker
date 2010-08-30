@@ -22,6 +22,7 @@ public class SubtextHelper {
 		case Recent:
 			return getHumanReadableDateDiff(appHistoryEntry.getLastAccessed());
 		case MostUsed:
+		case LeastUsed:
 			int count = appHistoryEntry.getCount();
 			
 			if (count == 1) {
@@ -33,9 +34,14 @@ public class SubtextHelper {
 			DecimalFormat decimalFormat = new DecimalFormat(DATE_FORMATTER_STRING);
 			String formattedDecayScore = decimalFormat.format(appHistoryEntry.getDecayScore());
 			return "Score: " + formattedDecayScore;
-		default:
-			throw new IllegalArgumentException("cannot find sortType: " + sortType);
+		case Alphabetic:
+			return "";
+		case RecentlyInstalled:
+			return getHumanReadableDateDiff(appHistoryEntry.getInstallDate());
+		case RecentlyUpdated:
+			return getHumanReadableDateDiff(appHistoryEntry.getUpdateDate());
 		}
+		throw new IllegalArgumentException("cannot find sortType: " + sortType);
 	}
 	
 
@@ -45,6 +51,12 @@ public class SubtextHelper {
 	 * @return
 	 */
 	public static String getHumanReadableDateDiff(Date pastDate) {
+		
+		// TODO: localize
+		if (pastDate == null || pastDate.getTime() == 0) {
+			return "Unknown";
+		}
+		
 		Date currentDate = new Date();
 		
 		long timeDiff = currentDate.getTime() - pastDate.getTime();
@@ -72,8 +84,17 @@ public class SubtextHelper {
 			} else {
 				return days +" days ago";
 			}
+		} else if (timeDiff < TimeUnit.SECONDS.toMillis(60 * 60 * 24 * 365)){ // less than a year ago
+			
+			long months = Math.round(TimeUnit.SECONDS.convert(timeDiff, TimeUnit.MILLISECONDS) / (60.0 * 60 * 24 * 30));
+			
+			if (months == 1) {
+				return "1 month ago";
+			} else {
+				return months + " months ago";
+			}
 		} else {
-			return ">1 month ago";
+			return ">1 year ago";
 		}
 	}
 

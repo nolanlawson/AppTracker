@@ -41,7 +41,7 @@ import com.nolanlawson.apptracker.helper.ServiceHelper;
 import com.nolanlawson.apptracker.util.Pair;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
-public class AppTrackerActivity extends ListActivity implements OnTouchListener, OnClickListener {
+public class AppTrackerActivity extends ListActivity {
     
 	public static String ACTION_EXCLUDE_APPS = "com.nolanlawson.apptracker.action.EXCLUDE_APPS";
 	
@@ -52,8 +52,6 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
 	private boolean listLoading = false;
 	
 	private LinearLayout buttonsLinearLayout, appsToExcludeHeaderLinearLayout;
-	private Button recentButton, mostUsedButton, timeDecayButton;
-	private Button[] buttons;
 	
 	private LoadedAppHistoryAdapter adapter;
 	private SortType sortType = SortType.Recent;
@@ -93,8 +91,6 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
     	
 		setUpList();
 		
-		setAppropriateButtonAsPressed();
-		
 		if (excludeAppsMode) {
 			// we're in "exclude apps" mode, so set this up appropriately
 			setUpAsExcludeAppsMode();
@@ -117,7 +113,7 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
 		log.d("onWindowFocusChanged()");
-		setAppropriateButtonAsPressed();
+		
 	}
 
 	@Override
@@ -134,8 +130,6 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
 		// just redraw the widgets while doing as little work as possible
 		setContentView(R.layout.main);
 		setUpWidgets(true);
-		
-		setAppropriateButtonAsPressed();
 		
 		if (excludeAppsMode) {
 			// we're in "exclude apps" mode, so set this up appropriately
@@ -228,17 +222,8 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
     
 	private void setUpWidgets(boolean listAlreadyLoaded) {
 		
-		recentButton = (Button) findViewById(R.id.recent_button);
-		mostUsedButton = (Button) findViewById(R.id.most_used_button);
-		timeDecayButton = (Button) findViewById(R.id.time_decay_button);
-		buttons = new Button[]{recentButton, mostUsedButton, timeDecayButton};
-		buttonsLinearLayout = (LinearLayout) findViewById(R.id.buttons_layout);
 		appsToExcludeHeaderLinearLayout = (LinearLayout) findViewById(R.id.apps_to_exclude_header_layout);
 		
-		for (Button button : buttons) {
-			button.setOnTouchListener(this);
-			button.setOnClickListener(this);
-		}
 	}
 	
 	private void showFirstRunDialog() {
@@ -265,19 +250,6 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
 		}
 
 	}	
-	private void setAppropriateButtonAsPressed() {
-		switch (sortType) {
-		case Recent:
-			setButtonAsPressed(recentButton);
-			break;
-		case MostUsed:
-			setButtonAsPressed(mostUsedButton);
-			break;
-		case TimeDecay:
-			setButtonAsPressed(timeDecayButton);
-			break;
-		}
-	}
     
 	private void setUpList() {
 
@@ -377,57 +349,12 @@ public class AppTrackerActivity extends ListActivity implements OnTouchListener,
 		
 	}
 
-	@Override
-	public boolean onTouch(View v, MotionEvent event) {
-				
-		// have to do onTouch/ActionUp instead of onClick because
-		// onClick will override the "pressed" setting
-		if (event.getAction() == MotionEvent.ACTION_UP) {
-			
-			log.d("action up!");
-			clickButton(v);
-			
-			return true;
-		}
+	private void changeSortType(SortType newSortType) {
 		
-		return false;
-	}
-	
-
-	@Override
-	public void onClick(View v) {
-		clickButton(v);
-	}
-	private void clickButton(View v) {
-		switch (v.getId()) {
-		case R.id.recent_button:
-			sortType = SortType.Recent;
-			setButtonAsPressed(recentButton);
-			break;
-		case R.id.most_used_button:
-			sortType = SortType.MostUsed;
-			setButtonAsPressed(mostUsedButton);
-			break;
-		case R.id.time_decay_button:
-			sortType = SortType.TimeDecay;
-			setButtonAsPressed(timeDecayButton);
-			break;
-		}
+		sortType = newSortType;
 		adapter.setSortType(sortType);
 		adapter.sort(excludeAppsMode ? LoadedAppHistoryEntry.orderByLabel() : LoadedAppHistoryEntry.orderBy(sortType));
 		adapter.notifyDataSetInvalidated();
-		
-	}
-
-	
-	private void setButtonAsPressed(final Button button) {
-		
-		for (Button otherButton : buttons) {
-			if (otherButton.getId() != button.getId()) {
-				otherButton.setPressed(false);
-			}
-		}
-		button.setPressed(true);
 		
 	}
 

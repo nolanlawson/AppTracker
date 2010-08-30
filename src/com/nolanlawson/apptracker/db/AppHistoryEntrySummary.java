@@ -11,6 +11,8 @@ public class AppHistoryEntrySummary {
 	private Date lastAccessed;
 	private double decayScore;
 	private long lastUpdate;
+	private Date installDate;
+	private Date updateDate;
 	
 	public int getId() {
 		return id;
@@ -58,8 +60,24 @@ public class AppHistoryEntrySummary {
 	public void setInstalled(boolean installed) {
 		this.installed = installed;
 	}
+	
+	
+	public Date getInstallDate() {
+		return installDate;
+	}
+	public void setInstallDate(Date installDate) {
+		this.installDate = installDate;
+	}
+	
+	
+	public Date getUpdateDate() {
+		return updateDate;
+	}
+	public void setUpdateDate(Date updateDate) {
+		this.updateDate = updateDate;
+	}
 	public static AppHistoryEntrySummary newAppHistoryEntrySummary(int id, boolean installed, boolean excluded,
-			int count, Date lastAccessed, double decayScore, long lastUpdate) {
+			int count, Date lastAccessed, double decayScore, long lastUpdate, Date installDate, Date updateDate) {
 		
 		AppHistoryEntrySummary result = new AppHistoryEntrySummary();
 		result.id = id;
@@ -69,6 +87,8 @@ public class AppHistoryEntrySummary {
 		result.lastAccessed = lastAccessed;
 		result.decayScore = decayScore;
 		result.lastUpdate = lastUpdate;
+		result.installDate = installDate;
+		result.updateDate = updateDate;
 		
 		return result;
 	}	
