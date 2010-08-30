@@ -20,7 +20,7 @@ public class SubtextHelper {
 		//TODO: make this localizable
 		switch (sortType) {
 		case Recent:
-			return getHumanReadableDateDiff(appHistoryEntry.getLastAccessed());
+			return getHumanReadableDateDiff(appHistoryEntry.getLastAccessed(), false);
 		case MostUsed:
 		case LeastUsed:
 			int count = appHistoryEntry.getCount();
@@ -37,9 +37,9 @@ public class SubtextHelper {
 		case Alphabetic:
 			return "";
 		case RecentlyInstalled:
-			return getHumanReadableDateDiff(appHistoryEntry.getInstallDate());
+			return getHumanReadableDateDiff(appHistoryEntry.getInstallDate(), true);
 		case RecentlyUpdated:
-			return getHumanReadableDateDiff(appHistoryEntry.getUpdateDate());
+			return getHumanReadableDateDiff(appHistoryEntry.getUpdateDate(), true);
 		}
 		throw new IllegalArgumentException("cannot find sortType: " + sortType);
 	}
@@ -50,11 +50,11 @@ public class SubtextHelper {
 	 * @param date
 	 * @return
 	 */
-	public static String getHumanReadableDateDiff(Date pastDate) {
+	public static String getHumanReadableDateDiff(Date pastDate, boolean unknownIfNull) {
 		
 		// TODO: localize
 		if (pastDate == null || pastDate.getTime() == 0) {
-			return "Unknown";
+			return unknownIfNull ? "Unknown" : "Never";
 		}
 		
 		Date currentDate = new Date();

@@ -168,6 +168,25 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		
 		
 	}
+	public List<AppHistoryEntry> findInstalledAppHistoryEntriesWithNullLabels() {
+		
+		String whereClause = createObligatoryWhereClause(true);
+		
+		String sql = "select " + TextUtils.join(",", COLUMNS)
+				+ " from " 
+				+ joinedTables()
+				+ " where " + whereClause
+				+ " and " + COLUMN_LABEL + " is null ";
+		
+		Cursor cursor = getWritableDatabase().rawQuery(sql, null);
+		
+		List<AppHistoryEntry> result = fromCursor(cursor);
+		
+		cursor.close();
+		
+		return result;
+		
+	}
 	
 	public List<AppHistoryEntry> findInstalledAppHistoryEntries(SortType sortType, int limit, int offset,
 			boolean showExcludedApps) {
@@ -221,6 +240,23 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	}
 
 	/**
+	 * Adds a package/process combo with no count and a last used date of 0 if it doesn't exist
+	 * If it does exist, updates the entry to show that it's been reinstalled.
+	 * @param packageName
+	 * @param process
+	 */
+	public void addEmptyPackageAndProcessIfNotExists(String packageName, String process) {
+		
+		AppHistoryEntry existingEntry = findByPackageAndProcess(packageName, process);
+		
+		if (existingEntry == null) {
+			insertNewAppHistoryEntry(packageName, process, System.currentTimeMillis(), true);
+		} else {
+			setInstalled(existingEntry.getId(), true);
+		}
+	}
+	
+	/**
 	 * Increment the count of the specified package and process
 	 * and update its timestamp to be the most recent, or insert if it
 	 * doesn't exist
@@ -234,7 +270,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		if (existingEntry == null) {
 			// create new
 			log.d("inserting new app history: %s, %s", packageName, process);
-			insertNewAppHistoryEntry(packageName, process, currentTime);
+			insertNewAppHistoryEntry(packageName, process, currentTime, false);
 			return;
 		}
 		
@@ -540,20 +576,18 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	}
 	
 	
-	private void insertNewAppHistoryEntry(String packageName, String process, long currentTime) {
+	private void insertNewAppHistoryEntry(String packageName, String process, long currentTime, boolean empty) {
 		
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(COLUMN_PACKAGE, packageName);
 		contentValues.put(COLUMN_PROCESS, process);
 		contentValues.put(COLUMN_INSTALLED, 1);
 		contentValues.put(COLUMN_EXCLUDED, 0);
-		contentValues.put(COLUMN_COUNT, 1);
-		contentValues.put(COLUMN_LAST_ACCESS, currentTime);
-		contentValues.put(COLUMN_DECAY_SCORE, 1);
+		contentValues.put(COLUMN_COUNT, empty ? 0 : 1);
+		contentValues.put(COLUMN_LAST_ACCESS, empty ? 0 : currentTime);
+		contentValues.put(COLUMN_DECAY_SCORE, empty ? 0.0 : 1);
 		contentValues.put(COLUMN_LAST_UPDATE, currentTime);
-		
-
-		
+				
 		getWritableDatabase().insert(APP_HISTORY_TABLE_NAME, null, contentValues);
 	}
 

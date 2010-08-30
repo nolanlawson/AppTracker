@@ -136,8 +136,7 @@ public class AppHistoryEntry {
 	@Override
 	public String toString() {
 		return "AppHistoryEntry [count=" + count + ", decayScore=" + decayScore
-				+ ", excluded=" + excluded + ", iconBlob="
-				+ Arrays.toString(iconBlob) + ", id=" + id + ", installed="
+				+ ", excluded=" + excluded + ", id=" + id + ", installed="
 				+ installed + ", label=" + label + ", lastAccessed="
 				+ lastAccessed + ", lastUpdate=" + lastUpdate
 				+ ", packageName=" + packageName + ", process=" + process + "]";

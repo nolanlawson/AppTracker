@@ -135,6 +135,12 @@ public class ActivityInfoHelper {
 		log.d("getActivityInfos(), pageNumber: %d, limit: %d, sortType: %s, showExcludedApps: %s", 
 				pageNumber, limit, sortType, showExcludedApps);
 		
+		if (sortType == SortType.Alphabetic) {
+			// have to be sure to load all the labels
+			loadLabelsInAdvance(context, dbHelper, packageManager);
+		}
+		
+		
 		List<Pair<AppHistoryEntry,ActivityInfo>> activityInfos = new ArrayList<Pair<AppHistoryEntry,ActivityInfo>>();
 		
 		List<AppHistoryEntry> appHistories;
@@ -181,6 +187,31 @@ public class ActivityInfoHelper {
 		
 	}
 	
+
+	private static void loadLabelsInAdvance(Context context,
+			AppHistoryDbHelper dbHelper, PackageManager packageManager) {
+
+		log.d("loading labels in advance");
+		
+		// if the sort type is alphabetic, then we have to make sure that all the 
+		// labels are loaded in the database first
+		
+		
+		List<AppHistoryEntry> labellessEntries = null;
+		
+		synchronized (AppHistoryDbHelper.class) {
+			
+			labellessEntries = dbHelper.findInstalledAppHistoryEntriesWithNullLabels();
+		}
+		
+		log.d("found %d labelless app history entries", labellessEntries.size());
+		
+		for (AppHistoryEntry appHistoryEntry : labellessEntries) {
+			ActivityInfo activityInfo = getActivityInfo(packageManager, appHistoryEntry);
+			loadLabelFromAppHistoryEntry(context, appHistoryEntry, activityInfo, packageManager);
+		}
+		
+	}
 
 	private static ActivityInfo getActivityInfo(
 			PackageManager packageManager, 

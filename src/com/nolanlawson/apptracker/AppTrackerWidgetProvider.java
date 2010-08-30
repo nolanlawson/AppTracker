@@ -2,8 +2,10 @@ package com.nolanlawson.apptracker;
 
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
 import com.nolanlawson.apptracker.helper.PreferenceHelper;
@@ -80,22 +82,21 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 				|| Intent.ACTION_PACKAGE_INSTALL.equals(intent.getAction())
 				|| Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())) {
 			
+			log.d("package change event: %s", intent);
+			
 			if (intent.getData() != null) {
 				
 				String packageName = intent.getData().getEncodedSchemeSpecificPart();
 				
 				clearIconAndLabel(context, packageName);
 				
-				if (Intent.ACTION_PACKAGE_INSTALL.equals(intent.getAction())) {
+				if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())) {
 					packageInstallEvent(context, packageName);
+					updateWidget(context);
 				} else if (Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())) {
 					packageReplaceEvent(context, packageName);
 				}
 			}
-			
-		} else if (Intent.ACTION_PACKAGE_INSTALL.equals(intent.getAction())){
-			
-
 			
 		}
 		
@@ -118,6 +119,8 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 	}
 
 	private void packageReplaceEvent(Context context, String packageName) {
+
+		log.d("package reinstalled: %s", packageName);
 		
 		// package has been reinstalled
 		
@@ -127,10 +130,15 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 			dbHelper.updateUpdateDate(packageName, System.currentTimeMillis());
 		}
 		
-		dbHelper.close();		
+		dbHelper.close();	
+		
+		
+		updateActivityLog(context, packageName);
 	}
 
 	private void packageInstallEvent(Context context, String packageName) {
+		
+		log.d("new package installed: %s", packageName);
 		
 		// new package installed!  make a note of this date
 	
@@ -142,6 +150,29 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 		
 		dbHelper.close();
 		
+		updateActivityLog(context, packageName);
+		
+	}
+
+	private void updateActivityLog(Context context, String packageName) {
+		PackageManager packageManager = context.getPackageManager();
+		
+		Intent launchIntent = packageManager.getLaunchIntentForPackage(packageName);
+		
+		log.d("launchIntent is %s", launchIntent);
+		
+		ComponentName componentName = launchIntent.getComponent();
+		
+		log.d("componentName is '%s' / '%s'", componentName.getPackageName(), componentName.getShortClassName());
+		
+		AppHistoryDbHelper dbHelper =  new AppHistoryDbHelper(context);
+		
+		synchronized (dbHelper) {
+			
+			dbHelper.addEmptyPackageAndProcessIfNotExists(componentName.getPackageName(), componentName.getShortClassName());
+		}
+		
+		dbHelper.close();
 	}
 
 	private void clearIconAndLabel(Context context, String packageName) {
@@ -160,7 +191,18 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 		}
 		
 	}
+	
+	private static void updateWidget(final Context context) {
 
+
+		AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);
+		
+		WidgetUpdater.updateWidget(context, dbHelper);
+		dbHelper.close();
+
+
+	}
+	
 	private static void updateWidget(final Context context, final int appWidgetId) {
 
 
