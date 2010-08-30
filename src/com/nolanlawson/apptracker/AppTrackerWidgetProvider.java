@@ -167,7 +167,7 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 		
 		AppHistoryDbHelper dbHelper =  new AppHistoryDbHelper(context);
 		
-		synchronized (dbHelper) {
+		synchronized (AppHistoryDbHelper.class) {
 			
 			dbHelper.addEmptyPackageAndProcessIfNotExists(componentName.getPackageName(), componentName.getShortClassName());
 		}
