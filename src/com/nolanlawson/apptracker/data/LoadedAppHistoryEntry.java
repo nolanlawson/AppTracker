@@ -170,7 +170,7 @@ public class LoadedAppHistoryEntry {
 		long firstTime = first != null ? first.getTime() : 0;
 		long secondTime = second != null ? second.getTime() : 0;
 		
-		return new Long(firstTime - secondTime).intValue();
+		return new Long(firstTime).compareTo(new Long(secondTime));
 	}
 	
 	

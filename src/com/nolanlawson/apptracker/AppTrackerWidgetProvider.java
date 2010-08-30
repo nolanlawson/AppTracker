@@ -79,8 +79,7 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 			log.d("Simply restarted the service, because it was killed");
 		} else if (Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())
 				|| Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())
-				|| Intent.ACTION_PACKAGE_INSTALL.equals(intent.getAction())
-				|| Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())) {
+				|| Intent.ACTION_PACKAGE_REMOVED.equals(intent.getAction())) {
 			
 			log.d("package change event: %s", intent);
 			
@@ -92,11 +91,12 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 				
 				if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())) {
 					packageInstallEvent(context, packageName);
-					updateWidget(context);
 				} else if (Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())) {
 					packageReplaceEvent(context, packageName);
 				}
 			}
+			
+			updateWidget(context);
 			
 		}
 		

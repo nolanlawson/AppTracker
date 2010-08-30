@@ -9,22 +9,18 @@ import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
@@ -38,10 +34,11 @@ import com.nolanlawson.apptracker.db.SortType;
 import com.nolanlawson.apptracker.helper.ActivityInfoHelper;
 import com.nolanlawson.apptracker.helper.PreferenceHelper;
 import com.nolanlawson.apptracker.helper.ServiceHelper;
+import com.nolanlawson.apptracker.util.ArrayUtil;
 import com.nolanlawson.apptracker.util.Pair;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
-public class AppTrackerActivity extends ListActivity {
+public class AppTrackerActivity extends ListActivity implements OnClickListener {
     
 	public static String ACTION_EXCLUDE_APPS = "com.nolanlawson.apptracker.action.EXCLUDE_APPS";
 	
@@ -52,6 +49,7 @@ public class AppTrackerActivity extends ListActivity {
 	private boolean listLoading = false;
 	
 	private LinearLayout buttonsLinearLayout, appsToExcludeHeaderLinearLayout;
+	private Button mainButton;
 	
 	private LoadedAppHistoryAdapter adapter;
 	private SortType sortType = SortType.Recent;
@@ -224,6 +222,12 @@ public class AppTrackerActivity extends ListActivity {
 		
 		appsToExcludeHeaderLinearLayout = (LinearLayout) findViewById(R.id.apps_to_exclude_header_layout);
 		
+		buttonsLinearLayout = (LinearLayout) findViewById(R.id.main_buttons_linear_layout);
+		
+		mainButton = (Button) findViewById(R.id.main_button);
+		mainButton.setOnClickListener(this);
+		changeButtonData();
+		
 	}
 	
 	private void showFirstRunDialog() {
@@ -355,6 +359,42 @@ public class AppTrackerActivity extends ListActivity {
 		adapter.setSortType(sortType);
 		adapter.sort(excludeAppsMode ? LoadedAppHistoryEntry.orderByLabel() : LoadedAppHistoryEntry.orderBy(sortType));
 		adapter.notifyDataSetInvalidated();
+		
+		changeButtonData();
+		
+	}
+
+	private void changeButtonData() {
+
+		String[] printableSortTypes = getResources().getStringArray(R.array.sort_type_display_list);
+		
+		Drawable drawable = getResources().getDrawable(SortType.getDrawableIcon(sortType));
+		drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+		mainButton.setCompoundDrawables(drawable, null, null, null);
+		mainButton.setText(printableSortTypes[sortType.ordinal()]);
+		
+	}
+
+	@Override
+	public void onClick(View v) {
+
+		String[] entries = getResources().getStringArray(R.array.sort_type_display_list);
+		
+		// disable Alphabetic for now
+		entries = ArrayUtil.copyOf(entries, entries.length - 1);
+		
+		new AlertDialog.Builder(this)
+				.setTitle(R.string.choose_sort_type)
+				.setCancelable(true)
+				.setSingleChoiceItems(entries, sortType.ordinal(), new DialogInterface.OnClickListener(){
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						changeSortType(SortType.values()[which]);
+						dialog.dismiss();
+					}
+				})
+				.show();
 		
 	}
 

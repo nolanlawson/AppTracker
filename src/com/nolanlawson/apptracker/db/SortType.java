@@ -30,4 +30,26 @@ public enum SortType {
 		
 		throw new IllegalArgumentException("Can't find SortType to match: " + name);
 	}
+	
+	public static int getDrawableIcon(SortType sortType) {
+		
+		switch (sortType) {
+			case Alphabetic:
+				return R.drawable.ic_menu_sort_alphabetically;
+			case LeastUsed:
+				return R.drawable.ic_menu_star_off;
+			case MostUsed:
+				return R.drawable.ic_menu_star;
+			case Recent:
+				return R.drawable.ic_menu_clock;
+			case RecentlyInstalled:
+				return R.drawable.ic_menu_add;
+			case RecentlyUpdated:
+				return R.drawable.ic_menu_refresh;
+			case TimeDecay:
+				return R.drawable.ic_menu_recent_history;
+		}
+		
+		throw new IllegalArgumentException("Can't find sortType: " + sortType);
+	}
 }
