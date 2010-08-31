@@ -1,8 +1,12 @@
 package com.nolanlawson.apptracker;
 
+import java.util.Arrays;
+
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
@@ -13,22 +17,24 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.RemoteViews;
-import android.widget.TextView;
 
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
 import com.nolanlawson.apptracker.helper.FreemiumHelper;
 import com.nolanlawson.apptracker.helper.PreferenceHelper;
+import com.nolanlawson.apptracker.util.ArrayUtil;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
 
 public class AppTrackerWidgetConfiguration extends PreferenceActivity implements OnClickListener, OnPreferenceChangeListener {
 
 	private static UtilLogger log = new UtilLogger(AppTrackerWidgetConfiguration.class);
-	
+	 
 	private int appWidgetId;
 	private AppHistoryDbHelper dbHelper;
 	private Button okButton;
+	private ProgressBar progressBar;
 	
 	private CheckBoxPreference lockPagePreference, hideSubtextPreference, hideAppTitlePreference, 
 			stretchToFillPreference;
@@ -49,6 +55,7 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 		
 		appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID);
 		okButton = (Button) findViewById(R.id.config_ok_button);
+		progressBar = (ProgressBar) findViewById(R.id.config_progress_bar);
 		
 		okButton.setOnClickListener(this);
 		
@@ -78,14 +85,49 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 	
 
 	private void completeConfig() {
-		saveConfigurations();
-		setResult();
-		finish();
+		
+		// do in background to avoid jankiness
+		
+		AsyncTask<Void,Void,Void> task = new AsyncTask<Void, Void, Void>(){
+			@Override
+			protected void onPreExecute() {
+				super.onPreExecute();
+				okButton.setVisibility(View.GONE);
+				progressBar.setVisibility(View.VISIBLE);
+			}
+			@Override
+			protected Void doInBackground(Void... params) {
+				saveConfigurations();
+				sendOutBroadcast();
+				return null;
+
+			}
+			@Override
+			protected void onPostExecute(Void result) {
+				super.onPostExecute(result);
+				setResult();
+				finish();	
+				okButton.setVisibility(View.VISIBLE);
+				progressBar.setVisibility(View.GONE);
+			}			
+		};
+		
+		task.execute((Void)null);
 	}
 	
 	private void initializePreferences() {
 		
 		sortTypePreference = (ListPreference) findPreference(R.string.sort_type_preference);
+		sortTypePreference.setSummary(String.format(getText(R.string.sort_type_summary).toString(),sortTypePreference.getEntry()));
+		sortTypePreference.setOnPreferenceChangeListener(this);
+		
+		// TODO: should we enable alphabetic sortings, even if it doesn't list every installed app??
+		sortTypePreference.setEntries(ArrayUtil.copyOf(
+				sortTypePreference.getEntries(), sortTypePreference.getEntries().length - 1));
+		sortTypePreference.setEntryValues(ArrayUtil.copyOf(
+				sortTypePreference.getEntryValues(), sortTypePreference.getEntryValues().length - 1));
+		
+		
 		
 		int numAppHistories;
 		synchronized (AppHistoryDbHelper.class) {
@@ -143,15 +185,19 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 	
 	private void setResult() {
 
-		AppWidgetManager mgr = AppWidgetManager.getInstance(this);
-		RemoteViews views = new RemoteViews(getPackageName(), R.layout.tracker_widget);
-
-		mgr.updateAppWidget(appWidgetId, views);
-
 		Intent result = new Intent();
 
 		result.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
 		setResult(RESULT_OK, result);
+	
+	}
+	
+	private void sendOutBroadcast() {
+
+		AppWidgetManager mgr = AppWidgetManager.getInstance(this);
+		RemoteViews views = new RemoteViews(getPackageName(), R.layout.tracker_widget);
+
+		mgr.updateAppWidget(appWidgetId, views);
 		
         Intent widgetUpdate = new Intent();
         widgetUpdate.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
@@ -162,8 +208,7 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
         // for a split second before it loads
         widgetUpdate.setData(Uri.withAppendedPath(Uri.parse(AppTrackerWidgetProvider.URI_SCHEME + "://widget/id/"), String.valueOf(appWidgetId)));
         
-        sendBroadcast(widgetUpdate);
-	
+        sendBroadcast(widgetUpdate);		
 	}
 
 	private void saveConfigurations() {
@@ -171,7 +216,8 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 		log.d("Saving configurations...");
 		
 		
-		CharSequence sortType = sortTypePreference.getEntry();
+		
+		CharSequence sortType = sortTypePreference.getValue();
 		
 		PreferenceHelper.setSortTypePreference(getApplicationContext(), sortType.toString(), appWidgetId);
 		
@@ -218,6 +264,63 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 	@Override
 	public boolean onPreferenceChange(Preference preference, Object newValue) {
 
+		if (preference.getKey().equals(getText(R.string.sort_type_preference))) {
+			updateSortTypePreference(preference, newValue);
+			
+		} else {
+			updateNonSortTypePreference(preference, newValue);
+		}
+		
+		return true;
+	}
+
+	private void updateSortTypePreference(Preference preference, Object newValue) {
+		
+		// if the sorting is alphabetic, then the subtext has to be disabled no matter what, because
+		// there is no subtext
+		
+		if (newValue.equals(getText(R.string.sort_type_alphabetic))) {
+			hideSubtextPreference.setChecked(true);
+			hideSubtextPreference.setSummary(R.string.hide_subtext_disabled_for_alphabetic);
+			
+			if (FreemiumHelper.isAppTrackerPremiumInstalled(getApplicationContext())) {
+				hideSubtextPreference.setEnabled(false);
+			}
+			
+		} else {
+			
+			if (sortTypePreference.getValue().equals(getText(R.string.sort_type_alphabetic))) {
+				// reset if we're switching back from sort type alphabetic
+				hideSubtextPreference.setChecked(false);
+				hideSubtextPreference.setSummary(R.string.hide_subtext_summary);
+			}
+			
+			if (FreemiumHelper.isAppTrackerPremiumInstalled(getApplicationContext())) {
+		
+				hideSubtextPreference.setEnabled(true);
+			}
+		}
+		
+		stretchToFillPreference.setEnabled(
+				FreemiumHelper.isAppTrackerPremiumInstalled(getApplicationContext()) 
+				&& (hideAppTitlePreference.isChecked() 
+				|| lockPagePreference.isChecked()
+				|| hideSubtextPreference.isChecked()));
+		
+		// show the printable sort type rather than the internal one
+		CharSequence[] entries = sortTypePreference.getEntries();
+		CharSequence[] entryValues = sortTypePreference.getEntryValues();
+		CharSequence newValueAsEntry = entries[Arrays.asList(entryValues).indexOf(newValue)];
+		
+		sortTypePreference.setSummary(String.format(getText(R.string.sort_type_summary).toString(),newValueAsEntry));
+		
+	}
+
+	private void updateNonSortTypePreference(Preference preference,
+			Object newValue) {
+
+		
+		
 		String lockPagePreferenceKey = getResources().getString(R.string.lock_page_preference);
 		String hideAppTitlePreferenceKey = getResources().getString(R.string.hide_app_title_preference);
 		String hideSubtextPreferenceKey = getResources().getString(R.string.hide_subtext_preference);
@@ -245,9 +348,6 @@ public class AppTrackerWidgetConfiguration extends PreferenceActivity implements
 		
 		stretchToFillPreference.setEnabled(enableStretchToFill);
 		
-		return true;
 	}
-	
-	
 		
 }

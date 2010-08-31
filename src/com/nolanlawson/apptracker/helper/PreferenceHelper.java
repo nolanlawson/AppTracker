@@ -3,9 +3,9 @@ package com.nolanlawson.apptracker.helper;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import com.nolanlawson.apptracker.R;
+import com.nolanlawson.apptracker.db.SortType;
 
 
 public class PreferenceHelper {
@@ -54,10 +54,10 @@ public class PreferenceHelper {
 		editor.commit();
 	}
 	
-	public static boolean getHideSubtextPreference(Context context, int appWidgetId) {
+	public static boolean getHideSubtextPreference(Context context, int appWidgetId, SortType sortType) {
 		
 		if (!FreemiumHelper.isAppTrackerPremiumInstalled(context)) {
-			return false;
+			return sortType == SortType.Alphabetic ? true : false;
 		}
 		
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -154,7 +154,7 @@ public class PreferenceHelper {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		
 		return prefs.getString(getSortTypePreferenceName(context, appWidgetId), 
-				context.getResources().getString(R.string.sort_type_recent));
+				context.getResources().getString(R.string.sort_type_recently_used));
 	}
 	
 	public static void setSortTypePreference(Context context, String sortType, int appWidgetId) {

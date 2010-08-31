@@ -26,7 +26,8 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	private static final int DB_VERSION = 3;
 	
 	// table constants
-	private static final String TABLE_NAME = "AppHistoryEntries";
+	public static final String APP_HISTORY_TABLE_NAME = "AppHistoryEntries";
+	private static final String INSTALL_INFO_TABLE_NAME = "PackageInstallInfos";
 	
 	private static final String COLUMN_ID = "_id";
 	private static final String COLUMN_PACKAGE = "package";
@@ -40,14 +41,19 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	private static final String COLUMN_LABEL = "label";
 	private static final String COLUMN_ICON_BLOB = "iconBlob";
 	
+	// columns on the second table only
+	private static final String COLUMN_INSTALL_DATE = "installDate";
+	private static final String COLUMN_UPDATE_DATE = "updateDate";
+	
 	private static final String[] COLUMNS = 
-			{COLUMN_ID, COLUMN_PACKAGE, COLUMN_PROCESS, COLUMN_INSTALLED, COLUMN_EXCLUDED, 
+			{"t1." + COLUMN_ID, "t1." + COLUMN_PACKAGE, COLUMN_PROCESS, COLUMN_INSTALLED, COLUMN_EXCLUDED, 
 			 COLUMN_COUNT, COLUMN_LAST_ACCESS, COLUMN_DECAY_SCORE, COLUMN_LAST_UPDATE,
-			 COLUMN_LABEL, COLUMN_ICON_BLOB};
+			 COLUMN_LABEL, COLUMN_ICON_BLOB, COLUMN_INSTALL_DATE, COLUMN_UPDATE_DATE};
 	
 	private static final String[] SUMMARY_COLUMNS =
-		{COLUMN_ID, COLUMN_INSTALLED, COLUMN_EXCLUDED, 
-		 COLUMN_COUNT, COLUMN_LAST_ACCESS, COLUMN_DECAY_SCORE, COLUMN_LAST_UPDATE};
+		{"t1." + COLUMN_ID, COLUMN_INSTALLED, COLUMN_EXCLUDED, 
+		 COLUMN_COUNT, COLUMN_LAST_ACCESS, COLUMN_DECAY_SCORE, COLUMN_LAST_UPDATE, 
+		 COLUMN_INSTALL_DATE, COLUMN_UPDATE_DATE};
 	
 	private Context context;
 	
@@ -61,7 +67,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		
-		String sql = "create table if not exists " + TABLE_NAME
+		String sql = "create table if not exists " + APP_HISTORY_TABLE_NAME
 		+ " (" +
 		COLUMN_ID + " integer not null primary key autoincrement, " +
 		COLUMN_PACKAGE + " text not null, " +
@@ -78,6 +84,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		
 		db.execSQL(sql);
 		createVersionThreeIndices(db);
+		createInstallInfoTable(db);
 
 	}
 
@@ -85,14 +92,15 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
 		if (oldVersion == 1) {
-			db.execSQL("alter table " + TABLE_NAME + 
+			db.execSQL("alter table " + APP_HISTORY_TABLE_NAME + 
 					" add column " + COLUMN_LABEL + " text ;");
-			db.execSQL("alter table " + TABLE_NAME + 
+			db.execSQL("alter table " + APP_HISTORY_TABLE_NAME + 
 					" add column " + COLUMN_ICON_BLOB + " blob ;");
 		}
 		
 		if (oldVersion <= 2) {
 			createVersionThreeIndices(db);
+			createInstallInfoTable(db);
 		}
 	}
 	
@@ -100,25 +108,44 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		
 		db.execSQL(String.format(
 				"CREATE INDEX IF NOT EXISTS index_package_process on %s (%s,%s);",
-				TABLE_NAME,
+				APP_HISTORY_TABLE_NAME,
 				COLUMN_PACKAGE,
 				COLUMN_PROCESS));
 		
 		db.execSQL(String.format(
 				"CREATE INDEX IF NOT EXISTS index_installed_excluded on %s (%s,%s);",
-				TABLE_NAME,
+				APP_HISTORY_TABLE_NAME,
 				COLUMN_INSTALLED,
 				COLUMN_EXCLUDED));
 		
 		db.execSQL(String.format(
 				"CREATE INDEX IF NOT EXISTS index_decayscore on %s (%s);",
-				TABLE_NAME,
+				APP_HISTORY_TABLE_NAME,
 				COLUMN_DECAY_SCORE));		
 	}
-
+	
+	private void createInstallInfoTable(SQLiteDatabase db) {
+		String sql = "create table if not exists " + INSTALL_INFO_TABLE_NAME
+		+ " (" +
+		COLUMN_ID + " integer not null primary key autoincrement, " +
+		COLUMN_PACKAGE + " text not null, " +
+		COLUMN_INSTALL_DATE + " int, " +
+		COLUMN_UPDATE_DATE + " int " +
+		");";
+		
+		db.execSQL(sql);
+		
+		db.execSQL(String.format(
+				"CREATE INDEX IF NOT EXISTS index_install_info_package on %s (%s);",
+				INSTALL_INFO_TABLE_NAME,
+				COLUMN_PACKAGE));
+		
+	}
+	
 	public void deleteAll() {
 		
-		getWritableDatabase().execSQL("delete from " + TABLE_NAME);
+		getWritableDatabase().execSQL("delete from " + APP_HISTORY_TABLE_NAME);
+		getWritableDatabase().execSQL("delete from " + INSTALL_INFO_TABLE_NAME);
 	}
 
 	// methods
@@ -130,7 +157,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		
 		String whereClause = createObligatoryWhereClause(false);
 		
-		Cursor cursor = getWritableDatabase().query(TABLE_NAME, new String[]{"count(*)"}, whereClause, 
+		Cursor cursor = getWritableDatabase().query(APP_HISTORY_TABLE_NAME, new String[]{"count(*)"}, whereClause, 
 				null, null, null, null);
 		
 		cursor.moveToFirst();
@@ -141,6 +168,25 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		
 		
 	}
+	public List<AppHistoryEntry> findInstalledAppHistoryEntriesWithNullLabels() {
+		
+		String whereClause = createObligatoryWhereClause(true);
+		
+		String sql = "select " + TextUtils.join(",", COLUMNS)
+				+ " from " 
+				+ joinedTables()
+				+ " where " + whereClause
+				+ " and " + COLUMN_LABEL + " is null ";
+		
+		Cursor cursor = getWritableDatabase().rawQuery(sql, null);
+		
+		List<AppHistoryEntry> result = fromCursor(cursor);
+		
+		cursor.close();
+		
+		return result;
+		
+	}
 	
 	public List<AppHistoryEntry> findInstalledAppHistoryEntries(SortType sortType, int limit, int offset,
 			boolean showExcludedApps) {
@@ -149,7 +195,8 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		String whereClause = createObligatoryWhereClause(showExcludedApps);
 		
 		String sql = "select " + TextUtils.join(",", COLUMNS)
-				+ " from " + TABLE_NAME
+				+ " from " 
+				+ joinedTables()
 				+ " where " + whereClause
 				+ orderByClause
 				+ " limit " + limit + " offset " + offset;
@@ -164,14 +211,20 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		
 	}
 	
+	private String joinedTables() {
+		return APP_HISTORY_TABLE_NAME +" t1 left join " + INSTALL_INFO_TABLE_NAME + " t2 " 
+		+ " on t1." + COLUMN_PACKAGE + " = t2." + COLUMN_PACKAGE;
+	}
+
 	public int findCountOfInstalledAppHistoryEntries(SortType sortType, int limit, int offset,
 			boolean showExcludedApps) {
 		
 		String orderByClause = createOrderByClause(sortType);
 		String whereClause = createObligatoryWhereClause(showExcludedApps);
 		
-		String sql = "select " + COLUMN_ID
-				+ " from " + TABLE_NAME
+		String sql = "select t1." + COLUMN_ID
+				+ " from " 
+				+ joinedTables()
 				+ " where " + whereClause
 				+ orderByClause
 				+ " limit " + limit + " offset " + offset;
@@ -187,6 +240,23 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	}
 
 	/**
+	 * Adds a package/process combo with no count and a last used date of 0 if it doesn't exist
+	 * If it does exist, updates the entry to show that it's been reinstalled.
+	 * @param packageName
+	 * @param process
+	 */
+	public void addEmptyPackageAndProcessIfNotExists(String packageName, String process) {
+		
+		AppHistoryEntry existingEntry = findByPackageAndProcess(packageName, process);
+		
+		if (existingEntry == null) {
+			insertNewAppHistoryEntry(packageName, process, System.currentTimeMillis(), true);
+		} else {
+			setInstalled(existingEntry.getId(), true);
+		}
+	}
+	
+	/**
 	 * Increment the count of the specified package and process
 	 * and update its timestamp to be the most recent, or insert if it
 	 * doesn't exist
@@ -200,7 +270,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		if (existingEntry == null) {
 			// create new
 			log.d("inserting new app history: %s, %s", packageName, process);
-			insertNewAppHistoryEntry(packageName, process, currentTime);
+			insertNewAppHistoryEntry(packageName, process, currentTime, false);
 			return;
 		}
 		
@@ -214,7 +284,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 			+ " where %s = ? "
 			+ " and %s = ?";
 		
-		sql = String.format(sql, TABLE_NAME, 
+		sql = String.format(sql, APP_HISTORY_TABLE_NAME, 
 				COLUMN_COUNT, COLUMN_COUNT, 
 				COLUMN_LAST_ACCESS, currentTime,
 				COLUMN_DECAY_SCORE, COLUMN_DECAY_SCORE,	
@@ -230,16 +300,11 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		
 	public AppHistoryEntry findByPackageAndProcess(String packageName, String process) {
 		
-		ContentValues contentValues = new ContentValues();
-		
-		String selection = COLUMN_PACKAGE + "=? and " + COLUMN_PROCESS+"=?";
-		
-		contentValues.put(COLUMN_PACKAGE, packageName);
-		contentValues.put(COLUMN_PROCESS, process);
+		String selection = "t1." + COLUMN_PACKAGE + "=? and " + COLUMN_PROCESS+"=?";
 		
 		String[] bindArgs = {packageName, process};
 		
-		Cursor cursor = getWritableDatabase().query(TABLE_NAME, COLUMNS, selection, bindArgs, null, null, null);
+		Cursor cursor = getWritableDatabase().query(joinedTables(), COLUMNS, selection, bindArgs, null, null, null);
 		
 		List<AppHistoryEntry> result = fromCursor(cursor);
 		
@@ -258,7 +323,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		
 		String whereClause = COLUMN_ID + "=" + id;
 		
-		getWritableDatabase().update(TABLE_NAME, contentValues, whereClause, null);
+		getWritableDatabase().update(APP_HISTORY_TABLE_NAME, contentValues, whereClause, null);
 		
 	}
 	
@@ -270,7 +335,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		
 		String whereClause = COLUMN_ID + "=" + id;
 		
-		getWritableDatabase().update(TABLE_NAME, contentValues, whereClause, null);
+		getWritableDatabase().update(APP_HISTORY_TABLE_NAME, contentValues, whereClause, null);
 		
 	}
 	
@@ -289,7 +354,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	
 	public List<AppHistoryEntry> findAllAppHistoryEntries() {
 		
-		Cursor cursor = getWritableDatabase().query(TABLE_NAME, COLUMNS, null, null, null, null, null);
+		Cursor cursor = getWritableDatabase().query(APP_HISTORY_TABLE_NAME, COLUMNS, null, null, null, null, null);
 		
 		List<AppHistoryEntry> result = fromCursor(cursor);
 		
@@ -304,7 +369,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		
 		String whereClause = COLUMN_DECAY_SCORE + " > " + greaterThan;
 		
-		Cursor cursor = getWritableDatabase().query(TABLE_NAME, SUMMARY_COLUMNS, whereClause, null, null, null, null);
+		Cursor cursor = getWritableDatabase().query(joinedTables(), SUMMARY_COLUMNS, whereClause, null, null, null, null);
 		
 		List<AppHistoryEntrySummary> result = fromCursorToSummaries(cursor);
 		
@@ -327,6 +392,19 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		case TimeDecay:
 			stringBuilder.append(COLUMN_DECAY_SCORE).append(" desc ");
 			break;
+		case LeastUsed:
+			stringBuilder.append(COLUMN_COUNT).append(" ");
+			break;
+		case RecentlyInstalled:
+			stringBuilder.append(COLUMN_INSTALL_DATE).append(" desc ");
+			break;
+		case RecentlyUpdated:
+			stringBuilder.append(COLUMN_UPDATE_DATE).append(" desc ");
+			break;
+		case Alphabetic:
+			stringBuilder.append(COLUMN_LABEL).append(" ");
+			break;
+			
 		}
 		return stringBuilder.toString();
 	}
@@ -339,7 +417,10 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 			AppHistoryEntry appHistoryEntry = AppHistoryEntry.newAppHistoryEntry(
 					cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getInt(3) == 1,
 					cursor.getInt(4) == 1, cursor.getInt(5), new Date(cursor.getLong(6)), cursor.getDouble(7),
-					cursor.getLong(8), cursor.getString(9), cursor.getBlob(10));
+					cursor.getLong(8), cursor.getString(9), cursor.getBlob(10), 
+					cursor.getString(11) == null ? null : new Date(cursor.getLong(11)),
+					cursor.getString(12) == null ? null : new Date(cursor.getLong(12))		
+							);
 			result.add(appHistoryEntry);
 		}
 		
@@ -356,7 +437,10 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 					cursor.getInt(0), cursor.getInt(1) == 1,
 					cursor.getInt(2) == 1, cursor.getInt(3), 
 					new Date(cursor.getLong(4)), cursor.getDouble(5),
-					cursor.getLong(6));
+					cursor.getLong(6),
+					cursor.getString(7) == null ? null : new Date(cursor.getLong(7)),
+					cursor.getString(8) == null ? null : new Date(cursor.getLong(8))		
+							);
 			result.add(appHistoryEntrySummary);
 		}
 		
@@ -364,6 +448,85 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	}
 
 
+	
+	
+	public void updateInstallDate(String packageName, long timestamp) {
+		
+		boolean databaseUpdated = updatePackageRelatedDate(packageName, COLUMN_INSTALL_DATE, timestamp, false);
+		
+		if (!databaseUpdated) {
+			// consider this an update event rather than an install event
+			updatePackageRelatedDate(packageName, COLUMN_UPDATE_DATE, timestamp, true);
+		}
+		
+	}
+	
+	public void updateUpdateDate(String packageName, long timestamp) {
+		
+		updatePackageRelatedDate(packageName, COLUMN_UPDATE_DATE, timestamp, true);
+		
+	}
+	
+	/**
+	 * return true if something in the database was changed
+	 * @param packageName
+	 * @param column
+	 * @param timestamp
+	 * @param installEvent
+	 * @return
+	 */
+	private boolean updatePackageRelatedDate(String packageName, String column, long timestamp, boolean installEvent) {
+		
+		Date oldInstallDate = findDateByPackageName(packageName, column);
+		
+		ContentValues contentValues = new ContentValues();
+		contentValues.put(column, timestamp);
+		
+		if (oldInstallDate == null) { 
+			// not added to database yet
+			contentValues.put(COLUMN_PACKAGE, packageName);
+			getWritableDatabase().insert(INSTALL_INFO_TABLE_NAME, null, contentValues);
+
+			
+			return true;
+		} else if (installEvent) {
+			
+			// the Android market uninstalls and then reinstalls apps, so to detect that
+			// we have to be careful not to overwrite as "new install" when it's really an update
+			// of an existing app that we've already seen before
+			
+			String whereClause = COLUMN_PACKAGE + "=?";
+			String[] whereArgs = new String[]{packageName};
+			
+			getWritableDatabase().update(INSTALL_INFO_TABLE_NAME, contentValues, whereClause, whereArgs);
+			
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	private Date findDateByPackageName(String packageName, String column) {
+		
+		String[] selection = new String[]{column};
+		String whereClause = COLUMN_PACKAGE + "=?";
+		String[] whereArgs = new String[]{packageName};
+		
+		Cursor cursor = getWritableDatabase().query(INSTALL_INFO_TABLE_NAME, selection, whereClause, whereArgs,
+				null, null, null);
+		
+		Date result = null;
+		
+		if (cursor.moveToFirst()) {
+			result = new Date(cursor.getLong(0));
+		}
+		
+		cursor.close();
+		
+		return result;
+		
+	}
+	
 	public void updateDecayScore(AppHistoryEntrySummary appHistoryEntry, long currentTime) {
 		// existing entry; update decay score
 		long lastUpdate = appHistoryEntry.getLastUpdate();
@@ -384,7 +547,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 				appHistoryEntry.getId(), lastScore, newDecayScore);
 		
 		if (newDecayScore < lastScore) {
-			getWritableDatabase().update(TABLE_NAME, contentValues, whereClause, null);
+			getWritableDatabase().update(APP_HISTORY_TABLE_NAME, contentValues, whereClause, null);
 		} else {
 			log.d("old score is lower than new score; not updating");
 		}
@@ -399,7 +562,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		contentValues.put(COLUMN_ICON_BLOB, iconBlob);
 		
 		
-		getWritableDatabase().update(TABLE_NAME, contentValues, whereClause, null);
+		getWritableDatabase().update(APP_HISTORY_TABLE_NAME, contentValues, whereClause, null);
 	}
 	
 	public void setLabel(int appHistoryEntryId, String label) {
@@ -410,7 +573,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		contentValues.put(COLUMN_LABEL, label);
 		
 		
-		getWritableDatabase().update(TABLE_NAME, contentValues, whereClause, null);
+		getWritableDatabase().update(APP_HISTORY_TABLE_NAME, contentValues, whereClause, null);
 	}
 
 	public void clearIconAndLabel(String packageName) {
@@ -423,7 +586,7 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		
 		String[] whereArgs = new String[] { packageName };
 		
-		getWritableDatabase().update(TABLE_NAME, contentValues, whereClause, whereArgs);		
+		getWritableDatabase().update(APP_HISTORY_TABLE_NAME, contentValues, whereClause, whereArgs);		
 	}
 	
 	public void clearAllIcons() {
@@ -431,26 +594,46 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(COLUMN_ICON_BLOB, (byte[])null);
 	
-		getWritableDatabase().update(TABLE_NAME, contentValues, null, null);
+		getWritableDatabase().update(APP_HISTORY_TABLE_NAME, contentValues, null, null);
 		
 	}
 	
 	
-	private void insertNewAppHistoryEntry(String packageName, String process, long currentTime) {
+	private void insertNewAppHistoryEntry(String packageName, String process, long currentTime, boolean empty) {
 		
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(COLUMN_PACKAGE, packageName);
 		contentValues.put(COLUMN_PROCESS, process);
 		contentValues.put(COLUMN_INSTALLED, 1);
 		contentValues.put(COLUMN_EXCLUDED, 0);
-		contentValues.put(COLUMN_COUNT, 1);
-		contentValues.put(COLUMN_LAST_ACCESS, currentTime);
-		contentValues.put(COLUMN_DECAY_SCORE, 1);
+		contentValues.put(COLUMN_COUNT, empty ? 0 : 1);
+		contentValues.put(COLUMN_LAST_ACCESS, empty ? 0 : currentTime);
+		contentValues.put(COLUMN_DECAY_SCORE, empty ? 0.0 : 1);
 		contentValues.put(COLUMN_LAST_UPDATE, currentTime);
-		
+				
+		getWritableDatabase().insert(APP_HISTORY_TABLE_NAME, null, contentValues);
+	}
 
+	/**
+	 * Have to do this when an app is uninstalled so we can detect that it's being RE-installed,
+	 * because the stupid Android Market uninstalls apps and then installs them, so you can't
+	 * detect a RE-install event.
+	 * @param packageName
+	 */
+	public void addEmptyPackageStubIfNotExists(String packageName) {
+
+		Date existingDate = findDateByPackageName(packageName, COLUMN_INSTALL_DATE);
 		
-		getWritableDatabase().insert(TABLE_NAME, null, contentValues);
+		if (existingDate == null) {
+			
+			ContentValues contentValues = new ContentValues();
+			
+			contentValues.put(COLUMN_PACKAGE, packageName);
+			
+			getWritableDatabase().insert(INSTALL_INFO_TABLE_NAME, null, contentValues);
+		
+		}
+		
 	}
 
 

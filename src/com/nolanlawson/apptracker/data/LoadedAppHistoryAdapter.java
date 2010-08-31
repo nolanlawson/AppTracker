@@ -67,7 +67,7 @@ public class LoadedAppHistoryAdapter extends
 		
 		wrapper.icon.setImageBitmap(entry.getIconBitmap());
 		wrapper.title.setText(entry.getTitle());
-		wrapper.description.setText(SubtextHelper.createSubtext(context, sortType, entry.getAppHistoryEntry()));
+		wrapper.description.setText(SubtextHelper.createSubtext(context, sortType, entry.getAppHistoryEntry(), true));
 		wrapper.subtext.setText(entry.getAppHistoryEntry().getPackageName());
 		
 		// do it silently

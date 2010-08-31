@@ -1,5 +1,7 @@
 package com.nolanlawson.apptracker.db;
 
+import java.util.Arrays;
+
 import android.content.Context;
 
 import com.nolanlawson.apptracker.R;
@@ -9,17 +11,45 @@ public enum SortType {
 	
 	Recent,
 	MostUsed,
-	TimeDecay;
+	LeastUsed,
+	RecentlyInstalled,
+	RecentlyUpdated,
+	TimeDecay,
+	Alphabetic
+	;
 
 	public static SortType findByName(Context context, String name) {
 		
-		if (name.equals(context.getResources().getString(R.string.sort_type_recent))) {
-			return Recent;
-		} else if (name.equals(context.getResources().getString(R.string.sort_type_most_used))) {
-			return MostUsed;
-		} else if (name.equals(context.getResources().getString(R.string.sort_type_time_decay))) {
-			return TimeDecay;
+		String[] nameValues = context.getResources().getStringArray(R.array.sort_type_list);
+		
+		int index = Arrays.asList(nameValues).indexOf(name);
+		
+		if (index != -1) {
+			return values()[index];
 		}
+		
 		throw new IllegalArgumentException("Can't find SortType to match: " + name);
+	}
+	
+	public static int getDrawableIcon(SortType sortType) {
+		
+		switch (sortType) {
+			case Alphabetic:
+				return R.drawable.ic_menu_sort_alphabetically;
+			case LeastUsed:
+				return R.drawable.ic_menu_star_off;
+			case MostUsed:
+				return R.drawable.ic_menu_star;
+			case Recent:
+				return R.drawable.ic_menu_clock;
+			case RecentlyInstalled:
+				return R.drawable.ic_menu_add;
+			case RecentlyUpdated:
+				return R.drawable.ic_menu_refresh;
+			case TimeDecay:
+				return R.drawable.ic_menu_recent_history;
+		}
+		
+		throw new IllegalArgumentException("Can't find sortType: " + sortType);
 	}
 }

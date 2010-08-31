@@ -131,7 +131,7 @@ public class WidgetUpdater {
 						activityInfo, packageManager);
 				
 				
-				String subtextText = SubtextHelper.createSubtext(context, sortType, appHistoryEntry);
+				String subtextText = SubtextHelper.createSubtext(context, sortType, appHistoryEntry, false);
 				
 				
 				updateViews.setTextViewText(ResourceIdHelper.getAppTitleId(i), label);
@@ -162,7 +162,7 @@ public class WidgetUpdater {
 		StopWatch stopWatch3 = new StopWatch("a bunch of set() functions");
 		
 		setAppTitleVisibility(context, appWidgetId, updateViews);
-		setSubtextVisibility(context, appWidgetId, updateViews);
+		setSubtextVisibility(context, appWidgetId, updateViews, sortType);
 		setBackgroundVisibility(context, appWidgetId, updateViews);
 		
 		
@@ -221,9 +221,9 @@ public class WidgetUpdater {
 	}
 
 	private static void setSubtextVisibility(Context context,
-			int appWidgetId, RemoteViews updateViews) {
+			int appWidgetId, RemoteViews updateViews, SortType sortType) {
 		
-		boolean hideSubtext = PreferenceHelper.getHideSubtextPreference(context, appWidgetId);
+		boolean hideSubtext = PreferenceHelper.getHideSubtextPreference(context, appWidgetId, sortType);
 		
 		int subTextVisibility = hideSubtext ? chooseGoneOrInvisible(context, appWidgetId) : View.VISIBLE;
 		

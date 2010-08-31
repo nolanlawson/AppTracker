@@ -7,10 +7,31 @@
     <string name="forward_arrow">&gt;</string>
     <string name="sort_type_preference">app_tracker_type</string>
     <string name="sort_type_title">Sorting</string>
-    <string name="sort_type_summary">Recent, Most Used, or Time Decay</string>
-    <string name="sort_type_recent">Recent</string>
+    
+    <string name="choose_sort_type">Choose Sorting</string>
+    
+    <string name="hide_subtext_disabled_for_alphabetic">Alphabetic sorting has no subtext</string>
+    
+    <string name="sort_type_summary">How to order the app icons (%s)</string>
+    
+    <string name="sort_type_recently_used">Recent</string>
     <string name="sort_type_most_used">Most Used</string>
     <string name="sort_type_time_decay">Time Decay</string>
+    <string name="sort_type_recently_installed">Recently Installed</string>
+    <string name="sort_type_recently_updated">Recently Updated</string>
+    <string name="sort_type_least_used">Least Used</string>
+    <string name="sort_type_alphabetic">Alphabetic</string>
+
+    <string name="sort_type_display_recently_used">Recently Used</string>
+    <string name="sort_type_display_most_used">Most Used</string>
+    <string name="sort_type_display_time_decay">Flavor of the Week</string>
+    <string name="sort_type_display_recently_installed">Recently Installed</string>
+    <string name="sort_type_display_recently_updated">Recently Updated</string>
+    <string name="sort_type_display_least_used">Rarely Used</string>
+    <string name="sort_type_display_alphabetic">Alphabetic</string>
+    
+    
+    
     <string name="page_number_preference">page_number</string>
     <string name="page_number_title">Page to Lock</string>
     <string name="page_number_summary">Page of results to show when locked</string>
@@ -36,7 +57,7 @@
     <string name="apps_to_exclude_summary">Choose which apps to omit from the list</string>   
     <string name="time_decay_constant_preference">time_decay_constant</string>
     <string name="time_decay_constant_title">Time Decay Constant</string>
-    <string name="time_decay_constant_summary">Lower values mean app scores decay faster (default: 7)</string>  
+    <string name="time_decay_constant_summary">Lower values mean app scores decay faster in Flavor of the Week view (default: 7)</string>  
     <string name="enable_icon_caching_preference">enable_icon_caching</string>
     <string name="enable_icon_caching_title">Cache App Icons</string>
     <string name="enable_icon_caching_summary">Uncheck this only if App Tracker is taking up too much space</string>   
@@ -66,7 +87,7 @@
     <string name="free_version_text">Note: buy the premium version to unlock grayed-out options.</string>
     <string name="need_premium">You need the Premium version to do that.</string>
     <string name="app_tracker_config">App Tracker Configuration</string>
-    <string name="notification_subtext">Touch to start App Tracker</string>
+    <string name="notification_subtext">Select to start App Tracker.</string>
     <string name="notification_title">App tracking in progress</string>
     <string name="notification_ticker">App tracking started</string>
     <string name="done">Done</string>

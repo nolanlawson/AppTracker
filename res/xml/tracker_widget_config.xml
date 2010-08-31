@@ -6,8 +6,8 @@
 
 	<ListPreference android:key="@string/sort_type_preference"
 		android:title="@string/sort_type_title" android:summary="@string/sort_type_summary"
-		android:entries="@array/sort_type_list" android:entryValues="@array/sort_type_list"
-		android:defaultValue="@string/sort_type_recent" android:persistent="false" />
+		android:entries="@array/sort_type_display_list" android:entryValues="@array/sort_type_list"
+		android:defaultValue="@string/sort_type_recently_used" android:persistent="false" />
 
 	<CheckBoxPreference android:key="@string/lock_page_preference"
 		android:title="@string/lock_page_title" android:summary="@string/lock_page_summary"

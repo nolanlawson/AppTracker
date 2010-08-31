@@ -15,16 +15,19 @@ public class SubtextHelper {
 	private static final String DATE_FORMATTER_STRING = "0.00";
 	
 	public static String createSubtext(Context context, SortType sortType,
-			AppHistoryEntry appHistoryEntry) {
+			AppHistoryEntry appHistoryEntry, boolean abbreviated) {
 		
 		//TODO: make this localizable
 		switch (sortType) {
 		case Recent:
-			return getHumanReadableDateDiff(appHistoryEntry.getLastAccessed());
+			return getHumanReadableDateDiff(appHistoryEntry.getLastAccessed(), false);
 		case MostUsed:
+		case LeastUsed:
 			int count = appHistoryEntry.getCount();
 			
-			if (count == 1) {
+			if (abbreviated) {
+				return Integer.toString(count);
+			} else if (count == 1) {
 				return count +" hit";
 			} else {
 				return count +" hits";
@@ -32,10 +35,19 @@ public class SubtextHelper {
 		case TimeDecay:
 			DecimalFormat decimalFormat = new DecimalFormat(DATE_FORMATTER_STRING);
 			String formattedDecayScore = decimalFormat.format(appHistoryEntry.getDecayScore());
-			return "Score: " + formattedDecayScore;
-		default:
-			throw new IllegalArgumentException("cannot find sortType: " + sortType);
+			return abbreviated ? formattedDecayScore : "Score: " + formattedDecayScore;
+		case Alphabetic:
+			return "";
+		case RecentlyInstalled:
+			return getHumanReadableDateDiff(appHistoryEntry.getInstallDate(), true);
+		case RecentlyUpdated:
+			// whether we say an app was updated "never" or "unknown" depends on
+			// if we know when it was installed or not
+			boolean unknownIfNull = appHistoryEntry.getInstallDate() == null 
+					|| appHistoryEntry.getInstallDate().getTime() == 0L;
+			return getHumanReadableDateDiff(appHistoryEntry.getUpdateDate(), unknownIfNull);
 		}
+		throw new IllegalArgumentException("cannot find sortType: " + sortType);
 	}
 	
 
@@ -44,7 +56,13 @@ public class SubtextHelper {
 	 * @param date
 	 * @return
 	 */
-	public static String getHumanReadableDateDiff(Date pastDate) {
+	public static String getHumanReadableDateDiff(Date pastDate, boolean unknownIfNull) {
+		
+		// TODO: localize
+		if (pastDate == null || pastDate.getTime() == 0) {
+			return unknownIfNull ? "Unknown" : "Never";
+		}
+		
 		Date currentDate = new Date();
 		
 		long timeDiff = currentDate.getTime() - pastDate.getTime();
@@ -72,8 +90,17 @@ public class SubtextHelper {
 			} else {
 				return days +" days ago";
 			}
+		} else if (timeDiff < TimeUnit.SECONDS.toMillis(60 * 60 * 24 * 365)){ // less than a year ago
+			
+			long months = Math.round(TimeUnit.SECONDS.convert(timeDiff, TimeUnit.MILLISECONDS) / (60.0 * 60 * 24 * 30));
+			
+			if (months == 1) {
+				return "1 month ago";
+			} else {
+				return months + " months ago";
+			}
 		} else {
-			return ">1 month ago";
+			return ">1 year ago";
 		}
 	}
 

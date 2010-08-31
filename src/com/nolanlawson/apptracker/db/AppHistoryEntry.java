@@ -19,6 +19,8 @@ public class AppHistoryEntry {
 	private long lastUpdate;
 	private String label;
 	private byte[] iconBlob;
+	private Date installDate;
+	private Date updateDate;
 	
 	public int getId() {
 		return id;
@@ -90,9 +92,25 @@ public class AppHistoryEntry {
 	public void setIconBlob(byte[] iconBlob) {
 		this.iconBlob = iconBlob;
 	}
+	
+	public Date getInstallDate() {
+		return installDate;
+	}
+	public void setInstallDate(Date installDate) {
+		this.installDate = installDate;
+	}
+	
+	
+	public Date getUpdateDate() {
+		return updateDate;
+	}
+	public void setUpdateDate(Date updateDate) {
+		this.updateDate = updateDate;
+	}
 	public static AppHistoryEntry newAppHistoryEntry(
 			int id, String packageName, String process, boolean installed, boolean excluded, int count, 
-			Date lastAccessed, double decayScore, long lastUpdate, String label, byte[] iconBlob) {
+			Date lastAccessed, double decayScore, long lastUpdate, String label, byte[] iconBlob,
+			Date installDate, Date updateDate) {
 		
 		AppHistoryEntry appHistoryEntry = new AppHistoryEntry();
 		appHistoryEntry.setId(id);
@@ -106,6 +124,8 @@ public class AppHistoryEntry {
 		appHistoryEntry.setLastUpdate(lastUpdate);
 		appHistoryEntry.setLabel(label);
 		appHistoryEntry.setIconBlob(iconBlob);
+		appHistoryEntry.setInstallDate(installDate);
+		appHistoryEntry.setUpdateDate(updateDate);
 		
 		return appHistoryEntry;
 		
@@ -116,8 +136,7 @@ public class AppHistoryEntry {
 	@Override
 	public String toString() {
 		return "AppHistoryEntry [count=" + count + ", decayScore=" + decayScore
-				+ ", excluded=" + excluded + ", iconBlob="
-				+ Arrays.toString(iconBlob) + ", id=" + id + ", installed="
+				+ ", excluded=" + excluded + ", id=" + id + ", installed="
 				+ installed + ", label=" + label + ", lastAccessed="
 				+ lastAccessed + ", lastUpdate=" + lastUpdate
 				+ ", packageName=" + packageName + ", process=" + process + "]";

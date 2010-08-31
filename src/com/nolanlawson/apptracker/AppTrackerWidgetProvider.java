@@ -2,8 +2,10 @@ package com.nolanlawson.apptracker;
 
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
 import com.nolanlawson.apptracker.helper.PreferenceHelper;
@@ -76,26 +78,30 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 		} else if (ACTION_RESTART_SERVICE.equals(intent.getAction())) {
 			log.d("Simply restarted the service, because it was killed");
 		} else if (Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())
-				|| Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())) {
+				|| Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())
+				|| Intent.ACTION_PACKAGE_REMOVED.equals(intent.getAction())) {
+			
+			log.d("package change event: %s", intent);
 			
 			if (intent.getData() != null) {
 				
 				String packageName = intent.getData().getEncodedSchemeSpecificPart();
 				
-				log.d("Package was changed; need to clear labels and icon for: %s", packageName);
+				clearIconAndLabel(context, packageName);
 				
-				AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);
-				
-				try {
-					
-					synchronized (AppHistoryDbHelper.class) {
-						dbHelper.clearIconAndLabel(packageName);
-					}
-					
-				} finally {
-					dbHelper.close();
+				if (Intent.ACTION_PACKAGE_REMOVED.equals(intent.getAction())) {
+					// have to add a dummy entry in case it gets updated - stupid
+					// android market removes and then installs apps so you can't tell
+					// that they're being RE-installed
+					packageRemoveEvent(context, packageName);
+				} else if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())) {
+					packageInstallEvent(context, packageName);
+				} else if (Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())) {
+					packageReplaceEvent(context, packageName);
 				}
 			}
+			
+			updateWidget(context);
 			
 		}
 		
@@ -117,6 +123,106 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 
 	}
 
+	private void packageRemoveEvent(Context context, String packageName) {
+		log.d("package removed: %s", packageName);
+		
+		// package has been removed
+		
+		AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);
+		
+		synchronized (AppHistoryDbHelper.class) {
+			dbHelper.addEmptyPackageStubIfNotExists(packageName);
+		}
+		
+		dbHelper.close();			
+	}
+
+	
+	private void packageReplaceEvent(Context context, String packageName) {
+
+		log.d("package reinstalled: %s", packageName);
+		
+		// package has been reinstalled
+		
+		AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);
+		
+		synchronized (AppHistoryDbHelper.class) {
+			dbHelper.updateUpdateDate(packageName, System.currentTimeMillis());
+		}
+		
+		dbHelper.close();	
+		
+		
+		updateActivityLog(context, packageName);
+	}
+
+	private void packageInstallEvent(Context context, String packageName) {
+		
+		log.d("new package installed: %s", packageName);
+		
+		// new package installed!  make a note of this date
+	
+		AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);
+		
+		synchronized (AppHistoryDbHelper.class) {
+			dbHelper.updateInstallDate(packageName, System.currentTimeMillis());
+		}
+		
+		dbHelper.close();
+		
+		updateActivityLog(context, packageName);
+		
+	}
+
+	private void updateActivityLog(Context context, String packageName) {
+		PackageManager packageManager = context.getPackageManager();
+		
+		Intent launchIntent = packageManager.getLaunchIntentForPackage(packageName);
+		
+		log.d("launchIntent is %s", launchIntent);
+		
+		ComponentName componentName = launchIntent.getComponent();
+		
+		log.d("componentName is '%s' / '%s'", componentName.getPackageName(), componentName.getShortClassName());
+		
+		AppHistoryDbHelper dbHelper =  new AppHistoryDbHelper(context);
+		
+		synchronized (AppHistoryDbHelper.class) {
+			
+			dbHelper.addEmptyPackageAndProcessIfNotExists(componentName.getPackageName(), componentName.getShortClassName());
+		}
+		
+		dbHelper.close();
+	}
+
+	private void clearIconAndLabel(Context context, String packageName) {
+		log.d("Package was changed; need to clear labels and icon for: %s", packageName);
+		
+		AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);
+		
+		try {
+			
+			synchronized (AppHistoryDbHelper.class) {
+				dbHelper.clearIconAndLabel(packageName);
+			}
+			
+		} finally {
+			dbHelper.close();
+		}
+		
+	}
+	
+	private static void updateWidget(final Context context) {
+
+
+		AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);
+		
+		WidgetUpdater.updateWidget(context, dbHelper);
+		dbHelper.close();
+
+
+	}
+	
 	private static void updateWidget(final Context context, final int appWidgetId) {
 
 
