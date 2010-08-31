@@ -25,7 +25,7 @@
 		<item>Hit Count</item>
 		<item>Installed</item>
 		<item>Last Updated</item>
-		<item>Decay Score</item>
+		<item>Score</item>
 		<item></item>
 	</string-array>	
 </resources>

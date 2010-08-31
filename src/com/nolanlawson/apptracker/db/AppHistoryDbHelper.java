@@ -452,17 +452,30 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 	
 	public void updateInstallDate(String packageName, long timestamp) {
 		
-		updatePackageRelatedDate(packageName, COLUMN_INSTALL_DATE, timestamp);
+		boolean databaseUpdated = updatePackageRelatedDate(packageName, COLUMN_INSTALL_DATE, timestamp, false);
+		
+		if (!databaseUpdated) {
+			// consider this an update event rather than an install event
+			updatePackageRelatedDate(packageName, COLUMN_UPDATE_DATE, timestamp, true);
+		}
 		
 	}
 	
 	public void updateUpdateDate(String packageName, long timestamp) {
 		
-		updatePackageRelatedDate(packageName, COLUMN_UPDATE_DATE, timestamp);
+		updatePackageRelatedDate(packageName, COLUMN_UPDATE_DATE, timestamp, true);
 		
 	}
 	
-	private void updatePackageRelatedDate(String packageName, String column, long timestamp) {
+	/**
+	 * return true if something in the database was changed
+	 * @param packageName
+	 * @param column
+	 * @param timestamp
+	 * @param installEvent
+	 * @return
+	 */
+	private boolean updatePackageRelatedDate(String packageName, String column, long timestamp, boolean installEvent) {
 		
 		Date oldInstallDate = findDateByPackageName(packageName, column);
 		
@@ -473,14 +486,24 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 			// not added to database yet
 			contentValues.put(COLUMN_PACKAGE, packageName);
 			getWritableDatabase().insert(INSTALL_INFO_TABLE_NAME, null, contentValues);
-		} else {
-			// update
+
+			
+			return true;
+		} else if (installEvent) {
+			
+			// the Android market uninstalls and then reinstalls apps, so to detect that
+			// we have to be careful not to overwrite as "new install" when it's really an update
+			// of an existing app that we've already seen before
 			
 			String whereClause = COLUMN_PACKAGE + "=?";
 			String[] whereArgs = new String[]{packageName};
 			
 			getWritableDatabase().update(INSTALL_INFO_TABLE_NAME, contentValues, whereClause, whereArgs);
-		}		
+			
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	private Date findDateByPackageName(String packageName, String column) {
@@ -589,6 +612,28 @@ public class AppHistoryDbHelper extends SQLiteOpenHelper {
 		contentValues.put(COLUMN_LAST_UPDATE, currentTime);
 				
 		getWritableDatabase().insert(APP_HISTORY_TABLE_NAME, null, contentValues);
+	}
+
+	/**
+	 * Have to do this when an app is uninstalled so we can detect that it's being RE-installed,
+	 * because the stupid Android Market uninstalls apps and then installs them, so you can't
+	 * detect a RE-install event.
+	 * @param packageName
+	 */
+	public void addEmptyPackageStubIfNotExists(String packageName) {
+
+		Date existingDate = findDateByPackageName(packageName, COLUMN_INSTALL_DATE);
+		
+		if (existingDate == null) {
+			
+			ContentValues contentValues = new ContentValues();
+			
+			contentValues.put(COLUMN_PACKAGE, packageName);
+			
+			getWritableDatabase().insert(INSTALL_INFO_TABLE_NAME, null, contentValues);
+		
+		}
+		
 	}
 
 

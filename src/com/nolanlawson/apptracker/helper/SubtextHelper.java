@@ -41,7 +41,11 @@ public class SubtextHelper {
 		case RecentlyInstalled:
 			return getHumanReadableDateDiff(appHistoryEntry.getInstallDate(), true);
 		case RecentlyUpdated:
-			return getHumanReadableDateDiff(appHistoryEntry.getUpdateDate(), true);
+			// whether we say an app was updated "never" or "unknown" depends on
+			// if we know when it was installed or not
+			boolean unknownIfNull = appHistoryEntry.getInstallDate() == null 
+					|| appHistoryEntry.getInstallDate().getTime() == 0L;
+			return getHumanReadableDateDiff(appHistoryEntry.getUpdateDate(), unknownIfNull);
 		}
 		throw new IllegalArgumentException("cannot find sortType: " + sortType);
 	}

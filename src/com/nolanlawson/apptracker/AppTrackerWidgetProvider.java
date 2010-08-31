@@ -89,7 +89,12 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 				
 				clearIconAndLabel(context, packageName);
 				
-				if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())) {
+				if (Intent.ACTION_PACKAGE_REMOVED.equals(intent.getAction())) {
+					// have to add a dummy entry in case it gets updated - stupid
+					// android market removes and then installs apps so you can't tell
+					// that they're being RE-installed
+					packageRemoveEvent(context, packageName);
+				} else if (Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())) {
 					packageInstallEvent(context, packageName);
 				} else if (Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())) {
 					packageReplaceEvent(context, packageName);
@@ -118,6 +123,21 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 
 	}
 
+	private void packageRemoveEvent(Context context, String packageName) {
+		log.d("package removed: %s", packageName);
+		
+		// package has been removed
+		
+		AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(context);
+		
+		synchronized (AppHistoryDbHelper.class) {
+			dbHelper.addEmptyPackageStubIfNotExists(packageName);
+		}
+		
+		dbHelper.close();			
+	}
+
+	
 	private void packageReplaceEvent(Context context, String packageName) {
 
 		log.d("package reinstalled: %s", packageName);
