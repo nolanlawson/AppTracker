@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="com.nolanlawson.apptracker" android:versionCode="5"
-	android:versionName="1.0.4">
+	package="com.nolanlawson.apptracker" android:versionCode="6"
+	android:versionName="1.0.5">
 	
 	<application android:icon="@drawable/holmes_icon" android:label="@string/app_name">
 		<activity android:name=".AppTrackerActivity" android:label="@string/app_name"

@@ -177,9 +177,19 @@ public class AppTrackerWidgetProvider extends AppWidgetProvider {
 	private void updateActivityLog(Context context, String packageName) {
 		PackageManager packageManager = context.getPackageManager();
 		
-		Intent launchIntent = packageManager.getLaunchIntentForPackage(packageName);
+		Intent launchIntent = null;
+		try {
+			launchIntent = packageManager.getLaunchIntentForPackage(packageName);
+		} catch (Exception ex) {
+			log.w(ex, "package name not found: %s", packageName);
+		}
 		
 		log.d("launchIntent is %s", launchIntent);
+		
+		if (launchIntent == null) {
+			log.w("launchIntent is null - maybe this package doesn't have one?: package %s", packageName);
+			return;
+		}
 		
 		ComponentName componentName = launchIntent.getComponent();
 		
