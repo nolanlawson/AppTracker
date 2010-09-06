@@ -1,4 +1,12 @@
 <resources>
+
+	<string-array name="app_touch_choices">
+		<item>@string/choice_launch</item>
+		<item>@string/choice_exclude</item>
+		<item>@string/choice_uninstall</item>
+	
+	</string-array>
+
 	<string-array name="sort_type_list">
 		<item>@string/sort_type_recently_used</item>
 		<item>@string/sort_type_most_used</item>

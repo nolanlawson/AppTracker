@@ -3,8 +3,8 @@ package com.nolanlawson.apptracker;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ListActivity;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -12,9 +12,13 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,11 +26,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.AdapterView.OnItemClickListener;
 
 import com.nolanlawson.apptracker.data.LoadedAppHistoryAdapter;
 import com.nolanlawson.apptracker.data.LoadedAppHistoryEntry;
@@ -40,7 +46,7 @@ import com.nolanlawson.apptracker.util.ArrayUtil;
 import com.nolanlawson.apptracker.util.Pair;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
-public class AppTrackerActivity extends ListActivity implements OnClickListener {
+public class AppTrackerActivity extends Activity implements OnClickListener, OnItemClickListener {
     
 	public static String ACTION_EXCLUDE_APPS = "com.nolanlawson.apptracker.action.EXCLUDE_APPS";
 	
@@ -53,12 +59,14 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener 
 	private LinearLayout buttonsLinearLayout, headerLinearLayout;
 	private Button mainButton;
 	private TextView headerDescriptionTextView;
+	private ListView listView;
 	
 	private LoadedAppHistoryAdapter adapter;
 	private SortType sortType = SortType.Recent;
 	
 	private boolean excludeAppsMode = false;
 	
+	private Handler handler = new Handler(Looper.getMainLooper());
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -129,9 +137,20 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener 
 		super.onConfigurationChanged(newConfig);
 		log.d("onConfigurationChanged()");
 		
+		int indexToView = 0;
+		if (listView.getCount() > 0) {
+			indexToView = listView.getFirstVisiblePosition();
+		}
+		
 		// just redraw the widgets while doing as little work as possible
 		setContentView(R.layout.main);
 		setUpWidgets(true);
+		listView.setAdapter(adapter);
+		
+		// reset the list to the specified index
+		if (listView.getCount() > indexToView) {
+			listView.setSelection(indexToView);
+		}
 		
 		if (excludeAppsMode) {
 			// we're in "exclude apps" mode, so set this up appropriately
@@ -142,13 +161,11 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener 
 	
 		
 	}
-
+	
 	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-		super.onListItemClick(l, v, position, id);
+	public void onItemClick(AdapterView<?> l, View v, int position, long id) {
 		
-		
-		LoadedAppHistoryEntry appHistoryEntry = adapter.getItem(position);
+		final LoadedAppHistoryEntry appHistoryEntry = adapter.getItem(position);
 		
 		if (excludeAppsMode) {
 			// just check the box if we're in exclude apps mode
@@ -158,11 +175,48 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener 
 			
 		} else {
 			
-			// otherwise launch it
+			// otherwise give a choice of options
 			
-			Intent intent = appHistoryEntry.getAppHistoryEntry().toIntent();
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			
-			startActivity(intent);			
+			final String[] choices = getResources().getStringArray(R.array.app_touch_choices);
+			
+			builder.setCancelable(true)
+				.setSingleChoiceItems(R.array.app_touch_choices, -1, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if (choices[which].equals(getApplicationContext().getText(R.string.choice_exclude))) {
+							// exclude
+							AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(getApplicationContext());
+							try {
+								synchronized (AppHistoryDbHelper.class) {
+									dbHelper.setExcluded(appHistoryEntry.getAppHistoryEntry().getId(), true);
+								}
+							} finally {
+								dbHelper.close();
+							}
+							adapter.remove(appHistoryEntry);
+						} else if (choices[which].equals(getApplicationContext().getText(R.string.choice_uninstall))) {
+							// uninstall
+							Uri packageURI = Uri.fromParts("package",appHistoryEntry.getAppHistoryEntry().getPackageName(), null);
+							Intent uninstallIntent = new Intent(Intent.ACTION_DELETE, packageURI);
+
+							startActivity(uninstallIntent);
+						} else {
+							// launch
+							Intent intent = appHistoryEntry.getAppHistoryEntry().toIntent();
+							startActivity(intent);
+						}
+						dialog.dismiss();
+						
+					}
+				})
+				.setTitle(appHistoryEntry.getTitle())
+				.setIcon(new BitmapDrawable(appHistoryEntry.getIconBitmap()))
+				.show();
+			
+		
 		}
 		
 
@@ -233,6 +287,10 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener 
 		mainButton.setOnClickListener(this);
 		
 		headerDescriptionTextView = (TextView) headerLinearLayout.findViewById(R.id.app_history_list_description);
+		
+		listView = (ListView) findViewById(android.R.id.list);
+		listView.setOnItemClickListener(this);
+		
 		changeButtonAndHeaderData();
 		
 	}
@@ -282,9 +340,8 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener 
 		
 		final View progressView = layoutInflater.inflate(R.layout.progress_footer, null);
 		
-		getListView().addFooterView(progressView, null, false);
-
-		setListAdapter(adapter);
+		listView.addFooterView(progressView, null, false);
+		listView.setAdapter(adapter);
 		
 		
 		
@@ -347,7 +404,7 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener 
 			protected void onPostExecute(Void result) {
 				super.onPostExecute(result);
 				
-				getListView().removeFooterView(progressView);
+				listView.removeFooterView(progressView);
 				synchronized (AppTrackerActivity.class) {
 					listLoading = false;
 				}
@@ -365,7 +422,21 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener 
 		sortType = newSortType;
 		adapter.setSortType(sortType);
 		adapter.sort(excludeAppsMode ? LoadedAppHistoryEntry.orderByLabel() : LoadedAppHistoryEntry.orderBy(sortType));
-		adapter.notifyDataSetInvalidated();
+		adapter.notifyDataSetChanged();
+		
+		// reset the list to the beginning
+		
+		handler.post(new Runnable() {
+			
+			@Override
+			public void run() {
+				if (listView.getCount() > 0) {
+					listView.setSelection(0);
+				}
+				
+			}
+		});
+
 		
 		changeButtonAndHeaderData();
 		
@@ -392,7 +463,6 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener 
 			String[] descriptions = getResources().getStringArray(R.array.sort_type_descriptions);
 			headerDescriptionTextView.setText(descriptions[sortType.ordinal()]);
 		}
-		
 	}
 
 	@Override
@@ -417,5 +487,4 @@ public class AppTrackerActivity extends ListActivity implements OnClickListener 
 				.show();
 		
 	}
-
 }

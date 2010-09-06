@@ -95,6 +95,9 @@
     <string name="advanced">Advanced</string>
     <string name="first_run_preference">first_run</string>
     <string name="first_run_title">Welcome to App Tracker!</string>
+    <string name="choice_launch">Launch</string>
+    <string name="choice_exclude">Exclude</string>
+    <string name="choice_uninstall">Uninstall</string>
     <string name="first_run_message">\
 To disable the notification, go to Menu → Settings.\n\n\
 For changelog and version info, go to Menu → About.\n\n\
