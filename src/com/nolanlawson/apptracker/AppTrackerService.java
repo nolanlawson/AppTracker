@@ -286,7 +286,7 @@ public class AppTrackerService extends IntentService {
 					//log.d("skipping line %d", currentLine);
 					continue;
 				}
-				if (line.contains("Starting activity") 
+				if ((line.contains("Starting activity") || line.contains("Starting: Intent")) 
 						&& line.contains("=android.intent.action.MAIN")
 						&& !line.contains("(has extras)")) { // if it has extras, we can't call it (e.g. com.android.phone)
 					log.d("log is %s", line);
