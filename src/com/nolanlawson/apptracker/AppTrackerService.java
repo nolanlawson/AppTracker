@@ -32,6 +32,7 @@ import com.nolanlawson.apptracker.util.UtilLogger;
  * won't get freaked out if they see e.g. "LogReaderService" running on their
  * phone.
  * 
+ * 
  * @author nolan
  * 
  */
@@ -44,8 +45,15 @@ public class AppTrackerService extends IntentService {
 	
 	private static UtilLogger log = new UtilLogger(AppTrackerService.class);
 
+	private static Pattern activityManagerPattern = Pattern.compile("Activity ?Manager");
+	private static Pattern startPattern = Pattern.compile("Starting activity|Starting: Intent|START");
+	
 	private static Pattern launcherPattern = Pattern
 			.compile("\\bco?mp=\\{?([^/]++)/([^ \t}]+)");
+	
+	// seems to be some kind of unconventional Samsung log pattern
+	private static Pattern tryingToLaunchPattern = Pattern
+			.compile("Trying to launch ([^/]++)/([^ \t}]+)");
 	
 	private static Pattern flagPattern = Pattern.compile("\\bfl(?:g|ags)=0x(\\d+)\\b");
 	
@@ -257,9 +265,10 @@ public class AppTrackerService extends IntentService {
 
 		Process logcatProcess = null;
 		BufferedReader reader = null;
+		AppHistoryDbHelper dbHelper = null;
 		
 		try {
-			
+			dbHelper = new AppHistoryDbHelper(this);
 			int numLines = getNumberOfExistingLogLines();
 			
 			log.d("number of existing lines in logcat log is %d", numLines);
@@ -286,65 +295,32 @@ public class AppTrackerService extends IntentService {
 					//log.d("skipping line %d", currentLine);
 					continue;
 				}
-				if ((line.contains("Starting activity") || line.contains("Starting: Intent")) 
-						&& line.contains("=android.intent.action.MAIN")
-						&& !line.contains("(has extras)")) { // if it has extras, we can't call it (e.g. com.android.phone)
-					log.d("log is %s", line);
-					
-
-					AppHistoryDbHelper dbHelper = new AppHistoryDbHelper(getApplicationContext());
-					try {					
-						if (!line.contains("android.intent.category.HOME")) { // ignore home apps
-		
-							Matcher flagMatcher = flagPattern.matcher(line);
-							
-							if (flagMatcher.find()) {
-								String flagsAsString = flagMatcher.group(1);
-								int flags = Integer.parseInt(flagsAsString, 16);
-								
-								log.d("flags are: 0x%s",flagsAsString);
-								
-								// intents have to be "new tasks" and they have to have been launched by the user 
-								// (not like e.g. the incoming call screen)
-								if (FlagUtil.hasFlag(flags, Intent.FLAG_ACTIVITY_NEW_TASK)
-										&& !FlagUtil.hasFlag(flags, Intent.FLAG_ACTIVITY_NO_USER_ACTION)) {
-									
-									Matcher launcherMatcher = launcherPattern.matcher(line);
-		
-									if (launcherMatcher.find()) {
-										String packageName = launcherMatcher.group(1);
-										String process = launcherMatcher.group(2);
-										
-										log.d("package name is: " + packageName);
-										log.d("process name is: " + process);
-										synchronized (AppHistoryDbHelper.class) {
-											dbHelper.incrementAndUpdate(packageName, process);
-										}
-										WidgetUpdater.updateWidget(this, dbHelper);
-									}				
-								}
-								
-							}
-						} else { // home activity
-							// update the widget if it's the home activity, 
-							// so that the widgets stay up-to-date when the home screen is invoked
-							WidgetUpdater.updateWidget(this, dbHelper);							
-						}
-
-					} finally {
-						dbHelper.close();
-						dbHelper = null;
+				
+				AnalyzedLogLine analyzedLogLine = analyzeLogLine(line);
+				
+				if (analyzedLogLine == null) {
+					continue; // not an ActivityManager line
+				} else if (analyzedLogLine.isStartHomeActivity()) {
+					// update the widget if it's the home activity, 
+					// so that the widgets stay up-to-date when the home screen is invoked
+					WidgetUpdater.updateWidget(this, dbHelper);	
+				} else { // valid log line
+				
+					log.d("package name is: " + analyzedLogLine.getPackageName());
+					log.d("process name is: " + analyzedLogLine.getProcessName());
+					synchronized (AppHistoryDbHelper.class) {
+						dbHelper.incrementAndUpdate(analyzedLogLine.getPackageName(), analyzedLogLine.getProcessName());
 					}
+					WidgetUpdater.updateWidget(this, dbHelper);
 				}
 			}
 
-		}
-
-		catch (IOException e) {
+		} catch (IOException e) {
 			log.e(e, "unexpected exception");
-		}
-
-		finally {
+		} finally {
+			if (dbHelper != null) {
+				dbHelper.close();
+			}
 			if (reader != null) {
 				try {
 					reader.close();
@@ -358,9 +334,66 @@ public class AppTrackerService extends IntentService {
 			}
 
 			log.i("AppTrackerService died");
-
 		}
 	}
+
+	private AnalyzedLogLine analyzeLogLine(String line) {
+		
+		if (!lineIsActivityManagerStart(line)) {
+			return null;
+		}
+		
+		if(line.contains("=android.intent.action.MAIN") 
+				&& !line.contains("(has extras)")) {// if it has extras, we can't call it (e.g. com.android.phone)
+			
+			if (line.contains("android.intent.category.HOME")) { // ignore home apps
+				return new AnalyzedLogLine(true, null, null);
+			}
+			
+			// must contain the proper flags
+			if (!lineContainsIncompatibleFlags(line)) {
+				
+				Matcher launcherMatcher = launcherPattern.matcher(line);
+				
+				if (launcherMatcher.find()) {
+					return new AnalyzedLogLine(false, launcherMatcher.group(1), launcherMatcher.group(2));
+				}
+			}
+		}
+		
+		Matcher tryingToLaunchMatcher = tryingToLaunchPattern.matcher(line);
+		
+		if (tryingToLaunchMatcher.find()) {
+			// unconventional Samsung log line
+			return new AnalyzedLogLine(false, tryingToLaunchMatcher.group(1), tryingToLaunchMatcher.group(2));
+		}
+		
+		return null;
+	}
+
+
+	private boolean lineContainsIncompatibleFlags(String line) {
+		Matcher flagMatcher = flagPattern.matcher(line);
+		
+		if (flagMatcher.find()) {
+			String flagsAsString = flagMatcher.group(1);
+			int flags = Integer.parseInt(flagsAsString, 16);
+			
+			log.d("flags are: 0x%s",flagsAsString);
+			
+			// intents have to be "new tasks" and they have to have been launched by the user 
+			// (not like e.g. the incoming call screen)
+			return !FlagUtil.hasFlag(flags, Intent.FLAG_ACTIVITY_NEW_TASK)
+					|| FlagUtil.hasFlag(flags, Intent.FLAG_ACTIVITY_NO_USER_ACTION);
+		}
+		return false;
+	}
+
+
+	private boolean lineIsActivityManagerStart(String line) {
+		return activityManagerPattern.matcher(line).find() && startPattern.matcher(line).find();
+	}
+
 
 	private int getNumberOfExistingLogLines() throws IOException {
 		
@@ -423,6 +456,29 @@ public class AppTrackerService extends IntentService {
         
         log.i("AppTrackerService will restart at %s", new Date(timeToExecute));
         
+	}
+	
+	private static class AnalyzedLogLine {
+		private boolean isStartHomeActivity;
+		private String packageName;
+		private String processName;
+		
+		public AnalyzedLogLine(boolean isStartHomeActivity,
+				String packageName, String processName) {
+			this.isStartHomeActivity = isStartHomeActivity;
+			this.packageName = packageName;
+			this.processName = processName;
+		}
+		
+		public boolean isStartHomeActivity() {
+			return isStartHomeActivity;
+		}
+		public String getPackageName() {
+			return packageName;
+		}
+		public String getProcessName() {
+			return processName;
+		}
 	}
 	
 }

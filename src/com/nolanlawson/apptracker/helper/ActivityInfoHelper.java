@@ -2,21 +2,19 @@ package com.nolanlawson.apptracker.helper;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
-import android.graphics.Bitmap.Config;
 import android.graphics.drawable.Drawable;
 
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
