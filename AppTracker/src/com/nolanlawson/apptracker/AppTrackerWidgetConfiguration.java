@@ -4,15 +4,14 @@ import java.util.Arrays;
 
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.PreferenceActivity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;

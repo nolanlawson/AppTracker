@@ -6,7 +6,6 @@ import android.app.IntentService;
 import android.content.Intent;
 
 import com.nolanlawson.apptracker.db.AppHistoryDbHelper;
-import com.nolanlawson.apptracker.db.AppHistoryEntry;
 import com.nolanlawson.apptracker.db.AppHistoryEntrySummary;
 import com.nolanlawson.apptracker.util.UtilLogger;
 
